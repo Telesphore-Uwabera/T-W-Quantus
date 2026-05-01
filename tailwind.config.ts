@@ -58,9 +58,10 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
         brand: {
-          DEFAULT: "#30575a",
-          light: "#4a7f85",
-          dark: "#1f3c3e",
+          DEFAULT: "#17666a",
+          light: "#2b8f94",
+          dark: "#0b3d40",
+          ink: "#050505",
         },
       },
       borderRadius: {
@@ -93,12 +94,17 @@ export default {
           "0%": { opacity: "0", transform: "translateY(20px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-16px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.6s ease-out",
         "slide-up": "slide-up 0.6s ease-out",
+        float: "float 6s ease-in-out infinite",
       },
     },
   },
