@@ -1,4 +1,28 @@
 [build]
+  command = "pnpm build:client"
+  publish = "dist/spa"
+
+[build.environment]
+  NODE_VERSION = "22"
+  PNPM_VERSION = "10.14.0"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+[build]
 command = "npm run build:client"
 functions = "netlify/functions"
 publish = "dist/spa"

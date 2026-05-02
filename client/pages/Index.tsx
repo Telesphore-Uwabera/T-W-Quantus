@@ -1,7 +1,7 @@
-import { ArrowRight, CalendarDays, MapPin, Minus, Play, Plus, Rocket } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, MapPin, Minus, Play, Plus } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Layout } from "@/components/site/Layout";
 import { Reveal } from "@/components/site/Reveal";
 import { company, services } from "@/data/site";
@@ -13,25 +13,82 @@ const projectCards = [
   { title: "Renovations & Technical Works", location: "Kigali", visual: "project-visual-4" },
 ];
 
-const insights = [
+const latestNews = [
   {
     title: "Cost certainty from feasibility to final account",
-    date: "Quantity Surveying",
+    category: "Quantity Surveying",
+    publicationDate: "01 May 2026",
     summary:
       "How early estimates, BOQs, tender reviews, and final account controls protect project value.",
     visual: "insight-visual-1",
   },
   {
     title: "Managing construction delivery with clearer controls",
-    date: "Project Management",
+    category: "Project Management",
+    publicationDate: "28 Apr 2026",
     summary:
       "A practical view of planning, procurement, site coordination, quality, and stakeholder alignment.",
+    visual: "insight-visual-2",
+  },
+  {
+    title: "Why early cost planning protects client portfolios",
+    category: "Cost Management",
+    publicationDate: "24 Apr 2026",
+    summary:
+      "A look at the decisions that reduce uncertainty before construction procurement begins.",
+    visual: "insight-visual-1",
+  },
+  {
+    title: "Turning site coordination into safer project delivery",
+    category: "Construction Management",
+    publicationDate: "21 Apr 2026",
+    summary:
+      "How daily supervision, HSE control, and trade coordination support reliable execution.",
+    visual: "insight-visual-2",
+  },
+  {
+    title: "The role of BOQs in transparent tendering",
+    category: "Tender Documentation",
+    publicationDate: "18 Apr 2026",
+    summary:
+      "Bills of Quantities help clients compare bids, define scope, and reduce procurement risk.",
+    visual: "insight-visual-1",
+  },
+  {
+    title: "Design coordination for stronger project outcomes",
+    category: "Design Management",
+    publicationDate: "15 Apr 2026",
+    summary:
+      "Why aligning consultants, stakeholders, and scope early improves delivery confidence.",
+    visual: "insight-visual-2",
+  },
+  {
+    title: "Sustainable construction decisions start at concept stage",
+    category: "Sustainability",
+    publicationDate: "11 Apr 2026",
+    summary:
+      "Responsible project planning can reduce waste, improve lifecycle value, and support communities.",
+    visual: "insight-visual-1",
+  },
+  {
+    title: "Technical services for renovation and minor works",
+    category: "Technical Services",
+    publicationDate: "08 Apr 2026",
+    summary:
+      "Renovation success depends on clear scope, material control, technical review, and close supervision.",
     visual: "insight-visual-2",
   },
 ];
 
 export default function Index() {
   const [activeService, setActiveService] = useState(0);
+  const [activeNewsSlide, setActiveNewsSlide] = useState(0);
+  const newsSlideCount = Math.ceil(latestNews.length / 2);
+  const activeNews = latestNews.slice(activeNewsSlide * 2, activeNewsSlide * 2 + 2);
+  const goToPreviousNews = () =>
+    setActiveNewsSlide((slide) => (slide === 0 ? newsSlideCount - 1 : slide - 1));
+  const goToNextNews = () =>
+    setActiveNewsSlide((slide) => (slide === newsSlideCount - 1 ? 0 : slide + 1));
 
   return (
     <Layout>
@@ -42,6 +99,32 @@ export default function Index() {
           animate={{ rotate: 360 }}
           transition={{ duration: 38, repeat: Infinity, ease: "linear" }}
         />
+        <div className="absolute inset-0 grid place-items-center px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 34, scale: 0.94, filter: "blur(14px)" }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.25 }}
+            className="max-w-5xl"
+          >
+            <motion.p
+              className="text-xs font-black uppercase tracking-[0.4em] text-brand-light md:text-sm"
+              animate={{ opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              T&W QUANTUS
+            </motion.p>
+            <h1 className="mt-6 text-4xl font-black leading-[0.98] tracking-tight text-white sm:text-5xl md:text-7xl lg:text-8xl">
+              Building Excellence,
+              <span className="block text-brand-light">Delivering Trust</span>
+            </h1>
+            <motion.div
+              className="mx-auto mt-8 h-px w-28 bg-gradient-to-r from-transparent via-brand-light to-transparent"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 1.1, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            />
+          </motion.div>
+        </div>
         <motion.div
           className="absolute bottom-[12%] left-[12%] grid h-16 w-16 place-items-center rounded-full bg-brand text-white shadow-2xl shadow-brand/40 ring-[18px] ring-brand/20"
           animate={{ scale: [1, 1.08, 1] }}
@@ -49,26 +132,13 @@ export default function Index() {
         >
           <Play className="h-6 w-6 fill-current" />
         </motion.div>
-        <motion.div
-          className="absolute bottom-[9%] right-[5%] hidden md:block"
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <Link
-            to="/contact"
-            aria-label="Contact T&W Quantus"
-            className="grid h-16 w-16 place-items-center rounded-full bg-brand text-white shadow-2xl shadow-brand/40 transition hover:scale-110 hover:bg-brand-light"
-          >
-            <Rocket className="h-6 w-6" />
-          </Link>
-        </motion.div>
       </section>
 
-      <section data-header-theme="light" className="what-we-do-section relative overflow-hidden bg-white px-5 py-20 md:px-8 md:py-28">
+      <section id="services-overview" data-header-theme="light" className="what-we-do-section relative overflow-hidden bg-white px-4 py-14 sm:px-6 md:px-8 md:py-24 lg:py-28">
         <div className="absolute left-[11%] top-40 hidden h-6 w-px bg-brand lg:block" />
         <div className="absolute left-[11%] top-[46%] hidden h-6 w-px bg-brand lg:block" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-14 lg:grid-cols-[80px_1fr]">
+        <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[80px_1fr] lg:gap-14">
           <div className="hidden justify-center lg:flex">
             <div className="origin-top rotate-180 [writing-mode:vertical-rl] text-xs font-black uppercase tracking-[0.22em] text-neutral-400">
               What we do
@@ -76,19 +146,19 @@ export default function Index() {
           </div>
 
           <div>
-            <Reveal>
-              <h2 className="max-w-5xl text-4xl font-black leading-tight tracking-tight text-neutral-950 md:text-5xl lg:text-6xl">
+            <Reveal direction="clip">
+              <h2 className="max-w-5xl text-[2rem] font-black leading-[1.05] tracking-tight text-neutral-950 sm:text-4xl md:text-5xl lg:text-6xl">
                 From the beginning to the end of the built asset lifecycle, {company.shortName} provides
                 a comprehensive suite of integrated services.
               </h2>
             </Reveal>
 
-            <div className="mt-16 grid gap-14 lg:grid-cols-[0.82fr_1.05fr] lg:items-start">
-              <Reveal>
-                <div className="facade-card min-h-[360px] overflow-hidden rounded-none shadow-2xl shadow-black/10" />
+            <div className="mt-10 grid gap-8 sm:mt-12 lg:mt-16 lg:grid-cols-[0.82fr_1.05fr] lg:items-start lg:gap-14">
+              <Reveal direction="left">
+                <div className="facade-card min-h-[240px] overflow-hidden rounded-3xl shadow-2xl shadow-black/10 sm:min-h-[320px] lg:min-h-[360px] lg:rounded-none" />
               </Reveal>
 
-              <Reveal delay={0.1}>
+              <Reveal delay={0.1} direction="right">
                 <div className="divide-y divide-neutral-200">
                   {services.map((service, index) => {
                     const isActive = index === activeService;
@@ -102,7 +172,7 @@ export default function Index() {
                         >
                           <span className="flex items-baseline gap-5">
                             <span className="text-xs font-black text-brand">{service.number}</span>
-                            <span className="text-xl font-black text-neutral-950 md:text-2xl">
+                            <span className="text-lg font-black text-neutral-950 sm:text-xl md:text-2xl">
                               {service.title}
                             </span>
                           </span>
@@ -122,7 +192,7 @@ export default function Index() {
                               {service.summary}
                             </p>
                             <Link
-                              to="/services"
+                              to={`/services/${service.slug}`}
                               className="mt-5 inline-flex border-b-2 border-brand text-sm font-black text-neutral-950 transition hover:text-brand"
                             >
                               View More
@@ -143,10 +213,10 @@ export default function Index() {
         </div>
       </section>
 
-      <section data-header-theme="light" className="what-we-do-section relative overflow-hidden bg-white px-5 py-20 md:px-8 md:py-28">
+      <section data-header-theme="light" className="what-we-do-section relative overflow-hidden bg-white px-4 py-14 sm:px-6 md:px-8 md:py-24 lg:py-28">
         <div className="relative mx-auto max-w-5xl">
-          <Reveal>
-            <h2 className="max-w-4xl text-4xl font-black leading-tight tracking-tight text-neutral-950 md:text-5xl">
+          <Reveal direction="rotate">
+            <h2 className="max-w-4xl text-[2rem] font-black leading-[1.06] tracking-tight text-neutral-950 sm:text-4xl md:text-5xl">
               We focus on providing added value to clients' portfolios and minimizing risk by
               understanding exactly what they need, working collaboratively and transparently to
               gain the insights that bring results.
@@ -158,72 +228,119 @@ export default function Index() {
         </div>
       </section>
 
-      <section data-header-theme="dark" className="grid bg-neutral-950 md:grid-cols-2 lg:grid-cols-4">
+      <section id="projects" data-header-theme="dark" className="project-strip grid bg-neutral-950 md:grid-cols-2 lg:flex">
         {projectCards.map((project, index) => (
           <Link
             key={project.title}
             to="/projects"
-            className={`group project-card ${project.visual} relative min-h-[440px] overflow-hidden p-8 text-white`}
+            className={`group project-card project-card-item ${project.visual} relative min-h-[320px] overflow-hidden p-6 text-white sm:min-h-[380px] sm:p-8 lg:min-h-[440px]`}
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent transition group-hover:from-brand-dark/85" />
+            <div className={`project-card-bg ${project.visual}`} />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent transition duration-700 group-hover:from-brand-dark/85" />
             <div className="relative flex h-full flex-col justify-end">
-              <h3 className="text-xl font-black">{project.title}</h3>
+              <h3 className="max-w-xs text-xl font-black transition duration-700 group-hover:translate-y-[-4px] group-hover:text-2xl">
+                {project.title}
+              </h3>
               <p className="mt-4 flex items-center gap-2 text-sm font-bold">
                 <MapPin className="h-4 w-4 text-brand-light" />
                 {project.location}
               </p>
             </div>
-            <div className="absolute bottom-8 right-8 grid h-12 w-12 place-items-center rounded-full bg-brand opacity-0 transition group-hover:opacity-100">
+            <div className="absolute bottom-8 right-8 grid h-12 w-12 place-items-center rounded-full bg-brand opacity-0 transition duration-500 group-hover:opacity-100">
               <ArrowRight className="h-5 w-5" />
             </div>
           </Link>
         ))}
       </section>
 
-      <section data-header-theme="light" className="relative overflow-hidden bg-white px-5 py-20 md:px-8 md:py-28">
-        <div className="absolute left-[14%] top-24 hidden origin-top rotate-180 [writing-mode:vertical-rl] text-xs font-black uppercase tracking-[0.22em] text-neutral-400 lg:block">
+      <section id="perspectives" data-header-theme="light" className="relative overflow-hidden bg-white px-4 py-14 sm:px-6 md:px-8 md:py-24 lg:py-28">
+        <div className="absolute bottom-0 left-0 top-0 hidden w-[32%] bg-brand-dark lg:block" />
+        <div className="absolute left-[15%] top-64 hidden origin-top rotate-180 [writing-mode:vertical-rl] text-xs font-black uppercase tracking-[0.22em] text-white lg:block">
           Perspectives & News
         </div>
-        <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.25fr_1fr]">
-          <Reveal className="hidden lg:block">
-            <Link to="/about" className="inline-flex border-b-2 border-brand text-sm font-black text-neutral-950">
-              All Perspectives & Insights
-            </Link>
+        <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.28fr_1fr]">
+          <Reveal className="hidden self-end lg:block" direction="skew">
+            <div className="space-y-8 text-white">
+              <div className="flex items-center gap-5 text-xs font-black">
+                <button
+                  type="button"
+                  onClick={goToPreviousNews}
+                  className="transition hover:-translate-x-1 hover:text-brand-light"
+                  aria-label="Previous news slide"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </button>
+                <span>{String(activeNewsSlide + 1).padStart(2, "0")}</span>
+                <span className="text-white/45">|</span>
+                <span>{String(newsSlideCount).padStart(2, "0")}</span>
+                <button
+                  type="button"
+                  onClick={goToNextNews}
+                  className="transition hover:translate-x-1 hover:text-brand-light"
+                  aria-label="Next news slide"
+                >
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+              <Link to="/perspectives" className="inline-flex border-b-2 border-brand-light text-sm font-black text-white">
+                All Perspectives & Insights
+              </Link>
+            </div>
           </Reveal>
 
           <div>
             <div className="mb-10 flex items-center justify-between text-sm font-bold text-neutral-500">
               <span>Perspectives</span>
-              <span>01 May 2026</span>
+              <div className="flex items-center gap-4 lg:hidden">
+                <button type="button" onClick={goToPreviousNews} aria-label="Previous news slide">
+                  <ArrowLeft className="h-4 w-4 text-brand" />
+                </button>
+                <span className="text-neutral-900">
+                  {String(activeNewsSlide + 1).padStart(2, "0")} | {String(newsSlideCount).padStart(2, "0")}
+                </span>
+                <button type="button" onClick={goToNextNews} aria-label="Next news slide">
+                  <ArrowRight className="h-4 w-4 text-brand" />
+                </button>
+              </div>
             </div>
-            <div className="grid gap-10 md:grid-cols-2">
-              {insights.map((insight, index) => (
-                <Reveal key={insight.title} delay={index * 0.08}>
-                  <article>
-                    <div className={`${insight.visual} relative min-h-[370px] overflow-hidden`}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeNewsSlide}
+                className="grid gap-10 md:grid-cols-2"
+                initial={{ opacity: 0, x: 36, filter: "blur(10px)" }}
+                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, x: -36, filter: "blur(10px)" }}
+                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {activeNews.map((news) => (
+                  <article key={news.title}>
+                    <div className="mb-6 text-sm font-bold text-neutral-500">
+                      {news.publicationDate}
+                    </div>
+                    <div className={`${news.visual} relative min-h-[250px] overflow-hidden rounded-3xl sm:min-h-[320px] lg:min-h-[370px] lg:rounded-none`}>
                       <Link to="/services" className="absolute bottom-6 right-6 grid h-14 w-14 place-items-center rounded-full bg-brand text-white transition hover:bg-brand-light">
                         <ArrowRight className="h-5 w-5" />
                       </Link>
                     </div>
                     <div className="mt-9 flex items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-brand">
                       <CalendarDays className="h-4 w-4" />
-                      {insight.date}
+                      {news.category}
                     </div>
                     <h3 className="mt-4 text-2xl font-black leading-tight text-neutral-950">
-                      {insight.title}
+                      {news.title}
                     </h3>
-                    <p className="mt-5 leading-7 text-neutral-600">{insight.summary}</p>
+                    <p className="mt-5 leading-7 text-neutral-600">{news.summary}</p>
                   </article>
-                </Reveal>
-              ))}
-            </div>
+                ))}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
       </section>
 
-      <section data-header-theme="light" className="what-we-do-section relative overflow-hidden bg-white px-5 py-20 md:px-8 md:py-28">
-        <Reveal className="relative mx-auto max-w-5xl">
-          <h2 className="text-4xl font-black leading-tight tracking-tight text-neutral-950 md:text-5xl">
+      <section data-header-theme="light" className="what-we-do-section relative overflow-hidden bg-white px-4 py-14 sm:px-6 md:px-8 md:py-24 lg:py-28">
+        <Reveal className="relative mx-auto max-w-5xl" direction="zoom">
+          <h2 className="text-[2rem] font-black leading-[1.06] tracking-tight text-neutral-950 sm:text-4xl md:text-5xl">
             Registered in Rwanda. Kigali-based construction consultants serving East Africa and
             clients all over the world.
           </h2>
@@ -235,10 +352,10 @@ export default function Index() {
 
       <section data-header-theme="dark" className="relative overflow-hidden bg-brand px-5 py-16 text-white md:px-8">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.22),transparent_24%)]" />
-        <Reveal className="relative mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 md:flex-row md:items-center">
+        <Reveal className="relative mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 md:flex-row md:items-center" direction="clip">
           <div>
             <p className="eyebrow text-white/70">Ready to discuss your project?</p>
-            <h2 className="mt-3 max-w-3xl text-4xl font-black tracking-tight md:text-6xl">
+            <h2 className="mt-3 max-w-3xl text-[2rem] font-black tracking-tight sm:text-4xl md:text-6xl">
               Start with a precise view of cost, scope, and delivery.
             </h2>
           </div>
