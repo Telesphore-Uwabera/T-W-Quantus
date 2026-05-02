@@ -94,7 +94,7 @@ export default function Projects() {
         <Reveal className="mx-auto grid max-w-7xl gap-6 rounded-[1.5rem] bg-white p-5 shadow-sm ring-1 ring-black/5 sm:rounded-[2rem] sm:p-8 md:p-12 lg:grid-cols-[1fr_0.55fr] lg:items-center" direction="zoom">
           <div>
             <p className="eyebrow">Case study ready</p>
-            <h2 className="mt-4 text-[2rem] font-black tracking-tight sm:text-4xl md:text-6xl">
+            <h2 className="mt-4 text-[clamp(2rem,4.8vw,4rem)] font-black leading-[1.05] tracking-tight">
               Add client stories, before-and-after imagery, BOQ outcomes, and delivery metrics here.
             </h2>
           </div>

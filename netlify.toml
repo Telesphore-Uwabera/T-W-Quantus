@@ -1,10 +1,22 @@
 [build]
   command = "pnpm build:client"
   publish = "dist/spa"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "22"
   PNPM_VERSION = "10.14.0"
+
+[functions]
+  external_node_modules = ["express"]
+  node_bundler = "esbuild"
+
+# API routes before SPA fallback
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/*"
@@ -22,17 +34,3 @@
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-[build]
-command = "npm run build:client"
-functions = "netlify/functions"
-publish = "dist/spa"
-
-
-[functions]
-external_node_modules = ["express"]
-node_bundler = "esbuild"
-[[redirects]]
-force = true
-from = "/api/*"
-status = 200
-to = "/.netlify/functions/api/:splat"

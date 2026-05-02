@@ -99,12 +99,12 @@ export default function About() {
 
       <section id="registration" data-header-theme="dark" className="section-padding bg-neutral-950 text-white">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:gap-10">
-          <Reveal direction="left">
-            <p className="eyebrow text-brand-light">Registered scope</p>
-            <h2 className="mt-4 text-[2rem] font-black leading-[1.06] tracking-tight sm:text-4xl md:text-6xl">
+          <Reveal direction="left" className="min-w-0">
+            <p className="eyebrow text-[0.65rem] text-brand-light sm:text-xs">Registered scope</p>
+            <h2 className="mt-3 max-w-2xl text-[clamp(1.35rem,2.1vw+0.55rem,2.25rem)] font-black leading-[1.14] tracking-tight sm:mt-4 xl:max-w-3xl">
               A domestic private company limited by shares, registered in Rwanda.
             </h2>
-            <div className="mt-8 grid gap-4 text-sm font-semibold text-neutral-300">
+            <div className="mt-6 grid gap-4 text-xs font-semibold text-neutral-300 sm:mt-8 sm:text-sm">
               <Info icon={<Building2 />} label="Registered office" value={company.registeredAddress} />
               <Info icon={<Calendar />} label="Last amendment" value={company.amendmentDate} />
               <Info icon={<UserRound />} label="Management" value={company.managingDirector} />
@@ -114,12 +114,16 @@ export default function About() {
           <div className="grid gap-4 md:grid-cols-2 md:gap-5">
             {businessActivities.map((activity, index) => (
               <Reveal key={activity.title} delay={index * 0.05} direction={index % 2 === 0 ? "scale" : "right"}>
-                <div className="h-full rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur sm:p-6">
-                  <div className="text-sm font-black text-brand-light">
+                <div className="h-full min-w-0 rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur sm:p-6">
+                  <div className="text-xs font-black text-brand-light sm:text-sm">
                     {String(index + 1).padStart(2, "0")}
                   </div>
-                  <h3 className="mt-5 text-xl font-black">{activity.title}</h3>
-                  <p className="mt-3 leading-7 text-neutral-400">{activity.description}</p>
+                  <h3 className="mt-4 text-base font-black leading-snug sm:mt-5 sm:text-lg md:text-xl">
+                    {activity.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-neutral-400 sm:mt-3 sm:text-base sm:leading-7">
+                    {activity.description}
+                  </p>
                 </div>
               </Reveal>
             ))}
@@ -132,11 +136,15 @@ export default function About() {
 
 function Info({ icon, label, value }: { icon: JSX.Element; label: string; value: string }) {
   return (
-    <div className="flex gap-4 border-b border-white/10 pb-5 last:border-0 last:pb-0">
-      <span className="text-brand-light [&_svg]:h-5 [&_svg]:w-5">{icon}</span>
-      <div>
-        <div className="text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">{label}</div>
-        <div className="mt-1 font-semibold">{value}</div>
+    <div className="flex min-w-0 gap-4 border-b border-white/10 pb-5 last:border-0 last:pb-0">
+      <span className="shrink-0 text-brand-light [&_svg]:h-4 [&_svg]:w-4 sm:[&_svg]:h-5 sm:[&_svg]:w-5">
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <div className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-neutral-500 sm:text-xs">
+          {label}
+        </div>
+        <div className="mt-1 break-words text-sm font-semibold leading-relaxed sm:text-base">{value}</div>
       </div>
     </div>
   );

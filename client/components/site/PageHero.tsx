@@ -31,7 +31,7 @@ export function PageHero({ eyebrow, title, description, visual = "services" }: P
           Back to Home
         </Link>
         <p className="eyebrow text-brand-light">{eyebrow}</p>
-        <h1 className="mt-5 max-w-4xl text-[2.35rem] font-black leading-[1.02] tracking-tight sm:text-5xl md:text-7xl">
+        <h1 className="mt-5 max-w-4xl text-[clamp(2.35rem,6vw,4.75rem)] font-black leading-[1.02] tracking-tight">
           {title}
         </h1>
         <p className="mt-5 max-w-2xl text-base leading-7 text-neutral-300 sm:mt-6 md:text-xl md:leading-8">

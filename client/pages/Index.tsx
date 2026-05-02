@@ -113,7 +113,7 @@ export default function Index() {
             >
               T&W QUANTUS
             </motion.p>
-            <h1 className="mt-6 text-4xl font-black leading-[0.98] tracking-tight text-white sm:text-5xl md:text-7xl lg:text-8xl">
+            <h1 className="mt-6 text-[clamp(2.6rem,8vw,6rem)] font-black leading-[0.98] tracking-tight text-white">
               Building Excellence,
               <span className="block text-brand-light">Delivering Trust</span>
             </h1>
@@ -147,7 +147,7 @@ export default function Index() {
 
           <div>
             <Reveal direction="clip">
-              <h2 className="max-w-5xl text-[2rem] font-black leading-[1.05] tracking-tight text-neutral-950 sm:text-4xl md:text-5xl lg:text-6xl">
+              <h2 className="max-w-5xl text-[clamp(2rem,4.5vw,4rem)] font-black leading-[1.05] tracking-tight text-neutral-950">
                 From the beginning to the end of the built asset lifecycle, {company.shortName} provides
                 a comprehensive suite of integrated services.
               </h2>
@@ -216,7 +216,7 @@ export default function Index() {
       <section data-header-theme="light" className="what-we-do-section relative overflow-hidden bg-white px-4 py-14 sm:px-6 md:px-8 md:py-24 lg:py-28">
         <div className="relative mx-auto max-w-5xl">
           <Reveal direction="rotate">
-            <h2 className="max-w-4xl text-[2rem] font-black leading-[1.06] tracking-tight text-neutral-950 sm:text-4xl md:text-5xl">
+            <h2 className="max-w-4xl text-[clamp(2rem,4vw,3.5rem)] font-black leading-[1.06] tracking-tight text-neutral-950">
               We focus on providing added value to clients' portfolios and minimizing risk by
               understanding exactly what they need, working collaboratively and transparently to
               gain the insights that bring results.
@@ -340,7 +340,7 @@ export default function Index() {
 
       <section data-header-theme="light" className="what-we-do-section relative overflow-hidden bg-white px-4 py-14 sm:px-6 md:px-8 md:py-24 lg:py-28">
         <Reveal className="relative mx-auto max-w-5xl" direction="zoom">
-          <h2 className="text-[2rem] font-black leading-[1.06] tracking-tight text-neutral-950 sm:text-4xl md:text-5xl">
+          <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black leading-[1.06] tracking-tight text-neutral-950">
             Registered in Rwanda. Kigali-based construction consultants serving East Africa and
             clients all over the world.
           </h2>
@@ -355,7 +355,7 @@ export default function Index() {
         <Reveal className="relative mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 md:flex-row md:items-center" direction="clip">
           <div>
             <p className="eyebrow text-white/70">Ready to discuss your project?</p>
-            <h2 className="mt-3 max-w-3xl text-[2rem] font-black tracking-tight sm:text-4xl md:text-6xl">
+            <h2 className="mt-3 max-w-3xl text-[clamp(2rem,4.8vw,4rem)] font-black leading-[1.05] tracking-tight">
               Start with a precise view of cost, scope, and delivery.
             </h2>
           </div>

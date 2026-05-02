@@ -67,7 +67,7 @@ export default function ServiceDetail() {
             <p className="mt-8 text-xs font-black uppercase tracking-[0.24em] text-brand-light sm:mt-12 sm:tracking-[0.34em]">
               {company.shortName} / {service.number}
             </p>
-            <h1 className="mt-5 max-w-5xl text-[2.35rem] font-black leading-[1.02] tracking-tight sm:mt-6 sm:text-5xl md:text-7xl md:leading-[0.95]">
+            <h1 className="mt-5 max-w-5xl text-[clamp(2.35rem,6vw,4.75rem)] font-black leading-[1.02] tracking-tight sm:mt-6 md:leading-[0.95]">
               {service.title}
             </h1>
             <p className="mt-6 max-w-3xl text-base leading-7 text-neutral-200 sm:mt-7 md:text-xl md:leading-8">
@@ -103,8 +103,8 @@ export default function ServiceDetail() {
               <h2
                 className={
                   isDarkCards
-                    ? "mt-4 text-[2rem] font-black leading-[1.06] tracking-tight text-white sm:text-4xl md:text-6xl"
-                    : "mt-4 text-[2rem] font-black leading-[1.06] tracking-tight text-neutral-950 sm:text-4xl md:text-6xl"
+                    ? "mt-4 text-[clamp(2rem,4.8vw,4rem)] font-black leading-[1.06] tracking-tight text-white"
+                    : "mt-4 text-[clamp(2rem,4.8vw,4rem)] font-black leading-[1.06] tracking-tight text-neutral-950"
                 }
               >
                 {service.pageTitle}
@@ -176,7 +176,7 @@ export default function ServiceDetail() {
         <Reveal className="relative mx-auto flex max-w-7xl flex-col justify-between gap-8 md:flex-row md:items-center">
           <div>
             <p className="eyebrow text-brand-light">Next step</p>
-            <h2 className="mt-4 max-w-4xl text-[2rem] font-black leading-[1.06] tracking-tight sm:text-4xl md:text-6xl">
+            <h2 className="mt-4 max-w-4xl text-[clamp(2rem,4.8vw,4rem)] font-black leading-[1.06] tracking-tight">
               Let us align scope, cost, timeline, and delivery controls for your project.
             </h2>
           </div>

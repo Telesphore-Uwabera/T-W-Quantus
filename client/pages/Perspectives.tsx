@@ -29,7 +29,7 @@ export default function Perspectives() {
                     <CalendarDays className="h-4 w-4" />
                     {item.date} / {item.category}
                   </div>
-                  <h2 className="mt-8 max-w-3xl text-4xl font-black leading-tight tracking-tight text-neutral-950 md:text-6xl">
+                  <h2 className="mt-8 max-w-3xl text-[clamp(2rem,4.5vw,4rem)] font-black leading-tight tracking-tight text-neutral-950">
                     {item.title}
                   </h2>
                   <p className="mt-6 max-w-2xl leading-8 text-neutral-600">{item.summary}</p>

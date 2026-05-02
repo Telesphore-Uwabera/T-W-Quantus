@@ -22,29 +22,32 @@ export default function Contact() {
       />
 
       <section id="request-consultation" data-header-theme="light" className="section-padding bg-white">
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-10">
-          <Reveal direction="left">
-            <div className="overflow-hidden rounded-[1.5rem] bg-neutral-950 text-white lg:sticky lg:top-28 lg:rounded-[2rem]">
-              <div className="contact-map-visual min-h-52 p-5 sm:min-h-72 sm:p-8">
-                <div className="relative z-10 inline-flex rounded-full bg-black/45 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-white backdrop-blur">
-                  Kigali, Rwanda
+        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-stretch lg:gap-10">
+          {/* Sticky wrapper must sit outside Reveal: motion transforms break position:sticky on descendants. */}
+          <div className="lg:sticky lg:top-28 lg:z-10 lg:h-full lg:min-h-0">
+            <Reveal direction="left" className="h-full min-h-0">
+              <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[1.5rem] bg-neutral-950 text-white lg:rounded-[2rem]">
+                <div className="contact-map-visual flex min-h-52 flex-1 flex-col p-5 sm:min-h-72 sm:p-8">
+                  <div className="relative z-10 inline-flex rounded-full bg-black/45 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-white backdrop-blur">
+                    Kigali, Rwanda
+                  </div>
+                </div>
+                <div className="shrink-0 p-5 sm:p-8">
+                  <h2 className="text-2xl font-black sm:text-3xl">Contact details</h2>
+                  <div className="mt-6 space-y-5 sm:mt-8 sm:space-y-6">
+                    <ContactItem icon={<MapPin />} label="Office" value={company.registeredAddress} />
+                    <ContactItem icon={<Phone />} label="Phone" value={company.phone} href={company.phoneHref} />
+                    <ContactItem icon={<Mail />} label="Email" value={company.email} href={company.emailHref} />
+                  </div>
                 </div>
               </div>
-              <div className="p-5 sm:p-8">
-              <h2 className="text-2xl font-black sm:text-3xl">Contact details</h2>
-              <div className="mt-6 space-y-5 sm:mt-8 sm:space-y-6">
-                <ContactItem icon={<MapPin />} label="Office" value={company.registeredAddress} />
-                <ContactItem icon={<Phone />} label="Phone" value={company.phone} href={company.phoneHref} />
-                <ContactItem icon={<Mail />} label="Email" value={company.email} href={company.emailHref} />
-              </div>
-              </div>
-            </div>
-          </Reveal>
+            </Reveal>
+          </div>
 
-          <Reveal delay={0.1} direction="right">
-            <div className="min-w-0 rounded-[1.5rem] border border-black/10 p-4 shadow-sm sm:p-6 md:rounded-[2rem] md:p-10">
+          <Reveal delay={0.1} direction="right" className="min-h-0 lg:h-full">
+            <div className="flex h-full min-h-0 min-w-0 flex-col rounded-[1.5rem] border border-black/10 p-4 shadow-sm sm:p-6 md:rounded-[2rem] md:p-10">
               <p className="eyebrow">Request consultation</p>
-              <h2 className="mt-4 text-[2rem] font-black leading-[1.04] tracking-tight sm:text-4xl md:text-6xl">
+              <h2 className="mt-4 whitespace-nowrap text-[clamp(0.8125rem,calc(0.55rem+2.75vw),2.75rem)] font-black leading-[1.04] tracking-tight">
                 Tell us what you are building.
               </h2>
               <p className="mt-5 text-base leading-7 text-neutral-600 sm:leading-8">
@@ -108,24 +111,6 @@ export default function Contact() {
                   Send Message <Send className="ml-2 h-5 w-5" />
                 </button>
               </form>
-
-              <div className="mt-8 grid gap-3 sm:mt-10 sm:gap-4 md:grid-cols-2">
-                {services.map((service) => (
-                  <div key={service.title} className="rounded-2xl bg-neutral-100 p-4 sm:p-5">
-                    <div className="text-sm font-black text-brand">{service.number}</div>
-                    <div className="mt-3 font-black text-neutral-950">{service.title}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:gap-4">
-                <a href={company.emailHref} className="btn-brand w-full sm:w-auto">
-                  Email Us <Send className="ml-2 h-5 w-5" />
-                </a>
-                <a href={company.phoneHref} className="btn-outline w-full sm:w-auto">
-                  Call {company.phone}
-                </a>
-              </div>
             </div>
           </Reveal>
         </div>
@@ -137,7 +122,7 @@ export default function Contact() {
             <p className="eyebrow">FAQs</p>
             <h2 className="section-title mt-4">Questions before starting a project?</h2>
           </Reveal>
-          <div className="mt-10 grid gap-4 lg:mt-12 lg:grid-cols-2 lg:gap-5">
+          <div className="mt-10 grid gap-4 lg:mt-12 lg:grid-cols-2 lg:gap-5 lg:items-stretch">
             {[
               {
                 question: "What information should I share for a first consultation?",
@@ -170,13 +155,22 @@ export default function Contact() {
                   "For urgent project inquiries, call directly. For email or form submissions, include clear project details so the team can respond with the right next step.",
               },
             ].map((item, index) => (
-              <Reveal key={item.question} delay={index * 0.05} direction={index % 2 === 0 ? "up" : "scale"}>
-                <details className="group rounded-[1.25rem] bg-white p-4 shadow-sm ring-1 ring-black/5 sm:rounded-[1.5rem] sm:p-6">
-                  <summary className="cursor-pointer list-none text-base font-black text-neutral-950 sm:text-xl">
-                    {item.question}
-                    <span className="float-right text-brand transition group-open:rotate-45">+</span>
+              <Reveal
+                key={item.question}
+                className="min-h-0 lg:h-full"
+                delay={index * 0.05}
+                direction={index % 2 === 0 ? "up" : "scale"}
+              >
+                <details className="group flex h-full min-h-0 flex-col rounded-[1.25rem] bg-white p-4 shadow-sm ring-1 ring-black/5 sm:rounded-[1.5rem] sm:p-6">
+                  <summary className="flex cursor-pointer list-none items-start justify-between gap-3 text-base font-black text-neutral-950 sm:text-xl [&::-webkit-details-marker]:hidden">
+                    <span className="min-w-0 flex-1 pr-1">{item.question}</span>
+                    <span className="mt-0.5 shrink-0 text-lg leading-none text-brand transition group-open:rotate-45 sm:text-xl">
+                      +
+                    </span>
                   </summary>
-                  <p className="mt-4 leading-7 text-neutral-600">{item.answer}</p>
+                  <div className="mt-4 flex min-h-0 flex-1 flex-col border-t border-transparent pt-0">
+                    <p className="leading-7 text-neutral-600">{item.answer}</p>
+                  </div>
                 </details>
               </Reveal>
             ))}

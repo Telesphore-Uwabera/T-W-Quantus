@@ -122,7 +122,9 @@
   }
 
   .section-title {
-    @apply text-[2rem] leading-[1.05] sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight;
+    @apply font-black tracking-tight;
+    font-size: clamp(2rem, 4.4vw, 4rem);
+    line-height: 1.04;
   }
 
   .eyebrow {

@@ -45,7 +45,7 @@ export default function PerspectiveDetail() {
               <CalendarDays className="h-4 w-4" />
               {perspective.date} / {perspective.category}
             </div>
-            <h1 className="mt-6 text-5xl font-black leading-[0.95] tracking-tight md:text-7xl">
+            <h1 className="mt-6 text-[clamp(2.35rem,6vw,4.75rem)] font-black leading-[1.02] tracking-tight md:leading-[0.95]">
               {perspective.title}
             </h1>
             <p className="mt-7 text-lg leading-8 text-neutral-200 md:text-xl">{perspective.intro}</p>
