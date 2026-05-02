@@ -12,7 +12,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import type { ReactNode } from "react";
+import { toast } from "sonner";
 import { company, navigation, perspectives, services } from "@/data/site";
+import { submitNewsletter } from "@/lib/api";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 
@@ -88,6 +90,7 @@ export function Layout({ children }: LayoutProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [newsletterBusy, setNewsletterBusy] = useState(false);
   const [isHeroVisible, setIsHeroVisible] = useState(false);
   const [isHeaderOnDark, setIsHeaderOnDark] = useState(true);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -626,19 +629,39 @@ export function Layout({ children }: LayoutProps) {
                     Get updates on construction insights, project controls, and T&W Quantus news.
                   </p>
                 </div>
-                <form className="flex items-center gap-4" onSubmit={(event) => event.preventDefault()}>
+                <form
+                  className="flex items-center gap-4"
+                  onSubmit={async (event) => {
+                    event.preventDefault();
+                    const el = event.currentTarget.elements.namedItem("newsletter-email") as HTMLInputElement | null;
+                    const email = el?.value?.trim();
+                    if (!email) return;
+                    setNewsletterBusy(true);
+                    try {
+                      const r = await submitNewsletter(email);
+                      toast.success(r.duplicate ? "You are already subscribed." : "Thanks for subscribing!");
+                      if (el) el.value = "";
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : "Could not subscribe.");
+                    } finally {
+                      setNewsletterBusy(false);
+                    }
+                  }}
+                >
                   <label className="sr-only" htmlFor="newsletter-email">
                     Your email address
                   </label>
                   <input
                     id="newsletter-email"
+                    name="newsletter-email"
                     type="email"
                     placeholder="Your e-mail address"
                     className="min-w-0 flex-1 border-0 border-b border-white/25 bg-transparent px-0 py-3 text-sm text-white outline-none transition placeholder:text-neutral-500 focus:border-brand-light"
                   />
                   <button
                     type="submit"
-                    className="grid h-12 w-12 flex-none place-items-center rounded-full bg-brand text-white transition hover:scale-110 hover:bg-brand-light"
+                    disabled={newsletterBusy}
+                    className="grid h-12 w-12 flex-none place-items-center rounded-full bg-brand text-white transition hover:scale-110 hover:bg-brand-light disabled:opacity-60"
                     aria-label="Subscribe"
                   >
                     <ArrowRight className="h-5 w-5" />

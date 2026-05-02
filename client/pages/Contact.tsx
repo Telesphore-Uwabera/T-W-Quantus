@@ -1,8 +1,11 @@
 import { Mail, MapPin, Phone, Send } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Layout } from "@/components/site/Layout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { company, services } from "@/data/site";
+import { submitContact } from "@/lib/api";
 import {
   Select,
   SelectContent,
@@ -12,6 +15,9 @@ import {
 } from "@/components/ui/select";
 
 export default function Contact() {
+  const [service, setService] = useState<string>("");
+  const [sending, setSending] = useState(false);
+
   return (
     <Layout>
       <PageHero
@@ -58,9 +64,31 @@ export default function Contact() {
 
               <form
                 className="mt-8 grid min-w-0 gap-4 sm:mt-10 sm:gap-5"
-                onSubmit={(event) => {
+                onSubmit={async (event) => {
                   event.preventDefault();
-                  window.location.href = company.emailHref;
+                  const form = event.currentTarget;
+                  const fd = new FormData(form);
+                  const name = String(fd.get("name") ?? "").trim();
+                  const email = String(fd.get("email") ?? "").trim();
+                  const phone = String(fd.get("phone") ?? "").trim();
+                  const message = String(fd.get("message") ?? "").trim();
+                  setSending(true);
+                  try {
+                    await submitContact({
+                      name,
+                      email,
+                      phone: phone || undefined,
+                      service: service || undefined,
+                      message,
+                    });
+                    toast.success("Message received. We will get back to you soon.");
+                    form.reset();
+                    setService("");
+                  } catch (e) {
+                    toast.error(e instanceof Error ? e.message : "Could not send. Try email or phone.");
+                  } finally {
+                    setSending(false);
+                  }
                 }}
               >
                 <div className="grid min-w-0 gap-4 md:grid-cols-2 md:gap-5">
@@ -80,7 +108,7 @@ export default function Contact() {
                   </label>
                   <label className="contact-field">
                     <span>Project Type</span>
-                    <Select name="service">
+                    <Select value={service || undefined} onValueChange={setService}>
                       <SelectTrigger className="h-auto min-w-0 rounded-2xl border-black/10 bg-white px-4 py-4 text-base font-semibold text-neutral-950 shadow-none transition focus:ring-4 focus:ring-brand/10 sm:px-5">
                         <SelectValue placeholder="Select service" />
                       </SelectTrigger>
@@ -107,8 +135,8 @@ export default function Contact() {
                     required
                   />
                 </label>
-                <button type="submit" className="btn-brand justify-self-start">
-                  Send Message <Send className="ml-2 h-5 w-5" />
+                <button type="submit" className="btn-brand justify-self-start" disabled={sending}>
+                  {sending ? "Sending…" : "Send Message"} <Send className="ml-2 h-5 w-5" />
                 </button>
               </form>
             </div>

@@ -1,0 +1,21 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# After first deploy, add secret env vars in the dashboard (Mongo URI, JWT, Cloudinary, etc.).
+
+services:
+  - type: web
+    name: tw-quantus
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/ping
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_DB_NAME
+        value: TW-Quantus
+      # Add in dashboard (Secrets): MONGODB_URI, ADMIN_EMAIL, ADMIN_PASSWORD,
+      # ADMIN_JWT_SECRET, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, NEWS_API_KEY

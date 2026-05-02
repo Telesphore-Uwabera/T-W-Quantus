@@ -15,7 +15,6 @@ export default defineConfig({
     ssr: true,
     rollupOptions: {
       external: [
-        // Node.js built-ins
         "fs",
         "path",
         "url",
@@ -29,9 +28,12 @@ export default defineConfig({
         "buffer",
         "querystring",
         "child_process",
-        // External dependencies that should not be bundled
         "express",
         "cors",
+        "mongodb",
+        "cloudinary",
+        "jsonwebtoken",
+        "multer",
       ],
       output: {
         format: "es",

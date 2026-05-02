@@ -19,6 +19,7 @@ const Perspectives = lazy(() => import("./pages/Perspectives"));
 const PerspectiveDetail = lazy(() => import("./pages/PerspectiveDetail"));
 const Contact = lazy(() => import("./pages/Contact"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Admin = lazy(() => import("./pages/Admin"));
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ function AnimatedRoutes() {
             <Route path="/perspectives" element={<Perspectives />} />
             <Route path="/perspectives/:slug" element={<PerspectiveDetail />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
@@ -78,14 +80,24 @@ function PageLoader() {
   );
 }
 
+function Shell() {
+  const location = useLocation();
+  const hideFloating = location.pathname.startsWith("/admin");
+  return (
+    <>
+      <AnimatedRoutes />
+      {!hideFloating && <FloatingContactButton />}
+    </>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AnimatedRoutes />
-        <FloatingContactButton />
+        <Shell />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
