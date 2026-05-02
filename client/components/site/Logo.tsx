@@ -7,6 +7,8 @@ type LogoProps = {
   compact?: boolean;
   inverted?: boolean;
   showSlogan?: boolean;
+  /** Stack logo above wordmark on narrow screens (e.g. footer) so long slogans stay one line. */
+  stackOnSmall?: boolean;
 };
 
 export function Logo({
@@ -14,9 +16,17 @@ export function Logo({
   compact = false,
   inverted = false,
   showSlogan = true,
+  stackOnSmall = false,
 }: LogoProps) {
   return (
-    <Link to="/" className={cn("group flex items-center gap-3", className)}>
+    <Link
+      to="/"
+      className={cn(
+        "group flex items-center gap-3",
+        stackOnSmall && "max-sm:flex-col max-sm:items-start max-sm:gap-2",
+        className,
+      )}
+    >
       <span className="logo-cloud grid h-16 w-16 place-items-center transition group-hover:scale-105 sm:h-20 sm:w-20 lg:h-24 lg:w-24">
         <img
           src={company.logo}
@@ -25,7 +35,7 @@ export function Logo({
         />
       </span>
       {!compact && (
-        <span className="leading-none">
+        <span className="min-w-0 leading-none">
           <span
             className={cn(
               "block text-sm font-black tracking-[0.22em]",
@@ -35,7 +45,7 @@ export function Logo({
             T&W QUANTUS
           </span>
           {showSlogan && (
-            <span className="mt-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-brand">
+            <span className="mt-1 block whitespace-nowrap text-[clamp(0.5rem,calc(0.32rem+1.65vw),0.6875rem)] font-semibold uppercase leading-none tracking-[0.1em] text-brand sm:tracking-[0.18em]">
               {company.slogan}
             </span>
           )}

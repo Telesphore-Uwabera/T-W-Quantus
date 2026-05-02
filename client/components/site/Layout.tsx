@@ -586,7 +586,7 @@ export function Layout({ children }: LayoutProps) {
         <div className="relative mx-auto max-w-7xl px-5 py-20 md:px-8 lg:py-28">
           <div className="grid gap-12 lg:grid-cols-[1.25fr_0.8fr] lg:items-start">
             <div>
-              <Logo className="mb-12" inverted />
+              <Logo className="mb-12 max-w-full" inverted stackOnSmall />
 
               <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
                 <FooterColumn
