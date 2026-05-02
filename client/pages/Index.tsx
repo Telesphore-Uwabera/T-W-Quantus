@@ -254,11 +254,11 @@ export default function Index() {
       </section>
 
       <section id="perspectives" data-header-theme="light" className="relative overflow-hidden bg-white px-4 py-14 sm:px-6 md:px-8 md:py-24 lg:py-28">
-        <div className="absolute bottom-0 left-0 top-0 hidden w-[32%] bg-brand-dark lg:block" />
+        <div className="absolute bottom-0 left-0 top-0 hidden w-[28%] bg-brand-dark lg:block" />
         <div className="absolute left-[15%] top-64 hidden origin-top rotate-180 [writing-mode:vertical-rl] text-xs font-black uppercase tracking-[0.22em] text-white lg:block">
           Perspectives & News
         </div>
-        <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.28fr_1fr]">
+        <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
           <Reveal className="hidden self-end lg:block" direction="skew">
             <div className="space-y-8 text-white">
               <div className="flex items-center gap-5 text-xs font-black">
