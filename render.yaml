@@ -17,5 +17,5 @@ services:
         value: production
       - key: MONGODB_DB_NAME
         value: TW-Quantus
-      # Add in dashboard (Secrets): MONGODB_URI, ADMIN_EMAIL, ADMIN_PASSWORD,
-      # ADMIN_JWT_SECRET, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, NEWS_API_KEY
+      # Dashboard secrets (same keys as server/.env.production.example):
+      # MONGODB_URI, ADMIN_*, CLOUDINARY_*, NEWS_API_KEY, etc.

@@ -188,31 +188,36 @@ export function Layout({ children }: LayoutProps) {
           )}
           onMouseLeave={() => setActiveDropdown(null)}
         >
-          <div className="mx-auto flex w-full max-w-[112rem] items-center justify-between gap-4 px-4 py-3 sm:px-5 lg:grid lg:grid-cols-[7rem_minmax(0,1fr)_1rem] lg:px-8 lg:py-4 xl:grid-cols-[8rem_minmax(0,1fr)_1rem] xl:px-12 2xl:grid-cols-[9rem_minmax(0,1fr)_1rem]">
-            <div className="lg:justify-self-end">
-              <Logo
-                className={cn(
-                  "shrink-0",
-                  "transition-all duration-700 ease-out",
-                  showFullNav || showCompactMenu
-                    ? "pointer-events-auto translate-y-0 scale-100 opacity-100 blur-0"
-                    : "pointer-events-none -translate-y-8 scale-95 opacity-0 blur-sm",
-                )}
-                compact
-                showSlogan={false}
-                inverted={showFullNav}
+          <div className="mx-auto flex w-full max-w-[112rem] items-center justify-center gap-4 px-4 py-3 sm:px-5 lg:flex-nowrap lg:gap-0 lg:px-8 lg:py-4 xl:px-12">
+            <div className="flex min-w-0 max-w-full items-center justify-center">
+              <div className="shrink-0">
+                <Logo
+                  className={cn(
+                    "shrink-0",
+                    "transition-all duration-700 ease-out",
+                    showFullNav || showCompactMenu
+                      ? "pointer-events-auto translate-y-0 scale-100 opacity-100 blur-0"
+                      : "pointer-events-none -translate-y-8 scale-95 opacity-0 blur-sm",
+                  )}
+                  compact
+                  showSlogan={false}
+                  inverted={showFullNav}
+                />
+              </div>
+              {/* ~one nav link of horizontal rhythm between logo and links */}
+              <span
+                className="hidden shrink-0 lg:block lg:w-[clamp(3.25rem,6.5vw,6rem)] xl:w-[clamp(3.75rem,6.5vw,7rem)] 2xl:w-32"
+                aria-hidden="true"
               />
-            </div>
-
-            <nav
-              className={cn(
-                "pointer-events-auto hidden min-w-0 items-center justify-start gap-4 pl-8 transition-all duration-700 ease-out lg:flex xl:gap-5 xl:pl-12 2xl:gap-7 2xl:pl-16",
-                showFullNav
-                  ? "translate-y-0 opacity-100 blur-0"
-                  : "pointer-events-none -translate-y-8 opacity-0 blur-sm",
-              )}
-              aria-hidden={!showFullNav}
-            >
+              <nav
+                className={cn(
+                  "pointer-events-auto hidden min-w-0 items-center justify-center gap-4 transition-all duration-700 ease-out lg:flex xl:gap-5 2xl:gap-7",
+                  showFullNav
+                    ? "translate-y-0 opacity-100 blur-0"
+                    : "pointer-events-none -translate-y-8 opacity-0 blur-sm",
+                )}
+                aria-hidden={!showFullNav}
+              >
               {navigation.map((item) => {
                 const hasDropdown = "children" in item && Boolean(item.children?.length);
 
@@ -266,8 +271,8 @@ export function Layout({ children }: LayoutProps) {
                 <Search className="h-5 w-5" />
                 <span>Search</span>
               </button>
-            </nav>
-            <div className="hidden lg:block" aria-hidden="true" />
+              </nav>
+            </div>
           </div>
 
           <AnimatePresence>

@@ -24,6 +24,29 @@ dist-ssr
 *.sw?
 
 .config/
+
+# Root: no app secrets here (use server/ and client/)
 .env
 .env.*
-!.env.example
+
+# Backend
+server/.env
+server/.env.development
+server/.env.production
+server/.env.local
+server/.env.development.local
+server/.env.production.local
+!server/.env.example
+!server/.env.development.example
+!server/.env.production.example
+
+# Frontend
+client/.env
+client/.env.development
+client/.env.production
+client/.env.local
+client/.env.development.local
+client/.env.production.local
+!client/.env.example
+!client/.env.development.example
+!client/.env.production.example

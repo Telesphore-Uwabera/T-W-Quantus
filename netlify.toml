@@ -11,10 +11,10 @@
   external_node_modules = ["express"]
   node_bundler = "esbuild"
 
-# API routes before SPA fallback
+# Proxy API to Render (backend). Browser stays on twquantus.netlify.app; no CORS for /api.
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
+  to = "https://t-w-quantus.onrender.com/api/:splat"
   status = 200
   force = true
 

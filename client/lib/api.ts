@@ -1,5 +1,13 @@
 import type { ContactSubmission, NewsArticle, ProjectDoc, SubscriptionDoc } from "@shared/cms";
 
+/** Netlify (or any static host): set to Render API origin, e.g. https://t-w-quantus.onrender.com — no trailing slash. */
+const API_BASE = (import.meta.env.VITE_PUBLIC_API_URL ?? "").replace(/\/$/, "");
+
+function apiUrl(path: string): string {
+  const p = path.startsWith("/") ? path : `/${path}`;
+  return API_BASE ? `${API_BASE}${p}` : p;
+}
+
 export async function submitContact(payload: {
   name: string;
   email: string;
@@ -7,7 +15,7 @@ export async function submitContact(payload: {
   service?: string;
   message: string;
 }): Promise<{ ok: boolean; id?: string }> {
-  const res = await fetch("/api/contact", {
+  const res = await fetch(apiUrl("/api/contact"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -18,7 +26,7 @@ export async function submitContact(payload: {
 }
 
 export async function submitNewsletter(email: string): Promise<{ ok: boolean; duplicate?: boolean }> {
-  const res = await fetch("/api/newsletter", {
+  const res = await fetch(apiUrl("/api/newsletter"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
@@ -29,7 +37,7 @@ export async function submitNewsletter(email: string): Promise<{ ok: boolean; du
 }
 
 export async function fetchPublishedProjects(): Promise<ProjectDoc[]> {
-  const res = await fetch("/api/projects");
+  const res = await fetch(apiUrl("/api/projects"));
   if (!res.ok) return [];
   return res.json();
 }
@@ -39,7 +47,7 @@ export async function fetchIndustryNews(): Promise<{
   configured: boolean;
   cached?: boolean;
 }> {
-  const res = await fetch("/api/news");
+  const res = await fetch(apiUrl("/api/news"));
   if (!res.ok) return { articles: [], configured: false };
   return res.json();
 }
@@ -59,7 +67,7 @@ export function clearAdminToken() {
 }
 
 export async function adminLogin(email: string, password: string): Promise<{ token: string }> {
-  const res = await fetch("/api/admin/login", {
+  const res = await fetch(apiUrl("/api/admin/login"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -73,7 +81,7 @@ export async function adminFetch(path: string, init?: RequestInit): Promise<Resp
   const token = getAdminToken();
   const headers = new Headers(init?.headers);
   if (token) headers.set("Authorization", `Bearer ${token}`);
-  return fetch(path, { ...init, headers });
+  return fetch(apiUrl(path), { ...init, headers });
 }
 
 export async function adminListProjects(): Promise<ProjectDoc[]> {

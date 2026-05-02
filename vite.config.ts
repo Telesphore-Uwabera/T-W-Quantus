@@ -1,10 +1,10 @@
 import { defineConfig, Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
-import { createServer } from "./server";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  envDir: path.resolve(__dirname, "./client"),
   server: {
     host: "::",
     port: 8080,
@@ -29,11 +29,10 @@ function expressPlugin(): Plugin {
   return {
     name: "express-plugin",
     apply: "serve", // Only apply during development (serve mode)
-    configureServer(server) {
-      const app = createServer();
-
-      // Add Express app as middleware to Vite dev server
-      server.middlewares.use(app);
+    async configureServer(server) {
+      // Dynamic import so `vite build` does not load `server/loadEnv` (backend secrets stay out of the client bundle env).
+      const { createServer } = await import("./server/index");
+      server.middlewares.use(createServer());
     },
   };
 }
