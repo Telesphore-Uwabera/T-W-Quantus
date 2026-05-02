@@ -34,6 +34,7 @@ export default defineConfig({
         "cloudinary",
         "jsonwebtoken",
         "multer",
+        "sharp",
       ],
       output: {
         format: "es",

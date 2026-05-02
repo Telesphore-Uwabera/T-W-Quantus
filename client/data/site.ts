@@ -1,3 +1,5 @@
+import { PROJECT_SECTORS } from "@shared/cms";
+
 export const company = {
   name: "T&W QUANTUS LTD",
   shortName: "T&W Quantus",
@@ -251,14 +253,7 @@ export const benefits = [
   "Transparent client communication",
 ];
 
-export const projectTypes = [
-  "Multi-unit developments",
-  "Residential buildings",
-  "Commercial spaces",
-  "Institutional infrastructure",
-  "Renovations and repairs",
-  "Civil and structural works",
-];
+export const projectTypes = [...PROJECT_SECTORS];
 
 export const businessActivities = [
   {

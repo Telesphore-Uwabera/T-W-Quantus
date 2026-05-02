@@ -42,6 +42,14 @@ export async function fetchPublishedProjects(): Promise<ProjectDoc[]> {
   return res.json();
 }
 
+export async function fetchProjectBySlug(slug: string): Promise<ProjectDoc | null> {
+  const s = encodeURIComponent(slug);
+  const res = await fetch(apiUrl(`/api/projects/${s}`));
+  if (res.status === 404) return null;
+  if (!res.ok) return null;
+  return res.json();
+}
+
 export async function fetchIndustryNews(): Promise<{
   articles: NewsArticle[];
   configured: boolean;

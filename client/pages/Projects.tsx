@@ -6,6 +6,7 @@ import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { businessActivities, projectTypes } from "@/data/site";
 import { fetchPublishedProjects } from "@/lib/api";
+import { projectGalleryUrls } from "@shared/cms";
 
 const icons = [Home, Building2, Landmark, Paintbrush, HardHat, Wrench];
 const getSectionId = (title: string) =>
@@ -38,26 +39,32 @@ export default function Projects() {
               <h2 className="section-title mt-4">Selected work and case studies.</h2>
             </Reveal>
             <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3">
-              {cmsProjects.map((p, index) => (
-                <Reveal key={p._id} delay={index * 0.05} direction={index % 2 === 0 ? "scale" : "up"}>
-                  <article className="flex h-full flex-col overflow-hidden rounded-[1.5rem] bg-white shadow-sm ring-1 ring-black/5 sm:rounded-[2rem]">
-                    {p.imageUrl ? (
-                      <div className="aspect-[16/10] w-full overflow-hidden bg-neutral-200">
-                        <img src={p.imageUrl} alt="" className="h-full w-full object-cover" />
-                      </div>
-                    ) : (
-                      <div className={`project-visual-${(index % 4) + 1} aspect-[16/10] w-full bg-neutral-900`} />
-                    )}
-                    <div className="flex flex-1 flex-col p-6 sm:p-7">
-                      {p.sector ? (
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-brand">{p.sector}</p>
-                      ) : null}
-                      <h3 className="mt-3 text-xl font-black text-neutral-950 sm:text-2xl">{p.title}</h3>
-                      <p className="mt-3 flex-1 text-sm leading-7 text-neutral-600 sm:text-base">{p.summary}</p>
-                    </div>
-                  </article>
-                </Reveal>
-              ))}
+              {cmsProjects.map((p, index) => {
+                const cover = projectGalleryUrls(p)[0];
+                return (
+                  <Reveal key={p._id} delay={index * 0.05} direction={index % 2 === 0 ? "scale" : "up"}>
+                    <Link to={`/projects/${encodeURIComponent(p.slug)}`} className="group block h-full">
+                      <article className="flex h-full flex-col overflow-hidden rounded-[1.5rem] bg-white shadow-sm ring-1 ring-black/5 transition hover:ring-brand/30 sm:rounded-[2rem]">
+                        {cover ? (
+                          <div className="aspect-[16/10] w-full overflow-hidden bg-neutral-200">
+                            <img src={cover} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                          </div>
+                        ) : (
+                          <div className={`project-visual-${(index % 4) + 1} aspect-[16/10] w-full bg-neutral-900`} />
+                        )}
+                        <div className="flex flex-1 flex-col p-6 sm:p-7">
+                          {p.sector ? (
+                            <p className="text-xs font-black uppercase tracking-[0.2em] text-brand">{p.sector}</p>
+                          ) : null}
+                          <h3 className="mt-3 text-xl font-black text-neutral-950 sm:text-2xl">{p.title}</h3>
+                          <p className="mt-3 flex-1 text-sm leading-7 text-neutral-600 sm:text-base">{p.summary}</p>
+                          <span className="mt-4 text-sm font-black text-brand">View project →</span>
+                        </div>
+                      </article>
+                    </Link>
+                  </Reveal>
+                );
+              })}
             </div>
           </div>
         </section>

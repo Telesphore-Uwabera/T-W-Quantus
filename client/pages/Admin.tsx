@@ -1,11 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2, LogOut, Trash2 } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   adminFetch,
   adminListContacts,
@@ -18,6 +25,7 @@ import {
   setAdminToken,
 } from "@/lib/api";
 import type { ContactSubmission, NewsArticle, ProjectDoc, SubscriptionDoc } from "@shared/cms";
+import { projectGalleryUrls, PROJECT_SECTORS, isValidProjectSector } from "@shared/cms";
 
 type Tab = "projects" | "contacts" | "subscriptions" | "news";
 
@@ -152,21 +160,42 @@ function ProjectsPanel() {
 
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
-  const [sector, setSector] = useState("");
+  const [description, setDescription] = useState("");
+  const [sector, setSector] = useState<string>(PROJECT_SECTORS[0]);
+
+  const sectorOptions = useMemo(() => {
+    const s = sector.trim();
+    if (s && !isValidProjectSector(s)) {
+      return [s, ...PROJECT_SECTORS];
+    }
+    return [...PROJECT_SECTORS];
+  }, [sector]);
+  const [location, setLocation] = useState("");
+  const [clientName, setClientName] = useState("");
+  const [year, setYear] = useState("");
+  const [projectDate, setProjectDate] = useState("");
   const [slug, setSlug] = useState("");
   const [sortOrder, setSortOrder] = useState("0");
   const [published, setPublished] = useState(true);
-  const [image, setImage] = useState<File | null>(null);
+  /** Remote URLs already stored (edit mode); order is gallery order */
+  const [galleryUrls, setGalleryUrls] = useState<string[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const resetForm = useCallback(() => {
     setTitle("");
     setSummary("");
-    setSector("");
+    setDescription("");
+    setSector(PROJECT_SECTORS[0]);
+    setLocation("");
+    setClientName("");
+    setYear("");
+    setProjectDate("");
     setSlug("");
     setSortOrder("0");
     setPublished(true);
-    setImage(null);
+    setGalleryUrls([]);
+    setPendingFiles([]);
     setEditingId(null);
   }, []);
 
@@ -175,11 +204,18 @@ function ProjectsPanel() {
       const fd = new FormData();
       fd.append("title", title);
       fd.append("summary", summary);
+      fd.append("description", description);
       fd.append("sector", sector);
+      fd.append("location", location);
+      fd.append("clientName", clientName);
+      fd.append("year", year);
+      fd.append("projectDate", projectDate);
       if (slug.trim()) fd.append("slug", slug.trim());
       fd.append("sortOrder", sortOrder);
       fd.append("published", published ? "true" : "false");
-      if (image) fd.append("image", image);
+      for (const f of pendingFiles) {
+        fd.append("images", f);
+      }
       const res = await adminFetch("/api/admin/projects", { method: "POST", body: fd });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(typeof data.error === "string" ? data.error : "Save failed");
@@ -200,11 +236,19 @@ function ProjectsPanel() {
       const fd = new FormData();
       fd.append("title", title);
       fd.append("summary", summary);
+      fd.append("description", description);
       fd.append("sector", sector);
+      fd.append("location", location);
+      fd.append("clientName", clientName);
+      fd.append("year", year);
+      fd.append("projectDate", projectDate);
       fd.append("slug", slug.trim());
       fd.append("sortOrder", sortOrder);
       fd.append("published", published ? "true" : "false");
-      if (image) fd.append("image", image);
+      fd.append("existingImageUrls", JSON.stringify(galleryUrls));
+      for (const f of pendingFiles) {
+        fd.append("images", f);
+      }
       const res = await adminFetch(`/api/admin/projects/${editingId}`, { method: "PATCH", body: fd });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(typeof data.error === "string" ? data.error : "Update failed");
@@ -240,11 +284,17 @@ function ProjectsPanel() {
     setEditingId(p._id);
     setTitle(p.title);
     setSummary(p.summary);
-    setSector(p.sector ?? "");
+    setDescription(p.description ?? "");
+    setSector((p.sector ?? "").trim() || PROJECT_SECTORS[0]);
+    setLocation(p.location ?? "");
+    setClientName(p.clientName ?? "");
+    setYear(p.year ?? "");
+    setProjectDate(p.projectDate ?? "");
     setSlug(p.slug);
     setSortOrder(String(p.sortOrder ?? 0));
     setPublished(!!p.published);
-    setImage(null);
+    setGalleryUrls(projectGalleryUrls(p));
+    setPendingFiles([]);
   };
 
   if (isLoading) {
@@ -274,6 +324,21 @@ function ProjectsPanel() {
           <Input value={title} onChange={(e) => setTitle(e.target.value)} required />
         </div>
         <div className="space-y-2">
+          <Label>Sector</Label>
+          <Select value={sector} onValueChange={setSector}>
+            <SelectTrigger className="h-10 w-full rounded-md border border-black/15 bg-white text-sm font-medium">
+              <SelectValue placeholder="Select sector" />
+            </SelectTrigger>
+            <SelectContent>
+              {sectorOptions.map((opt) => (
+                <SelectItem key={opt} value={opt}>
+                  {opt}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
           <Label>Summary</Label>
           <textarea
             className="min-h-24 w-full rounded-md border border-black/15 bg-white px-3 py-2 text-sm"
@@ -283,8 +348,33 @@ function ProjectsPanel() {
           />
         </div>
         <div className="space-y-2">
-          <Label>Sector (optional)</Label>
-          <Input value={sector} onChange={(e) => setSector(e.target.value)} />
+          <Label>Detail description (optional)</Label>
+          <textarea
+            className="min-h-32 w-full rounded-md border border-black/15 bg-white px-3 py-2 text-sm"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Longer case study text shown on the project page"
+          />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Location (optional)</Label>
+            <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Kigali, Rwanda" />
+          </div>
+          <div className="space-y-2">
+            <Label>Client (optional)</Label>
+            <Input value={clientName} onChange={(e) => setClientName(e.target.value)} />
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Year (optional)</Label>
+            <Input value={year} onChange={(e) => setYear(e.target.value)} placeholder="2025" />
+          </div>
+          <div className="space-y-2">
+            <Label>Project date (optional)</Label>
+            <Input type="date" value={projectDate} onChange={(e) => setProjectDate(e.target.value)} />
+          </div>
         </div>
         <div className="space-y-2">
           <Label>Slug (optional)</Label>
@@ -301,8 +391,61 @@ function ProjectsPanel() {
           </label>
         </div>
         <div className="space-y-2">
-          <Label>Image (Cloudinary)</Label>
-          <Input type="file" accept="image/*" onChange={(e) => setImage(e.target.files?.[0] ?? null)} />
+          <Label>Images (multiple, stored as WebP on Cloudinary)</Label>
+          <Input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => {
+              const next = e.target.files ? Array.from(e.target.files) : [];
+              setPendingFiles((prev) => [...prev, ...next]);
+              e.target.value = "";
+            }}
+          />
+          {galleryUrls.length > 0 && (
+            <div className="mt-2 space-y-2">
+              <p className="text-xs font-bold text-neutral-500">Saved in gallery (remove to delete from project)</p>
+              <ul className="flex flex-wrap gap-2">
+                {galleryUrls.map((url) => (
+                  <li key={url} className="relative h-16 w-24 overflow-hidden rounded-lg border border-black/10">
+                    <img src={url} alt="" className="h-full w-full object-cover" />
+                    <button
+                      type="button"
+                      className="absolute right-0.5 top-0.5 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-black text-white"
+                      onClick={() => setGalleryUrls((prev) => prev.filter((u) => u !== url))}
+                    >
+                      ×
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {pendingFiles.length > 0 && (
+            <div className="mt-2">
+              <p className="text-xs font-bold text-neutral-500">New files (upload on save)</p>
+              <ul className="mt-1 flex flex-wrap gap-2 text-xs">
+                {pendingFiles.map((f, i) => (
+                  <li
+                    key={`${f.name}-${i}`}
+                    className="flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-1"
+                  >
+                    {f.name}
+                    <button
+                      type="button"
+                      className="font-black text-red-600"
+                      onClick={() => setPendingFiles((prev) => prev.filter((_, j) => j !== i))}
+                    >
+                      ×
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <button type="button" className="mt-2 text-xs font-bold text-brand underline" onClick={() => setPendingFiles([])}>
+                Clear new files
+              </button>
+            </div>
+          )}
         </div>
         <div className="flex flex-wrap gap-2">
           <Button type="submit" className="bg-brand hover:bg-brand-light" disabled={createMut.isPending || patchMut.isPending}>
@@ -331,7 +474,12 @@ function ProjectsPanel() {
                   {p.slug} · {p.published ? "live" : "draft"}
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" size="sm" variant="outline" asChild>
+                  <Link to={`/projects/${encodeURIComponent(p.slug)}`} target="_blank" rel="noreferrer">
+                    View
+                  </Link>
+                </Button>
                 <Button type="button" size="sm" variant="secondary" onClick={() => loadForEdit(p)}>
                   Edit
                 </Button>

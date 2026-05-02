@@ -1,6 +1,7 @@
 import { defineConfig, Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
+import { escapeHtmlAttr, getSeoKeywordsMetaContent } from "./shared/seoKeywords";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -16,7 +17,7 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: "dist/spa",
   },
-  plugins: [react(), expressPlugin()],
+  plugins: [react(), expressPlugin(), seoKeywordsMetaPlugin()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
@@ -24,6 +25,17 @@ export default defineConfig(({ mode }) => ({
     },
   },
 }));
+
+function seoKeywordsMetaPlugin(): Plugin {
+  return {
+    name: "seo-keywords-meta",
+    transformIndexHtml(html) {
+      if (/name=["']keywords["']/i.test(html)) return html;
+      const content = escapeHtmlAttr(getSeoKeywordsMetaContent());
+      return html.replace("</head>", `    <meta name="keywords" content="${content}" />\n  </head>`);
+    },
+  };
+}
 
 function expressPlugin(): Plugin {
   return {

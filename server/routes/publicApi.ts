@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { getDb } from "../db/mongo";
+import { serializeProject } from "../lib/projectDoc";
 
 const NEWS_CACHE_MS = 15 * 60 * 1000;
 let newsCache: { at: number; articles: unknown[] } | null = null;
@@ -63,18 +64,36 @@ export function createPublicApiRouter() {
         .find({ published: true })
         .sort({ sortOrder: 1, createdAt: -1 })
         .toArray();
-      res.json(
-        list.map((doc) => ({
-          ...doc,
-          _id: String(doc._id),
-          createdAt: doc.createdAt?.toISOString?.() ?? doc.createdAt,
-          updatedAt: doc.updatedAt?.toISOString?.() ?? doc.updatedAt,
-        })),
-      );
+      res.json(list.map((doc) => serializeProject(doc)).filter(Boolean));
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       if (msg.includes("MONGODB_URI")) {
         res.status(503).json({ error: "Database not configured", items: [] });
+        return;
+      }
+      res.status(500).json({ error: msg });
+    }
+  });
+
+  r.get("/projects/:slug", async (req, res) => {
+    try {
+      const slug = String(req.params.slug ?? "").trim();
+      if (!slug) {
+        res.status(400).json({ error: "Invalid slug" });
+        return;
+      }
+      const db = await getDb();
+      const doc = await db.collection("projects").findOne({ slug, published: true });
+      const out = serializeProject(doc);
+      if (!out) {
+        res.status(404).json({ error: "Not found" });
+        return;
+      }
+      res.json(out);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes("MONGODB_URI")) {
+        res.status(503).json({ error: "Database not configured" });
         return;
       }
       res.status(500).json({ error: msg });
@@ -96,6 +115,7 @@ export function createPublicApiRouter() {
         phone: phone ? String(phone).trim() : "",
         service: service ? String(service).trim() : "",
         message: String(message).trim(),
+        source: "contact_page",
         createdAt: now,
       };
       const result = await db.collection("contacts").insertOne(doc);

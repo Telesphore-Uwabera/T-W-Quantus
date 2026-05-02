@@ -57,9 +57,8 @@ export default function Contact() {
                 Tell us what you are building.
               </h2>
               <p className="mt-5 text-base leading-7 text-neutral-600 sm:leading-8">
-                Use email or phone to share project location, intended use, stage, budget status,
-                and the services you need. The website can later connect this section to a live
-                backend form if required.
+                Submit the form and we will receive your message securely. You can also reach us
+                directly by email or phone for project location, stage, budget, and the services you need.
               </p>
 
               <form

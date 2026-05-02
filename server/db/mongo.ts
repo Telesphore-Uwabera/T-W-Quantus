@@ -21,6 +21,7 @@ export async function initIndexes(): Promise<void> {
     const database = await getDb();
     await database.collection("subscriptions").createIndex({ email: 1 }, { unique: true });
     await database.collection("projects").createIndex({ slug: 1 }, { unique: true });
+    await database.collection("contacts").createIndex({ createdAt: -1 });
   } catch (e) {
     console.warn("[mongo] initIndexes:", e);
   }

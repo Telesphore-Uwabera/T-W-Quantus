@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "node:stream";
+import { rasterToWebp } from "./rasterToWebp";
 
 let configured = false;
 
@@ -31,5 +32,32 @@ export function uploadBufferToCloudinary(buffer: Buffer, folder: string): Promis
       },
     );
     Readable.from(buffer).pipe(upload);
+  });
+}
+
+/** Project hero images: convert raster assets to WebP before upload (SVG unchanged). */
+export async function uploadProjectImageToCloudinary(
+  buffer: Buffer,
+  mimeType: string | undefined,
+  folder: string,
+): Promise<string> {
+  const { buffer: out, converted } = await rasterToWebp(buffer, mimeType);
+  ensureConfig();
+  return new Promise((resolve, reject) => {
+    const upload = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: "image",
+        ...(converted ? { format: "webp" as const } : {}),
+      },
+      (error, result) => {
+        if (error || !result?.secure_url) {
+          reject(error ?? new Error("Cloudinary upload failed"));
+          return;
+        }
+        resolve(result.secure_url);
+      },
+    );
+    Readable.from(out).pipe(upload);
   });
 }
