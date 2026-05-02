@@ -17,5 +17,5 @@ services:
         value: production
       - key: MONGODB_DB_NAME
         value: TW-Quantus
-      # Dashboard secrets (same keys as server/.env.production.example):
+      # Dashboard secrets (same keys as server/.env.example):
       # MONGODB_URI, ADMIN_*, CLOUDINARY_*, NEWS_API_KEY, etc.

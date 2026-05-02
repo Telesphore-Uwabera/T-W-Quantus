@@ -4,9 +4,8 @@ Official website for T&W QUANTUS LTD, a Kigali-based construction, quantity surv
 
 ## Environment
 
-- **Backend (Express, MongoDB, Cloudinary, admin):** `server/.env.development` — copy from `server/.env.development.example`.
-- **Frontend (Vite, `VITE_*` only):** `client/.env.development` — copy from `client/.env.development.example`.
-- Production: `server/.env.production` and `client/.env.production` (or host dashboards: Render / Netlify).
+- **Backend:** `server/.env` — copy from `server/.env.example`. Hosted backends (e.g. Render) usually set the same keys in the dashboard instead of a file.
+- **Frontend (Vite, `VITE_*` only):** `client/.env` — copy from `client/.env.example` (or set the same vars on Netlify).
 
 ## Development
 

@@ -19,18 +19,12 @@ function findRepoRoot(): string {
 }
 
 /**
- * Backend env only under `server/`: `.env.development` | `.env.production` | optional `.env`.
- * On Render, variables usually come from the dashboard (no files).
+ * Backend env: single file `server/.env`.
+ * On Render (and similar), variables come from the dashboard; the file is optional.
  */
 const repoRoot = findRepoRoot();
-const serverDir = path.join(repoRoot, "server");
-const isProd = process.env.NODE_ENV === "production";
-const modeFile = path.join(serverDir, isProd ? ".env.production" : ".env.development");
-const fallback = path.join(serverDir, ".env");
+const serverEnv = path.join(repoRoot, "server", ".env");
 
-if (existsSync(modeFile)) {
-  config({ path: modeFile });
-}
-if (existsSync(fallback)) {
-  config({ path: fallback, override: false });
+if (existsSync(serverEnv)) {
+  config({ path: serverEnv });
 }
