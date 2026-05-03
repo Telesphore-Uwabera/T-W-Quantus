@@ -9,8 +9,17 @@ export const company = {
   registeredAddress: "Rukurazo, Kibagabaga, Kimironko, Gasabo, Kigali, Rwanda",
   phone: "+250 780 410 570",
   phoneHref: "tel:+250780410570",
+  /** Chat on WhatsApp (same number, international format without +). */
+  whatsappHref: "https://wa.me/250780410570",
   email: "twquantus2025@gmail.com",
   emailHref: "mailto:twquantus2025@gmail.com",
+  /** Set public profile URLs; empty string falls back to the contact page in the footer. */
+  social: {
+    linkedin: "",
+    facebook: "",
+    instagram: "",
+    x: "",
+  },
   registrationDate: "21 July 2025",
   amendmentDate: "28 April 2026",
   managingDirector: "Isaac UWUMUREMYI",

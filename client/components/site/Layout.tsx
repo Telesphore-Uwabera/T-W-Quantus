@@ -7,7 +7,15 @@ import {
   Linkedin,
   Search,
   ChevronDown,
+  MapPin,
+  Mail,
+  MessageCircle,
+  Building2,
+  Users,
+  ChevronRight,
+  Briefcase,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
@@ -705,32 +713,32 @@ export function Layout({ children }: LayoutProps) {
               <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
                 <FooterColumn
                   title="Services & Sectors"
-                  links={services.map((service) => ({ label: service.title, href: "/services" }))}
+                  titleIcon={Building2}
+                  links={services.map((service) => ({
+                    label: service.title,
+                    href: `/services/${service.slug}`,
+                    Icon: ChevronRight,
+                  }))}
                 />
                 <FooterColumn
                   title="Company"
+                  titleIcon={Briefcase}
                   links={[
-                    { label: "About Us", href: "/about" },
-                    { label: "Projects", href: "/projects" },
-                    { label: "Contact", href: "/contact" },
+                    { label: "About Us", href: "/about", Icon: ChevronRight },
+                    { label: "Projects", href: "/projects", Icon: ChevronRight },
+                    { label: "Contact", href: "/contact", Icon: ChevronRight },
                   ]}
                 />
                 <FooterColumn
                   title="About Us"
+                  titleIcon={Users}
                   links={[
-                    { label: "Who We Are", href: "/about" },
-                    { label: "What We Do", href: "/services" },
-                    { label: "Vision And Values", href: "/about" },
+                    { label: "Who We Are", href: "/about#who-we-are", Icon: ChevronRight },
+                    { label: "What We Do", href: "/services#services-overview", Icon: ChevronRight },
+                    { label: "Vision And Values", href: "/about#vision-mission", Icon: ChevronRight },
                   ]}
                 />
-                <FooterColumn
-                  title="Contact"
-                  links={[
-                    { label: company.location, href: "/contact" },
-                    { label: company.phone, href: company.phoneHref },
-                    { label: company.email, href: company.emailHref },
-                  ]}
-                />
+                <FooterContactBlock />
               </div>
 
               <div className="mt-14 grid gap-8 border-t border-white/10 pt-10 md:grid-cols-[0.9fr_1.1fr] md:items-end">
@@ -817,15 +825,19 @@ export function Layout({ children }: LayoutProps) {
 
             <div className="flex items-center gap-3">
               <span className="font-black text-white">Follow T&W</span>
-              {[
-                { label: "LinkedIn", Icon: Linkedin },
-                { label: "Facebook", Icon: Facebook },
-                { label: "Instagram", Icon: Instagram },
-                { label: "X", Icon: XIcon },
-              ].map(({ label, Icon }) => (
+              {(
+                [
+                  { label: "LinkedIn", Icon: Linkedin, href: company.social.linkedin },
+                  { label: "Facebook", Icon: Facebook, href: company.social.facebook },
+                  { label: "Instagram", Icon: Instagram, href: company.social.instagram },
+                  { label: "X", Icon: XIcon, href: company.social.x },
+                ] as const
+              ).map(({ label, Icon, href }) => (
                 <a
                   key={label}
-                  href="/contact"
+                  href={href.trim() ? href : "/contact#request-consultation"}
+                  target={href.trim() ? "_blank" : undefined}
+                  rel={href.trim() ? "noopener noreferrer" : undefined}
                   className="grid h-10 w-10 place-items-center rounded-full bg-white text-xs font-black text-black transition hover:-translate-y-1 hover:bg-brand hover:text-white"
                   aria-label={`Follow T&W Quantus on ${label}`}
                 >
@@ -840,33 +852,111 @@ export function Layout({ children }: LayoutProps) {
   );
 }
 
+function isExternalOrSpecialHref(href: string) {
+  return (
+    href.startsWith("http://") ||
+    href.startsWith("https://") ||
+    href.startsWith("mailto:") ||
+    href.startsWith("tel:")
+  );
+}
+
+function FooterContactBlock() {
+  const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(company.registeredAddress)}`;
+
+  return (
+    <div>
+      <h3 className="footer-heading">Contact</h3>
+      <ul className="mt-5 space-y-4 text-sm text-neutral-500">
+        <li>
+          <a
+            href={mapsHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-start gap-3 transition hover:translate-x-1 hover:text-white"
+          >
+            <MapPin
+              className="mt-0.5 h-4 w-4 shrink-0 text-brand-light transition group-hover:text-white"
+              aria-hidden
+            />
+            <span>{company.location}</span>
+          </a>
+        </li>
+        <li>
+          <a
+            href={company.whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-3 transition hover:translate-x-1 hover:text-white"
+          >
+            <MessageCircle
+              className="h-4 w-4 shrink-0 text-brand-light transition group-hover:text-white"
+              aria-hidden
+            />
+            <span>
+              {company.phone}
+              <span className="sr-only"> — WhatsApp</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a
+            href={company.emailHref}
+            className="group inline-flex items-start gap-3 transition hover:translate-x-1 hover:text-white"
+          >
+            <Mail
+              className="mt-0.5 h-4 w-4 shrink-0 text-brand-light transition group-hover:text-white"
+              aria-hidden
+            />
+            <span className="break-all">{company.email}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  );
+}
+
 function FooterColumn({
   title,
+  titleIcon: TitleIcon,
   links,
 }: {
   title: string;
-  links: Array<{ label: string; href: string }>;
+  titleIcon?: LucideIcon;
+  links: Array<{ label: string; href: string; Icon?: LucideIcon }>;
 }) {
   return (
     <div>
-      <h3 className="footer-heading">{title}</h3>
+      <h3 className="footer-heading inline-flex items-center gap-2">
+        {TitleIcon ? <TitleIcon className="h-4 w-4 shrink-0 text-brand-light" aria-hidden /> : null}
+        {title}
+      </h3>
       <ul className="mt-5 space-y-3 text-sm text-neutral-500">
         {links.map((link) => {
-          const isExternalAction = link.href.startsWith("mailto:") || link.href.startsWith("tel:");
           const className = cn(
-            "inline-flex transition hover:translate-x-1 hover:text-white",
-            link.label.includes("@") && "whitespace-nowrap break-normal",
+            "group inline-flex items-start gap-3 transition hover:translate-x-1 hover:text-white",
+            link.label.includes("@") && "break-normal",
           );
+          const Icon = link.Icon;
+          const iconClass =
+            "mt-0.5 h-4 w-4 shrink-0 text-brand-light transition group-hover:text-white";
 
           return (
-            <li key={`${title}-${link.label}`}>
-              {isExternalAction ? (
-                <a href={link.href} className={className}>
-                  {link.label}
+            <li key={`${title}-${link.label}-${link.href}`}>
+              {isExternalOrSpecialHref(link.href) ? (
+                <a
+                  href={link.href}
+                  className={className}
+                  target={link.href.startsWith("http") ? "_blank" : undefined}
+                  rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                >
+                  {Icon ? <Icon className={iconClass} aria-hidden /> : null}
+                  <span>{link.label}</span>
                 </a>
               ) : (
                 <Link to={link.href} className={className}>
-                  {link.label}
+                  {Icon ? <Icon className={iconClass} aria-hidden /> : null}
+                  <span>{link.label}</span>
                 </Link>
               )}
             </li>
