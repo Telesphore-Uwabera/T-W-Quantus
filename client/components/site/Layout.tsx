@@ -161,7 +161,15 @@ export function Layout({ children }: LayoutProps) {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [isHome]);
+  }, [isHome, location.pathname]);
+
+  /** Solid max-lg bar: light page → black nav; dark page → white nav. Menu/hamburger uses opposite of overlay (lg+) so contrast stays correct. */
+  const maxLgMenuLabel = isHeaderOnDark
+    ? "max-lg:text-neutral-950 max-lg:drop-shadow-none"
+    : "max-lg:text-white max-lg:drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]";
+  const lgOverlayMenuLabel = isHeaderOnDark
+    ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)] lg:text-white"
+    : "text-neutral-950 drop-shadow-[0_2px_8px_rgba(255,255,255,0.75)] lg:text-neutral-950";
 
   const showFullNav = (!isHome || isHeroVisible) && !isMenuOpen;
   const showCompactMenu = isHome && (!isHeroVisible || isMenuOpen);
@@ -221,9 +229,11 @@ export function Layout({ children }: LayoutProps) {
         <div
           className={cn(
             "pointer-events-auto transition-all duration-500 ease-out",
-            // Small/medium: flat black bar — no border, shadow, or blur so the edge blends into the page
-            "max-lg:border-0 max-lg:shadow-none max-lg:ring-0 max-lg:outline-none max-lg:backdrop-blur-none max-lg:bg-black",
-            !isHome && "bg-black/80 shadow-none backdrop-blur-xl lg:backdrop-blur-xl max-lg:backdrop-blur-none",
+            // Small/medium: solid bar contrasts with the section at the sample line (see scroll handler + data-header-theme)
+            "max-lg:border-0 max-lg:shadow-none max-lg:ring-0 max-lg:outline-none max-lg:backdrop-blur-none",
+            isHeaderOnDark ? "max-lg:bg-white" : "max-lg:bg-black",
+            !isHome &&
+              "shadow-none backdrop-blur-xl lg:backdrop-blur-xl max-lg:backdrop-blur-none lg:bg-black/80",
             // Desktop home: keep transparent bar over hero (large viewports only)
             isHome && "lg:bg-transparent lg:shadow-none lg:backdrop-blur-none lg:border-transparent",
           )}
@@ -332,15 +342,13 @@ export function Layout({ children }: LayoutProps) {
                   ? cn(
                       "translate-y-0 scale-100 opacity-100 max-lg:pointer-events-auto max-lg:opacity-100",
                       "lg:pointer-events-none lg:-translate-y-4 lg:scale-95 lg:opacity-0",
-                      isHeaderOnDark
-                        ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
-                        : "text-neutral-950 drop-shadow-[0_2px_8px_rgba(255,255,255,0.75)]",
+                      maxLgMenuLabel,
+                      lgOverlayMenuLabel,
                     )
                   : cn(
                       "translate-y-0 scale-100 opacity-100",
-                      isHeaderOnDark
-                        ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
-                        : "text-neutral-950 drop-shadow-[0_2px_8px_rgba(255,255,255,0.75)]",
+                      maxLgMenuLabel,
+                      lgOverlayMenuLabel,
                     ),
               )}
               onClick={() => setIsMenuOpen((open) => !open)}
