@@ -184,9 +184,9 @@ export function Layout({ children }: LayoutProps) {
         <div
           className={cn(
             "pointer-events-auto transition-all duration-500 ease-out",
-            // Small screens: solid black strip — logo + menu stay readable as content scrolls under (no box-shadow)
-            "max-lg:bg-black max-lg:border-b max-lg:border-white/10 max-lg:shadow-none max-lg:backdrop-blur-xl",
-            !isHome && "bg-black/80 shadow-none backdrop-blur-xl lg:shadow-none",
+            // Small/medium: flat black bar — no border, shadow, or blur so the edge blends into the page
+            "max-lg:border-0 max-lg:shadow-none max-lg:ring-0 max-lg:outline-none max-lg:backdrop-blur-none max-lg:bg-black",
+            !isHome && "bg-black/80 shadow-none backdrop-blur-xl lg:backdrop-blur-xl max-lg:backdrop-blur-none",
             // Desktop home: keep transparent bar over hero (large viewports only)
             isHome && "lg:bg-transparent lg:shadow-none lg:backdrop-blur-none lg:border-transparent",
           )}
