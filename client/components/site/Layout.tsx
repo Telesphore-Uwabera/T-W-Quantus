@@ -9,7 +9,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
@@ -95,9 +95,43 @@ export function Layout({ children }: LayoutProps) {
   const [isHeaderOnDark, setIsHeaderOnDark] = useState(true);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [activeMobileDropdown, setActiveMobileDropdown] = useState<string | null>("About Us");
+  const [footerInView, setFooterInView] = useState(false);
+  /** Matches Tailwind `lg` — logo dismissal when leaving home hero applies only at this width and up. */
+  const [isLgUp, setIsLgUp] = useState(false);
+  const footerRef = useRef<HTMLElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const isHome = location.pathname === "/";
+
+  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 1024px)");
+    const sync = () => setIsLgUp(mql.matches);
+    sync();
+    mql.addEventListener("change", sync);
+    return () => mql.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    const footer = footerRef.current;
+    if (!footer) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setFooterInView(entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: "0px" },
+    );
+
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!footerInView) return;
+    setIsMenuOpen(false);
+    setIsSearchOpen(false);
+    setActiveDropdown(null);
+  }, [footerInView]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -131,6 +165,8 @@ export function Layout({ children }: LayoutProps) {
 
   const showFullNav = (!isHome || isHeroVisible) && !isMenuOpen;
   const showCompactMenu = isHome && (!isHeroVisible || isMenuOpen);
+  /** Home (lg+): logo only while hero is in view. Below lg, logo stays so sm/md always see it in the bar. */
+  const showLogoInHeader = !isHome || isHeroVisible || !isLgUp;
   const activeNavigation = navigation.find((item) => item.label === activeDropdown);
   const activeDropdownLinks =
     activeNavigation && "children" in activeNavigation ? activeNavigation.children : undefined;
@@ -177,8 +213,9 @@ export function Layout({ children }: LayoutProps) {
     <div className="min-h-screen bg-background text-foreground">
       <header
         className={cn(
-          "pointer-events-none fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-out",
+          "pointer-events-none fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-out",
           "bg-transparent",
+          footerInView && "-translate-y-full opacity-0",
         )}
       >
         <div
@@ -199,21 +236,22 @@ export function Layout({ children }: LayoutProps) {
             )}
           >
             <div className="flex min-w-0 flex-1 items-center justify-start lg:max-w-full lg:flex-initial lg:justify-center">
-              <div className="shrink-0">
-                <Logo
-                  className={cn(
-                    "shrink-0",
-                    "transition-all duration-700 ease-out",
-                    "max-lg:pointer-events-auto max-lg:translate-y-0 max-lg:scale-100 max-lg:opacity-100 max-lg:blur-0",
-                    showFullNav || showCompactMenu
-                      ? "lg:pointer-events-auto lg:translate-y-0 lg:scale-100 lg:opacity-100 lg:blur-0"
-                      : "lg:pointer-events-none lg:-translate-y-8 lg:scale-95 lg:opacity-0 lg:blur-sm",
-                  )}
-                  compact
-                  showSlogan={false}
-                  inverted={showFullNav}
-                />
-              </div>
+              {showLogoInHeader ? (
+                <div className="shrink-0">
+                  <Logo
+                    className={cn(
+                      "shrink-0",
+                      "transition-all duration-700 ease-out",
+                      showFullNav || showCompactMenu
+                        ? "pointer-events-auto translate-y-0 scale-100 opacity-100 blur-0"
+                        : "pointer-events-none -translate-y-8 scale-95 opacity-0 blur-sm",
+                    )}
+                    compact
+                    showSlogan={false}
+                    inverted={showFullNav}
+                  />
+                </div>
+              ) : null}
               {/* ~one nav link of horizontal rhythm between logo and links */}
               <span
                 className="hidden shrink-0 lg:block lg:w-[clamp(3.25rem,6.5vw,6rem)] xl:w-[clamp(3.75rem,6.5vw,7rem)] 2xl:w-32"
@@ -600,7 +638,12 @@ export function Layout({ children }: LayoutProps) {
 
       <main>{children}</main>
 
-      <footer data-header-theme="dark" className="relative overflow-hidden bg-black text-white">
+      <footer
+        ref={footerRef}
+        id="site-footer"
+        data-header-theme="dark"
+        className="relative overflow-hidden bg-black text-white"
+      >
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-brand/15 to-transparent" />
         <div className="absolute -right-24 top-20 h-72 w-72 rounded-full bg-brand/10 blur-3xl" />
 
