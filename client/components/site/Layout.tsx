@@ -163,13 +163,30 @@ export function Layout({ children }: LayoutProps) {
     };
   }, [isHome, location.pathname]);
 
-  /** Solid max-lg bar: light page → black nav; dark page → white nav. Menu/hamburger uses opposite of overlay (lg+) so contrast stays correct. */
-  const maxLgMenuLabel = isHeaderOnDark
-    ? "max-lg:text-neutral-950 max-lg:drop-shadow-none"
-    : "max-lg:text-white max-lg:drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]";
-  const lgOverlayMenuLabel = isHeaderOnDark
-    ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)] lg:text-white"
-    : "text-neutral-950 drop-shadow-[0_2px_8px_rgba(255,255,255,0.75)] lg:text-neutral-950";
+  /** Non–home (and home sm/md): solid bar — light section → black nav; dark section → white nav. */
+  const solidBarMenuLabel = isHeaderOnDark
+    ? "text-neutral-950 drop-shadow-none"
+    : "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]";
+  /** Home lg+: no bar — float over content (same contrast rules as pre–solid bar). */
+  const homeLgMenuLabel = isHeaderOnDark
+    ? "max-lg:text-neutral-950 max-lg:drop-shadow-none lg:text-white lg:drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
+    : "max-lg:text-white max-lg:drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)] lg:text-neutral-950 lg:drop-shadow-[0_2px_8px_rgba(255,255,255,0.75)]";
+  const menuHamburgerLabel = isHome ? homeLgMenuLabel : solidBarMenuLabel;
+
+  const solidNavLinkClass = isHeaderOnDark
+    ? "text-neutral-950/90 transition hover:text-brand"
+    : "text-white/90 transition hover:text-brand-light";
+  const solidNavChromeClass = isHeaderOnDark
+    ? "text-neutral-950/80 transition hover:bg-neutral-950/10 hover:text-brand"
+    : "text-white/80 transition hover:bg-white/10 hover:text-brand-light";
+  const homeNavLinkClass = isHeaderOnDark
+    ? "max-lg:text-neutral-950/90 max-lg:transition max-lg:hover:text-brand lg:text-white/90 lg:transition lg:hover:text-brand-light"
+    : "max-lg:text-white/90 max-lg:transition max-lg:hover:text-brand-light lg:text-neutral-950/90 lg:transition lg:hover:text-brand";
+  const homeNavChromeClass = isHeaderOnDark
+    ? "max-lg:text-neutral-950/80 max-lg:transition max-lg:hover:bg-neutral-950/10 max-lg:hover:text-brand lg:text-white/80 lg:transition lg:hover:bg-white/10 lg:hover:text-brand-light"
+    : "max-lg:text-white/80 max-lg:transition max-lg:hover:bg-white/10 max-lg:hover:text-brand-light lg:text-neutral-950/80 lg:transition lg:hover:bg-neutral-950/10 lg:hover:text-brand";
+  const navLinkClass = isHome ? homeNavLinkClass : solidNavLinkClass;
+  const navChromeIconClass = isHome ? homeNavChromeClass : solidNavChromeClass;
 
   const showFullNav = (!isHome || isHeroVisible) && !isMenuOpen;
   const showCompactMenu = isHome && (!isHeroVisible || isMenuOpen);
@@ -229,13 +246,10 @@ export function Layout({ children }: LayoutProps) {
         <div
           className={cn(
             "pointer-events-auto transition-all duration-500 ease-out",
-            // Small/medium: solid bar contrasts with the section at the sample line (see scroll handler + data-header-theme)
-            "max-lg:border-0 max-lg:shadow-none max-lg:ring-0 max-lg:outline-none max-lg:backdrop-blur-none",
-            isHeaderOnDark ? "max-lg:bg-white" : "max-lg:bg-black",
-            !isHome &&
-              "shadow-none backdrop-blur-xl lg:backdrop-blur-xl max-lg:backdrop-blur-none lg:bg-black/80",
-            // Desktop home: keep transparent bar over hero (large viewports only)
-            isHome && "lg:bg-transparent lg:shadow-none lg:backdrop-blur-none lg:border-transparent",
+            "border-0 shadow-none ring-0 outline-none backdrop-blur-none",
+            isHeaderOnDark ? "bg-white" : "bg-black",
+            // Home desktop: transparent strip so MENU floats like before (sm/md keep solid bar)
+            isHome && "lg:bg-transparent lg:border-transparent lg:shadow-none",
           )}
           onMouseLeave={() => setActiveDropdown(null)}
         >
@@ -258,7 +272,10 @@ export function Layout({ children }: LayoutProps) {
                     )}
                     compact
                     showSlogan={false}
-                    inverted={showFullNav}
+                    inverted={
+                      showFullNav &&
+                      (isHome && isLgUp ? isHeaderOnDark : !isHeaderOnDark)
+                    }
                   />
                 </div>
               ) : null}
@@ -288,9 +305,16 @@ export function Layout({ children }: LayoutProps) {
                       to={item.href}
                       className={({ isActive }) =>
                         cn(
-                          "inline-flex text-sm font-black uppercase tracking-[0.16em] text-white/90 transition hover:text-brand-light",
-                          "whitespace-nowrap lg:text-[11px] lg:tracking-[0.12em] xl:text-xs 2xl:text-sm 2xl:tracking-[0.16em]",
-                          isActive && "text-brand-light",
+                          "inline-flex text-sm font-black uppercase tracking-[0.16em] whitespace-nowrap lg:text-[11px] lg:tracking-[0.12em] xl:text-xs 2xl:text-sm 2xl:tracking-[0.16em]",
+                          navLinkClass,
+                          isActive &&
+                            (isHome
+                              ? isHeaderOnDark
+                                ? "max-lg:text-brand lg:text-brand-light"
+                                : "max-lg:text-brand-light lg:text-brand"
+                              : isHeaderOnDark
+                                ? "text-brand"
+                                : "text-brand-light"),
                         )
                       }
                       onClick={() => setActiveDropdown(null)}
@@ -301,8 +325,17 @@ export function Layout({ children }: LayoutProps) {
                       <button
                         type="button"
                         className={cn(
-                          "grid h-5 w-5 place-items-center rounded-full text-white/80 transition hover:bg-white/10 hover:text-brand-light",
-                          activeDropdown === item.label && "rotate-180 text-brand-light",
+                          "grid h-5 w-5 place-items-center rounded-full",
+                          navChromeIconClass,
+                          activeDropdown === item.label &&
+                            (isHome
+                              ? isHeaderOnDark
+                                ? "max-lg:text-brand lg:text-brand-light"
+                                : "max-lg:text-brand-light lg:text-brand"
+                              : isHeaderOnDark
+                                ? "text-brand"
+                                : "text-brand-light"),
+                          activeDropdown === item.label && "rotate-180",
                         )}
                         aria-label={`Open ${item.label} dropdown`}
                         aria-expanded={activeDropdown === item.label}
@@ -321,7 +354,10 @@ export function Layout({ children }: LayoutProps) {
               })}
               <button
                 type="button"
-                className="inline-flex items-center gap-2 whitespace-nowrap text-[11px] font-black uppercase tracking-[0.12em] text-white/90 transition hover:text-brand-light xl:text-xs 2xl:text-sm 2xl:tracking-[0.16em]"
+                className={cn(
+                  "inline-flex items-center gap-2 whitespace-nowrap text-[11px] font-black uppercase tracking-[0.12em] xl:text-xs 2xl:text-sm 2xl:tracking-[0.16em]",
+                  navLinkClass,
+                )}
                 aria-label="Search"
                 onMouseEnter={() => setActiveDropdown(null)}
                 onClick={() => setIsSearchOpen(true)}
@@ -342,14 +378,9 @@ export function Layout({ children }: LayoutProps) {
                   ? cn(
                       "translate-y-0 scale-100 opacity-100 max-lg:pointer-events-auto max-lg:opacity-100",
                       "lg:pointer-events-none lg:-translate-y-4 lg:scale-95 lg:opacity-0",
-                      maxLgMenuLabel,
-                      lgOverlayMenuLabel,
+                      menuHamburgerLabel,
                     )
-                  : cn(
-                      "translate-y-0 scale-100 opacity-100",
-                      maxLgMenuLabel,
-                      lgOverlayMenuLabel,
-                    ),
+                  : cn("translate-y-0 scale-100 opacity-100", menuHamburgerLabel),
               )}
               onClick={() => setIsMenuOpen((open) => !open)}
               aria-label="Toggle navigation menu"
@@ -362,7 +393,12 @@ export function Layout({ children }: LayoutProps) {
           <AnimatePresence>
             {showFullNav && activeDropdownLinks && activeDropdownLinks.length > 0 && (
               <motion.div
-                className="pointer-events-auto hidden border-y border-white/10 bg-black/90 px-5 py-5 text-white shadow-2xl backdrop-blur-xl lg:block"
+                className={cn(
+                  "pointer-events-auto hidden border-y px-5 py-5 shadow-2xl backdrop-blur-xl lg:block",
+                  isHeaderOnDark
+                    ? "border-black/10 bg-white/95 text-neutral-950"
+                    : "border-white/10 bg-black/90 text-white",
+                )}
                 initial={{ opacity: 0, y: -24, scaleY: 0.86, filter: "blur(14px)" }}
                 animate={{ opacity: 1, y: 0, scaleY: 1, filter: "blur(0px)" }}
                 exit={{ opacity: 0, y: -18, scaleY: 0.92, filter: "blur(10px)" }}
@@ -385,7 +421,10 @@ export function Layout({ children }: LayoutProps) {
                       <motion.div key={child.href} {...itemMotion}>
                       <a
                         href={child.href}
-                        className="transition hover:-translate-y-0.5 hover:text-brand-light"
+                        className={cn(
+                          "transition hover:-translate-y-0.5",
+                          isHeaderOnDark ? "hover:text-brand" : "hover:text-brand-light",
+                        )}
                         onClick={() => setActiveDropdown(null)}
                       >
                         {child.label}
@@ -395,7 +434,10 @@ export function Layout({ children }: LayoutProps) {
                       <motion.div key={child.href} {...itemMotion}>
                       <Link
                         to={child.href}
-                        className="transition hover:-translate-y-0.5 hover:text-brand-light"
+                        className={cn(
+                          "transition hover:-translate-y-0.5",
+                          isHeaderOnDark ? "hover:text-brand" : "hover:text-brand-light",
+                        )}
                         onClick={() => setActiveDropdown(null)}
                       >
                         {child.label}
