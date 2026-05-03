@@ -184,20 +184,30 @@ export function Layout({ children }: LayoutProps) {
         <div
           className={cn(
             "pointer-events-auto transition-all duration-500 ease-out",
-            !isHome && "bg-black/80 shadow-2xl backdrop-blur-xl",
+            // Small screens: solid black strip — logo + menu stay readable as content scrolls under (no box-shadow)
+            "max-lg:bg-black max-lg:border-b max-lg:border-white/10 max-lg:shadow-none max-lg:backdrop-blur-xl",
+            !isHome && "bg-black/80 shadow-none backdrop-blur-xl lg:shadow-none",
+            // Desktop home: keep transparent bar over hero (large viewports only)
+            isHome && "lg:bg-transparent lg:shadow-none lg:backdrop-blur-none lg:border-transparent",
           )}
           onMouseLeave={() => setActiveDropdown(null)}
         >
-          <div className="mx-auto flex w-full max-w-[112rem] items-center justify-center gap-4 px-4 py-3 sm:px-5 lg:flex-nowrap lg:gap-0 lg:px-8 lg:py-4 xl:px-12">
-            <div className="flex min-w-0 max-w-full items-center justify-center">
+          <div
+            className={cn(
+              "mx-auto flex w-full max-w-[112rem] items-center justify-between gap-4 px-4 py-3 sm:px-5 lg:justify-center lg:flex-nowrap lg:gap-0 lg:px-8 lg:py-4 xl:px-12",
+              "max-lg:pt-[max(0.75rem,env(safe-area-inset-top))] max-lg:pb-3",
+            )}
+          >
+            <div className="flex min-w-0 flex-1 items-center justify-start lg:max-w-full lg:flex-initial lg:justify-center">
               <div className="shrink-0">
                 <Logo
                   className={cn(
                     "shrink-0",
                     "transition-all duration-700 ease-out",
+                    "max-lg:pointer-events-auto max-lg:translate-y-0 max-lg:scale-100 max-lg:opacity-100 max-lg:blur-0",
                     showFullNav || showCompactMenu
-                      ? "pointer-events-auto translate-y-0 scale-100 opacity-100 blur-0"
-                      : "pointer-events-none -translate-y-8 scale-95 opacity-0 blur-sm",
+                      ? "lg:pointer-events-auto lg:translate-y-0 lg:scale-100 lg:opacity-100 lg:blur-0"
+                      : "lg:pointer-events-none lg:-translate-y-8 lg:scale-95 lg:opacity-0 lg:blur-sm",
                   )}
                   compact
                   showSlogan={false}
@@ -273,6 +283,34 @@ export function Layout({ children }: LayoutProps) {
               </button>
               </nav>
             </div>
+
+            <button
+              type="button"
+              className={cn(
+                "pointer-events-auto inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-2.5 text-xs font-black uppercase tracking-[0.18em] transition-all duration-500 ease-out sm:gap-3 sm:px-4 sm:py-3 sm:text-sm",
+                "relative z-[9999] max-lg:right-auto max-lg:top-auto",
+                "lg:fixed lg:right-5 lg:top-5 lg:z-[9999]",
+                !showCompactMenu
+                  ? cn(
+                      "translate-y-0 scale-100 opacity-100 max-lg:pointer-events-auto max-lg:opacity-100",
+                      "lg:pointer-events-none lg:-translate-y-4 lg:scale-95 lg:opacity-0",
+                      isHeaderOnDark
+                        ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
+                        : "text-neutral-950 drop-shadow-[0_2px_8px_rgba(255,255,255,0.75)]",
+                    )
+                  : cn(
+                      "translate-y-0 scale-100 opacity-100",
+                      isHeaderOnDark
+                        ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
+                        : "text-neutral-950 drop-shadow-[0_2px_8px_rgba(255,255,255,0.75)]",
+                    ),
+              )}
+              onClick={() => setIsMenuOpen((open) => !open)}
+              aria-label="Toggle navigation menu"
+            >
+              <span>Menu</span>
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
 
           <AnimatePresence>
@@ -324,31 +362,6 @@ export function Layout({ children }: LayoutProps) {
             )}
           </AnimatePresence>
         </div>
-
-        <button
-          type="button"
-          className={cn(
-            "pointer-events-auto fixed right-4 top-4 z-[9999] inline-flex items-center gap-2 rounded-full px-3 py-2.5 text-xs font-black uppercase tracking-[0.18em] transition-all duration-500 ease-out sm:right-5 sm:top-5 sm:gap-3 sm:px-4 sm:py-3 sm:text-sm",
-            !showCompactMenu
-              ? cn(
-                  "translate-y-0 scale-100 opacity-100 lg:pointer-events-none lg:-translate-y-4 lg:scale-95 lg:opacity-0",
-                  isHeaderOnDark
-                    ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
-                    : "text-neutral-950 drop-shadow-[0_2px_8px_rgba(255,255,255,0.75)]",
-                )
-              : cn(
-                  "translate-y-0 scale-100 opacity-100",
-                  isHeaderOnDark
-                    ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
-                    : "text-neutral-950 drop-shadow-[0_2px_8px_rgba(255,255,255,0.75)]",
-                ),
-          )}
-          onClick={() => setIsMenuOpen((open) => !open)}
-          aria-label="Toggle navigation menu"
-        >
-          <span>Menu</span>
-          {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
 
         <AnimatePresence>
           {isMenuOpen && (
