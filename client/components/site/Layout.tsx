@@ -380,7 +380,9 @@ export function Layout({ children }: LayoutProps) {
               type="button"
               className={cn(
                 "pointer-events-auto inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-2.5 text-xs font-black uppercase tracking-[0.18em] transition-all duration-500 ease-out sm:gap-3 sm:px-4 sm:py-3 sm:text-sm",
-                "relative z-[9999] max-lg:right-auto max-lg:top-auto",
+                // Below lg: hide while drawer is open so it cannot stack above the overlay (was z-9999 vs panel z-90).
+                isMenuOpen && "max-lg:hidden",
+                "relative z-10 max-lg:right-auto max-lg:top-auto",
                 "lg:fixed lg:right-5 lg:top-5 lg:z-[9999]",
                 !showCompactMenu
                   ? cn(
@@ -462,18 +464,20 @@ export function Layout({ children }: LayoutProps) {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
-              className="pointer-events-auto fixed inset-0 z-[90] overflow-y-auto bg-white px-6 py-6 text-neutral-950 shadow-2xl sm:px-8 lg:static lg:inset-auto lg:mx-4 lg:ml-auto lg:mr-8 lg:max-h-[calc(100vh-6rem)] lg:max-w-sm lg:rounded-[2rem] lg:px-6 lg:ring-1 lg:ring-black/10 xl:mr-10 2xl:mr-12"
+              className="pointer-events-auto fixed inset-0 z-[200] overflow-y-auto bg-white px-4 py-5 text-neutral-950 shadow-2xl sm:px-8 lg:static lg:z-auto lg:inset-auto lg:mx-4 lg:ml-auto lg:mr-8 lg:max-h-[calc(100vh-6rem)] lg:max-w-sm lg:rounded-[2rem] lg:px-6 lg:ring-1 lg:ring-black/10 xl:mr-10 2xl:mr-12"
               initial={{ opacity: 0, y: -28, scale: 0.98, filter: "blur(12px)" }}
               animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -24, scale: 0.98, filter: "blur(12px)" }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className="mb-6 flex items-center justify-between gap-4 border-b border-black/10 pb-5">
-                <Logo compact showSlogan={false} />
-                <div className="flex items-center gap-4">
+              <div className="mb-6 flex min-w-0 items-center justify-between gap-2 border-b border-black/10 pb-4 sm:gap-4 sm:pb-5">
+                <div className="min-w-0 flex-1 pr-2">
+                  <Logo className="max-w-full" compact showSlogan={false} />
+                </div>
+                <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
                   <button
                     type="button"
-                    className="grid h-10 w-10 place-items-center rounded-full bg-neutral-100 text-neutral-950 transition hover:bg-brand hover:text-white"
+                    className="grid h-10 w-10 flex-none place-items-center rounded-full bg-neutral-100 text-neutral-950 transition hover:bg-brand hover:text-white sm:h-11 sm:w-11"
                     aria-label="Search website"
                     onClick={() => {
                       setIsMenuOpen(false);
@@ -482,15 +486,15 @@ export function Layout({ children }: LayoutProps) {
                   >
                     <Search className="h-5 w-5" />
                   </button>
-                  <span className="hidden h-8 w-px bg-neutral-200 sm:block" />
-                  <span className="hidden text-sm font-black uppercase tracking-[0.18em] sm:inline">EN</span>
+                  <span className="hidden h-8 w-px shrink-0 bg-neutral-200 sm:block" />
+                  <span className="hidden shrink-0 text-sm font-black uppercase tracking-[0.18em] md:inline">EN</span>
                   <button
                     type="button"
-                    className="grid h-11 w-11 place-items-center rounded-full text-brand transition hover:bg-brand hover:text-white"
+                    className="grid h-10 w-10 flex-none place-items-center rounded-full text-brand transition hover:bg-brand hover:text-white sm:h-11 sm:w-11"
                     onClick={() => setIsMenuOpen(false)}
                     aria-label="Close navigation menu"
                   >
-                    <X className="h-7 w-7" />
+                    <X className="h-6 w-6 sm:h-7 sm:w-7" />
                   </button>
                 </div>
               </div>
