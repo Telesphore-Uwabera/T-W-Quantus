@@ -464,28 +464,18 @@ export function Layout({ children }: LayoutProps) {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
-              className="pointer-events-auto fixed inset-0 z-[200] overflow-y-auto bg-white px-4 py-5 text-neutral-950 shadow-2xl sm:px-8 lg:static lg:z-auto lg:inset-auto lg:mx-4 lg:ml-auto lg:mr-8 lg:max-h-[calc(100vh-6rem)] lg:max-w-sm lg:rounded-[2rem] lg:px-6 lg:ring-1 lg:ring-black/10 xl:mr-10 2xl:mr-12"
+              className="pointer-events-auto fixed inset-0 z-[200] overflow-y-auto bg-white px-4 py-5 text-neutral-950 shadow-2xl sm:px-8 lg:static lg:z-auto lg:inset-auto lg:mx-4 lg:ml-auto lg:mr-8 lg:max-h-[calc(100vh-6rem)] lg:max-w-[21rem] lg:rounded-[2rem] lg:px-6 lg:ring-1 lg:ring-black/10 xl:mr-10 2xl:mr-12"
               initial={{ opacity: 0, y: -28, scale: 0.98, filter: "blur(12px)" }}
               animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -24, scale: 0.98, filter: "blur(12px)" }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className="mb-6 flex min-w-0 items-center justify-between gap-2 border-b border-black/10 pb-4 sm:gap-4 sm:pb-5">
+              <div className="mb-4 flex min-w-0 items-center justify-between gap-2 border-b border-black/10 pb-3 sm:gap-4 sm:pb-4">
                 <div className="min-w-0 flex-1 pr-2">
                   <Logo className="max-w-full" compact showSlogan={false} />
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
-                  <button
-                    type="button"
-                    className="grid h-10 w-10 flex-none place-items-center rounded-full bg-neutral-100 text-neutral-950 transition hover:bg-brand hover:text-white sm:h-11 sm:w-11"
-                    aria-label="Search website"
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      setIsSearchOpen(true);
-                    }}
-                  >
-                    <Search className="h-5 w-5" />
-                  </button>
+
                   <span className="hidden h-8 w-px shrink-0 bg-neutral-200 sm:block" />
                   <span className="hidden shrink-0 text-sm font-black uppercase tracking-[0.18em] md:inline">EN</span>
                   <button
@@ -501,14 +491,14 @@ export function Layout({ children }: LayoutProps) {
 
               <button
                 type="button"
-                className="mb-5 flex w-full items-center gap-4 border-b border-black/10 pb-5 text-left text-neutral-400 transition hover:text-brand"
+                className="mb-3 flex w-full items-center gap-3 border-b border-black/10 pb-3 text-left text-neutral-400 transition hover:text-brand"
                 onClick={() => {
                   setIsMenuOpen(false);
                   setIsSearchOpen(true);
                 }}
               >
-                <Search className="h-7 w-7 flex-none text-neutral-950" />
-                <span className="text-xl font-semibold">Type to search</span>
+                <Search className="h-5 w-5 flex-none text-neutral-950" />
+                <span className="text-base font-semibold">Type to search</span>
               </button>
 
               <nav className="flex flex-col">
@@ -519,7 +509,7 @@ export function Layout({ children }: LayoutProps) {
                   return (
                   <motion.div
                     key={item.href}
-                    className="border-b border-black/10 py-4"
+                    className="border-b border-black/10 py-2.5"
                     initial={{ opacity: 0, x: 18 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.35, delay: index * 0.04 }}
@@ -527,7 +517,7 @@ export function Layout({ children }: LayoutProps) {
                     <div className="flex items-center justify-between gap-4">
                     <NavLink
                       to={item.href}
-                      className="text-lg font-black text-neutral-950 transition hover:text-brand"
+                      className="text-sm font-bold uppercase tracking-wider text-neutral-950 transition hover:text-brand"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {item.label}
@@ -555,7 +545,7 @@ export function Layout({ children }: LayoutProps) {
                       <AnimatePresence initial={false}>
                         {isExpanded && (
                           <motion.div
-                            className="mt-5 grid gap-4 pl-0 sm:pl-4"
+                            className="mt-3 grid gap-3 pl-0 sm:pl-4"
                             initial={{ opacity: 0, height: 0, y: -8 }}
                             animate={{ opacity: 1, height: "auto", y: 0 }}
                             exit={{ opacity: 0, height: 0, y: -8 }}
@@ -566,7 +556,7 @@ export function Layout({ children }: LayoutProps) {
                                 <motion.a
                                   key={child.href}
                                   href={child.href}
-                                  className="text-base font-semibold text-neutral-900 transition hover:text-brand"
+                                  className="text-sm font-medium text-neutral-900 transition hover:text-brand"
                                   initial={{ opacity: 0, y: -8 }}
                                   animate={{ opacity: 1, y: 0 }}
                                   transition={{ delay: childIndex * 0.04 }}
@@ -582,7 +572,7 @@ export function Layout({ children }: LayoutProps) {
                                 >
                                   <Link
                                     to={child.href}
-                                    className="text-base font-semibold text-neutral-900 transition hover:text-brand"
+                                    className="text-sm font-medium text-neutral-900 transition hover:text-brand"
                                     onClick={() => setIsMenuOpen(false)}
                                   >
                                     {child.label}
@@ -597,19 +587,10 @@ export function Layout({ children }: LayoutProps) {
                   </motion.div>
                   );
                 })}
-                <a href={company.phoneHref} className="btn-brand mt-5">
+                <a href={company.phoneHref} className="btn-brand mt-5 px-5 py-2.5 text-xs">
                   Call {company.phone}
                 </a>
-                <button
-                  type="button"
-                  className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-brand/25 px-5 py-3 text-sm font-black text-brand transition hover:bg-brand hover:text-white"
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    setIsSearchOpen(true);
-                  }}
-                >
-                  Search Website <Search className="h-4 w-4" />
-                </button>
+
               </nav>
             </motion.div>
           )}
