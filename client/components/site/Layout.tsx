@@ -803,7 +803,7 @@ export function Layout({ children }: LayoutProps) {
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-full border border-brand/50 px-4 py-2 font-black text-white transition hover:-translate-y-0.5 hover:border-brand-light hover:bg-brand/20"
               >
-                Feel Free to Contact Developer
+                Contact {"</>"}
                 <ArrowRight className="h-3.5 w-3.5" />
               </a>
             </div>
