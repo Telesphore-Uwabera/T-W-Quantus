@@ -25,6 +25,7 @@ import { company, navigation, perspectives, services } from "@/data/site";
 import { submitNewsletter } from "@/lib/api";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
+import { seoContent } from "@/data/seo";
 
 type LayoutProps = {
   children: ReactNode;
@@ -831,6 +832,22 @@ export function Layout({ children }: LayoutProps) {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Hidden SEO Content Block */}
+        <div className="sr-only" aria-hidden="true">
+          <h2>{seoContent.en.title}</h2>
+          <p>{seoContent.en.description}</p>
+          <p>{seoContent.en.fullText}</p>
+          <ul>
+            {seoContent.en.keywords.map(k => <li key={k}>{k}</li>)}
+          </ul>
+          <h2>{seoContent.rw.title}</h2>
+          <p>{seoContent.rw.description}</p>
+          <p>{seoContent.rw.fullText}</p>
+          <ul>
+            {seoContent.rw.keywords.map(k => <li key={k}>{k}</li>)}
+          </ul>
         </div>
       </footer>
     </div>

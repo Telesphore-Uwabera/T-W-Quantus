@@ -30,7 +30,7 @@ export function Logo({
       <span className="logo-cloud grid h-16 w-16 place-items-center transition group-hover:scale-105 sm:h-20 sm:w-20 lg:h-24 lg:w-24">
         <img
           src={company.logo}
-          alt={`${company.name} logo`}
+          alt={`${company.name} logo - Construction, Quantity Surveying, Cost Management, & Project Management in Kigali, Rwanda | Ubwubatsi, Ibarura rimbura-mushinga, Icunga-mushinga mu Rwanda`}
           className="relative z-10 h-12 w-12 object-contain sm:h-16 sm:w-16 lg:h-20 lg:w-20"
         />
       </span>

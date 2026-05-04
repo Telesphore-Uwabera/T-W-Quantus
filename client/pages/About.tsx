@@ -36,7 +36,7 @@ export default function About() {
           <Reveal delay={0.1} direction="right">
             <div className="overflow-hidden rounded-[1.5rem] bg-neutral-950 text-white sm:rounded-[2rem]">
               <div className="about-profile-visual min-h-56 p-5 sm:min-h-72 sm:p-8">
-                <img src={company.logo} alt={`${company.name} logo`} className="relative z-10 h-20 w-20 object-contain sm:h-28 sm:w-28" />
+                <img src={company.logo} alt={`${company.name} - Trusted construction and quantity surveying experts in Kigali, Rwanda. Ubunyamwuga mu bwubatsi.`} className="relative z-10 h-20 w-20 object-contain sm:h-28 sm:w-28" />
               </div>
               <div className="p-5 sm:p-8">
               <div className="space-y-5">

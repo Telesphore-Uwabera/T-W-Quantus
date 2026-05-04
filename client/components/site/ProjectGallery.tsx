@@ -61,7 +61,11 @@ export function ProjectGallery({ images, title }: ProjectGalleryProps) {
             onClick={() => setLightbox(true)}
             aria-label={`Open image ${safeIndex + 1} of ${n} fullscreen`}
           >
-            <img src={images[safeIndex]} alt="" className="h-full w-full object-cover" />
+            <img 
+              src={images[safeIndex]} 
+              alt={`${title} - Project delivery in Rwanda and East Africa by T&W Quantus LTD - Construction, Quantity Surveying, Cost Management, and Project Management. Imirimo y'ubwubatsi n'ibarura rimbura-mushinga mu Rwanda.`} 
+              className="h-full w-full object-cover" 
+            />
           </button>
           <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
             {safeIndex + 1} / {n}
@@ -103,7 +107,7 @@ export function ProjectGallery({ images, title }: ProjectGalleryProps) {
           <div className="flex max-h-full max-w-full items-center justify-center px-14 sm:px-20">
             <img
               src={images[safeIndex]}
-              alt=""
+              alt={`${title} - Fullscreen view of project works by T&W Quantus LTD. Professional construction and technical services in Kigali. Ubunyamwuga mu bwubatsi.`}
               className="max-h-[calc(100vh-3rem)] max-w-full object-contain"
             />
           </div>
