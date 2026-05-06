@@ -44,8 +44,8 @@ export const navigation = [
     children: [
       { label: "Services Overview", href: "/services#services-overview" },
       { label: "Cost Management", href: "/services/quantity-surveying-cost-management" },
-      { label: "Project Management", href: "/services/project-management" },
       { label: "Construction Management", href: "/services/construction-management" },
+      { label: "Project Management", href: "/services/project-management" },
       { label: "Technical Services", href: "/services/turnkey-construction-technical-services" },
     ],
   },
@@ -90,16 +90,16 @@ export const services = [
     summary:
       "Rigorous financial oversight that helps clients protect budgets, improve value, and make informed decisions at every project stage.",
     highlights: [
-      "Cost estimating and feasibility studies",
-      "Budget monitoring and cost planning",
-      "Bills of Quantities and tender documentation",
-      "Value engineering and life-cycle costing",
-      "Final accounts, claims review, and reconciliation",
+      "Cost Estimating & Feasibility Study",
+      "Cost Planning & Value Management",
+      "Tender Documentation & Process Management",
+      "Contract Administration",
+      "Final Account & Reconciliation",
     ],
     detailGroups: [
       {
         title: "Cost Estimating & Feasibility Study",
-        items: ["Preliminary cost advice", "Feasibility cost assessments", "Budget and budget monitoring"],
+        items: ["Preliminary cost advice", "Feasibility cost assessments", "Budget and Budget Monitoring"],
       },
       {
         title: "Cost Planning & Value Management",
@@ -107,33 +107,96 @@ export const services = [
       },
       {
         title: "Tender Documentation & Process Management",
-        items: ["BOQ preparation", "Tender specifications and bid documentation", "Bid evaluation and contractor selection"],
+        items: ["Bills of Quantities (BOQ) preparation", "Tender specifications and bid documentation", "Bid evaluation and contractor selection"],
       },
       {
-        title: "Contract Administration & Final Account",
+        title: "Contract Administration",
         items: [
           "Contract drafting and negotiation",
-          "FIDIC, RPPA, JCT, and NEC compliance advice",
-          "Variation assessment, claims review, final payment statements, and reconciliation",
+          "Compliance with FIDIC, RPPA, JCT, NEC standards",
+          "Advice on procurement models (Traditional, D&B, EPC)",
+        ],
+      },
+      {
+        title: "Final Account & Reconciliation",
+        items: [
+          "Verification of contractor claims and work completed",
+          "Assessment of variations and any adjustments",
+          "Preparation of the final payment statement",
+          "Reconciliation of all payments and deductions",
+          "Issuance of final account certificate and closure documentation",
         ],
       },
     ],
   },
   {
     number: "02",
+    slug: "construction-management",
+    title: "Construction Management Services",
+    pageTitle: "Site leadership, program control, and safer construction execution.",
+    pageIntro:
+      "Our construction management support brings structured execution, site leadership, and operational control to every project.",
+    summary:
+      "Hands-on site coordination and delivery control for safer, clearer, and better managed construction execution.",
+    highlights: [
+      "Site Mobilization & Supervision",
+      "Construction Program & Scheduling",
+      "Risk, Quality & Compliance Management",
+      "Cost Control during Execution",
+      "Cost & Schedule Control",
+      "Quality & Compliance Control",
+      "Technical Support & Issue Resolution",
+      "Handover & Post-Construction Review",
+    ],
+    detailGroups: [
+      {
+        title: "Site Mobilization & Supervision",
+        items: ["Contractor on-boarding and mobilization", "Subcontractor coordination", "Daily site oversight"],
+      },
+      {
+        title: "Construction Program & Scheduling",
+        items: ["Execution timeline tracking", "Progress monitoring and milestone checks", "Integration of suppliers and trades"],
+      },
+      {
+        title: "Risk, Quality & Compliance Management",
+        items: ["Risk identification and mitigation planning", "Quality assurance and compliance oversight", "HSE (Health, Safety, and Environment) and statutory regulation monitoring"],
+      },
+      {
+        title: "Cost Control during Execution",
+        items: ["Interim valuations and financial reporting", "Cost tracking and variation management", "Final account preparation and reconciliation"],
+      },
+      {
+        title: "Cost & Schedule Control",
+        items: ["Budget tracking and financial reporting", "Milestone planning and construction program scheduling", "Cash flow forecasting and resource alignment"],
+      },
+      {
+        title: "Quality & Compliance Control",
+        items: ["On-site quality assurance inspections", "Health, Safety & Environmental (HSE) compliance", "Testing and material standards verification"],
+      },
+      {
+        title: "Technical Support & Issue Resolution",
+        items: ["Handling design changes and RFIs", "Resolving site technical issues", "Monitoring workmanship and standards"],
+      },
+      {
+        title: "Handover & Post-Construction Review",
+        items: ["Snag list management", "Client support during defects liability period"],
+      },
+    ],
+  },
+  {
+    number: "03",
     slug: "project-management",
-    title: "Project Management",
+    title: "Project Management Services",
     pageTitle: "Structured leadership from concept to successful completion.",
     pageIntro:
-      "We guide clients through feasibility, design coordination, procurement, stakeholder alignment, delivery control, commissioning, and close-out.",
+      "We provide strategic leadership and structured control across every phase, ensuring projects are delivered on time, within budget, and to the highest quality standards.",
     summary:
       "Structured leadership from early concept through close-out, aligning design, procurement, stakeholders, time, quality, and cost.",
     highlights: [
-      "Project initiation and feasibility",
-      "Design and consultant coordination",
-      "Procurement strategy and contract packaging",
-      "Stakeholder engagement and change control",
-      "Commissioning, handover, and project close-out",
+      "Project Initiation & Feasibility",
+      "Design & Consultant Coordination",
+      "Procurement & Contract Planning",
+      "Stakeholder Management & Project Close-Out",
     ],
     detailGroups: [
       {
@@ -142,50 +205,15 @@ export const services = [
       },
       {
         title: "Design & Consultant Coordination",
-        items: ["Design team leadership", "Technical consultant management", "Scope definition and planning integration"],
+        items: ["Design team leadership and coordination", "Technical consultant management", "Scope definition and planning integration"],
       },
       {
         title: "Procurement & Contract Planning",
-        items: ["Procurement strategy formulation", "Contract packaging", "Procurement scheduling"],
+        items: ["Procurement strategy formulation", "Contract packaging and procurement scheduling"],
       },
       {
-        title: "Stakeholder Management & Close-Out",
-        items: ["Client and stakeholder engagement", "Change management and claims resolution", "Final handover and commissioning"],
-      },
-    ],
-  },
-  {
-    number: "03",
-    slug: "construction-management",
-    title: "Construction Management",
-    pageTitle: "Site leadership, program control, and safer construction execution.",
-    pageIntro:
-      "Our construction management support brings daily site oversight, trade coordination, quality control, HSE monitoring, and handover discipline.",
-    summary:
-      "Hands-on site coordination and delivery control for safer, clearer, and better managed construction execution.",
-    highlights: [
-      "Site mobilization and daily supervision",
-      "Subcontractor and trade coordination",
-      "Construction program and milestone tracking",
-      "Quality assurance and HSE compliance",
-      "Technical issue resolution and snag management",
-    ],
-    detailGroups: [
-      {
-        title: "Site Mobilization & Supervision",
-        items: ["Contractor onboarding and mobilization", "Subcontractor coordination", "Daily site oversight"],
-      },
-      {
-        title: "Program, Cost & Schedule Control",
-        items: ["Execution timeline tracking", "Milestone planning", "Cash-flow forecasting and resource alignment"],
-      },
-      {
-        title: "Risk, Quality & Compliance Management",
-        items: ["Risk mitigation planning", "Quality assurance inspections", "HSE and statutory regulation monitoring"],
-      },
-      {
-        title: "Technical Support & Handover",
-        items: ["Design change and RFI resolution", "Workmanship monitoring", "Snag list and defects liability support"],
+        title: "Stakeholder Management & Project Close-Out",
+        items: ["Client and stakeholder engagement", "Change management and claims resolution", "Final handover, commissioning, and project close-out"],
       },
     ],
   },
@@ -195,32 +223,28 @@ export const services = [
     title: "Turnkey Construction & Technical Services",
     pageTitle: "One accountable delivery partner for technical and turnkey works.",
     pageIntro:
-      "We integrate construction execution, architectural drawing support, civil and structural works, MEP installations, renovations, repairs, and selected material supply.",
+      "We deliver end-to-end solutions for building projects from concept to completion, managing the full project life-cycle with precision, speed, and accountability.",
     summary:
       "End-to-end delivery for residential, commercial, and institutional developments with one accountable delivery partner.",
     highlights: [
-      "General building construction",
-      "Architectural drawing support",
-      "Civil and structural works execution",
-      "Electrical and mechanical installations",
-      "Minor works, renovations, repairs, and material supply",
+      "General Building Construction",
+      "Architectural Drawing",
+      "Civil & Structural Works Execution",
+      "Electrical & Mechanical Installations",
+      "Minor Works, Renovations, and Repairs",
+      "Supply and Installation of Construction Materials",
     ],
     detailGroups: [
       {
-        title: "Construction Execution",
-        items: ["Residential building construction", "Commercial developments", "Institutional developments"],
-      },
-      {
-        title: "Technical Design & Works",
-        items: ["Architectural drawing", "Civil and structural works", "Electrical and mechanical installations"],
-      },
-      {
-        title: "Renovations & Repairs",
-        items: ["Minor works", "Renovations", "Repair works and fit-out improvements"],
-      },
-      {
-        title: "Material Supply & Installation",
-        items: ["Tiles and fixtures", "Finishes and piping", "Roofing and selected construction materials"],
+        title: "Turnkey Construction & Technical Services",
+        items: [
+          "General Building Construction (residential, commercial, institutional)",
+          "Architectural Drawing",
+          "Civil & Structural Works Execution",
+          "Electrical & Mechanical Installations (HVAC, plumbing, fire systems)",
+          "Minor Works, Renovations, and Repairs",
+          "Supply and Installation of Construction Materials (tiles, fixtures, finishes, piping, roofing, etc.)",
+        ],
       },
     ],
   },
