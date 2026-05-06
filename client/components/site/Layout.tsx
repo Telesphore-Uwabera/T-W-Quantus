@@ -37,6 +37,18 @@ type SearchItem = {
   href: string;
 };
 
+function dedupeSearchItems(items: SearchItem[]): SearchItem[] {
+  const seen = new Set<string>();
+  const out: SearchItem[] = [];
+  for (const item of items) {
+    const key = `${item.href}\0${item.title}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(item);
+  }
+  return out;
+}
+
 const baseSearchItems: SearchItem[] = [
   {
     title: "Home",
@@ -203,12 +215,12 @@ export function Layout({ children }: LayoutProps) {
   const activeNavigation = navigation.find((item) => item.label === activeDropdown);
   const activeDropdownLinks =
     activeNavigation && "children" in activeNavigation ? activeNavigation.children : undefined;
-  const searchItems = [
+  const searchItems = dedupeSearchItems([
     ...baseSearchItems,
     ...services.map((service) => ({
       title: service.title,
       category: "Service",
-      description: service.summary,
+      description: service.pageIntro,
       href: `/services/${service.slug}`,
     })),
     ...perspectives.map((item) => ({
@@ -217,7 +229,7 @@ export function Layout({ children }: LayoutProps) {
       description: item.summary,
       href: `/perspectives/${item.slug}`,
     })),
-  ];
+  ]);
   const normalizedSearch = searchQuery.trim().toLowerCase();
   const searchResults = (normalizedSearch
     ? searchItems.filter((item) =>
@@ -363,14 +375,15 @@ export function Layout({ children }: LayoutProps) {
               <button
                 type="button"
                 className={cn(
-                  "inline-flex items-center gap-2 whitespace-nowrap text-[11px] font-black uppercase tracking-[0.12em] xl:text-xs 2xl:text-sm 2xl:tracking-[0.16em]",
+                  "inline-flex items-center gap-2 whitespace-nowrap font-black uppercase",
+                  "text-[clamp(0.625rem,0.52rem+0.35vw,0.875rem)] tracking-[clamp(0.1em,0.08em+0.06vw,0.16em)]",
                   navLinkClass,
                 )}
                 aria-label="Search"
                 onMouseEnter={() => setActiveDropdown(null)}
                 onClick={() => setIsSearchOpen(true)}
               >
-                <Search className="h-5 w-5" />
+                <Search className="h-[clamp(1rem,0.9rem+0.35vw,1.25rem)] w-[clamp(1rem,0.9rem+0.35vw,1.25rem)]" />
                 <span>Search</span>
               </button>
               </nav>
@@ -507,8 +520,10 @@ export function Layout({ children }: LayoutProps) {
                   setIsSearchOpen(true);
                 }}
               >
-                <Search className="h-7 w-7 flex-none text-neutral-950" />
-                <span className="text-xl font-semibold">Type to search</span>
+                <Search className="h-[clamp(1.25rem,1.1rem+0.45vw,1.75rem)] w-[clamp(1.25rem,1.1rem+0.45vw,1.75rem)] flex-none text-neutral-950" />
+                <span className="text-[clamp(1rem,0.92rem+0.35vw,1.25rem)] font-semibold leading-snug">
+                  Type to search
+                </span>
               </button>
 
               <nav className="flex flex-col">
@@ -600,16 +615,6 @@ export function Layout({ children }: LayoutProps) {
                 <a href={company.phoneHref} className="btn-brand mt-5">
                   Call {company.phone}
                 </a>
-                <button
-                  type="button"
-                  className="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-brand/25 px-5 py-3 text-sm font-black text-brand transition hover:bg-brand hover:text-white"
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    setIsSearchOpen(true);
-                  }}
-                >
-                  Search Website <Search className="h-4 w-4" />
-                </button>
               </nav>
             </motion.div>
           )}
@@ -625,7 +630,7 @@ export function Layout({ children }: LayoutProps) {
               transition={{ duration: 0.25 }}
             >
               <motion.div
-                className="mx-auto mt-16 max-w-4xl rounded-[2rem] bg-white p-6 shadow-2xl md:p-8"
+                className="mx-auto mt-[clamp(3rem,8vw,5rem)] max-w-4xl rounded-[2rem] bg-white p-[clamp(1rem,3vw,2rem)] shadow-2xl sm:p-6 md:p-8"
                 initial={{ opacity: 0, y: 24, scale: 0.96, filter: "blur(12px)" }}
                 animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
                 exit={{ opacity: 0, y: 24, scale: 0.96, filter: "blur(12px)" }}
@@ -634,7 +639,7 @@ export function Layout({ children }: LayoutProps) {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="eyebrow">Search T&W Quantus</p>
-                    <h2 className="mt-2 text-3xl font-black text-neutral-950 md:text-5xl">
+                    <h2 className="mt-2 font-black leading-[1.08] tracking-tight text-neutral-950 text-[clamp(1.375rem,1.05rem+2.1vw,3rem)]">
                       Find any page, service, project, or news.
                     </h2>
                   </div>
@@ -677,17 +682,21 @@ export function Layout({ children }: LayoutProps) {
                         onClick={() => navigateToSearchResult(item.href)}
                       >
                         <div className="flex items-center justify-between gap-4">
-                          <span className="text-xs font-black uppercase tracking-[0.2em] text-brand">
+                          <span className="font-black uppercase text-brand text-[clamp(0.625rem,0.55rem+0.25vw,0.75rem)] tracking-[clamp(0.12em,0.1em+0.08vw,0.2em)]">
                             {item.category}
                           </span>
-                          <ArrowRight className="h-4 w-4 text-brand opacity-0 transition group-hover:translate-x-1 group-hover:opacity-100" />
+                          <ArrowRight className="h-4 w-4 shrink-0 text-brand opacity-0 transition group-hover:translate-x-1 group-hover:opacity-100" />
                         </div>
-                        <h3 className="mt-2 text-xl font-black text-neutral-950">{item.title}</h3>
-                        <p className="mt-2 text-sm leading-6 text-neutral-600">{item.description}</p>
+                        <h3 className="mt-2 font-black text-neutral-950 text-[clamp(1rem,0.92rem+0.45vw,1.25rem)]">
+                          {item.title}
+                        </h3>
+                        <p className="mt-2 text-neutral-600 text-[clamp(0.8125rem,0.76rem+0.22vw,0.875rem)] leading-[1.55]">
+                          {item.description}
+                        </p>
                       </button>
                     ))
                   ) : (
-                    <div className="rounded-2xl bg-neutral-100 p-6 text-neutral-600">
+                    <div className="rounded-2xl bg-neutral-100 p-[clamp(1rem,2.5vw,1.5rem)] text-neutral-600 text-[clamp(0.875rem,0.8rem+0.28vw,1rem)] leading-relaxed">
                       No result found. Try searching for “cost”, “project”, “contact”, or “construction”.
                     </div>
                   )}
@@ -704,7 +713,7 @@ export function Layout({ children }: LayoutProps) {
         ref={footerRef}
         id="site-footer"
         data-header-theme="dark"
-        className="relative overflow-hidden bg-black text-white"
+        className="relative z-30 overflow-hidden bg-black text-white"
       >
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-brand/15 to-transparent" />
         <div className="absolute -right-24 top-20 h-72 w-72 rounded-full bg-brand/10 blur-3xl" />

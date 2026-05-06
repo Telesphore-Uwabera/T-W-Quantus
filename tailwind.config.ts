@@ -98,6 +98,11 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-16px)" },
         },
+        /** Two identical halves; translate by one half for a seamless loop. */
+        "project-marquee": {
+          "0%": { transform: "translate3d(0, 0, 0)" },
+          "100%": { transform: "translate3d(-50%, 0, 0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -105,6 +110,7 @@ export default {
         "fade-in": "fade-in 0.6s ease-out",
         "slide-up": "slide-up 0.6s ease-out",
         float: "float 6s ease-in-out infinite",
+        "project-marquee": "project-marquee 55s linear infinite",
       },
     },
   },

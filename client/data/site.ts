@@ -6,7 +6,7 @@ export const company = {
   slogan: "Building Excellence, Delivering Trust",
   industry: "Construction & Project Management",
   location: "Gasabo, Kigali, Rwanda",
-  registeredAddress: "Rukurazo, Kibagabaga, Kimironko, Gasabo, Kigali, Rwanda",
+  registeredAddress: "Gasabo, Kigali, Rwanda",
   phone: "+250 780 410 570",
   phoneHref: "tel:+250780410570",
   /** Chat on WhatsApp (same number, international format without +). */
@@ -46,7 +46,6 @@ export const navigation = [
       { label: "Cost Management", href: "/services/quantity-surveying-cost-management" },
       { label: "Construction Management", href: "/services/construction-management" },
       { label: "Project Management", href: "/services/project-management" },
-      { label: "Technical Services", href: "/services/turnkey-construction-technical-services" },
     ],
   },
   {
@@ -84,11 +83,11 @@ export const services = [
     number: "01",
     slug: "quantity-surveying-cost-management",
     title: "Quantity Surveying & Cost Management",
-    pageTitle: "Cost certainty from feasibility to final account.",
+    pageTitle: "Cost certainty and value across the construction life-cycle.",
     pageIntro:
-      "Clients need reliable project cost data for budgeting, tendering, controlling expenditure, and closing contracts with confidence.",
+      "Our Quantity Surveying & Cost Management services provide rigorous financial oversight to maximize value and ensure cost certainty throughout the construction life-cycle. With deep expertise in cost control and contractual compliance, we empower clients to make informed decisions at every project stage.",
     summary:
-      "Rigorous financial oversight that helps clients protect budgets, improve value, and make informed decisions at every project stage.",
+      "With deep expertise in cost control and contractual compliance, we empower clients to make informed decisions at every project stage.",
     highlights: [
       "Cost Estimating & Feasibility Study",
       "Cost Planning & Value Management",
@@ -99,15 +98,27 @@ export const services = [
     detailGroups: [
       {
         title: "Cost Estimating & Feasibility Study",
-        items: ["Preliminary cost advice", "Feasibility cost assessments", "Budget and Budget Monitoring"],
+        items: [
+          "Preliminary cost advice",
+          "Feasibility cost assessments",
+          "Budget and budget monitoring",
+        ],
       },
       {
         title: "Cost Planning & Value Management",
-        items: ["Detailed cost planning and control", "Life-cycle costing", "Value engineering for cost optimization"],
+        items: [
+          "Detailed cost planning and control",
+          "Life-cycle costing",
+          "Value engineering for cost optimization",
+        ],
       },
       {
         title: "Tender Documentation & Process Management",
-        items: ["Bills of Quantities (BOQ) preparation", "Tender specifications and bid documentation", "Bid evaluation and contractor selection"],
+        items: [
+          "Bills of Quantities (BOQ) preparation",
+          "Tender specifications and bid documentation",
+          "Bid evaluation and contractor selection",
+        ],
       },
       {
         title: "Contract Administration",
@@ -133,11 +144,11 @@ export const services = [
     number: "02",
     slug: "construction-management",
     title: "Construction Management Services",
-    pageTitle: "Site leadership, program control, and safer construction execution.",
+    pageTitle: "Structured execution, site leadership, and operational control.",
     pageIntro:
-      "Our construction management support brings structured execution, site leadership, and operational control to every project.",
+      "Through our Construction Management Services, we bring structured execution, site leadership, and operational control to every project. T&W Quantus oversees all site activities, coordinates subcontractors and trades, monitors progress, and enforces stringent quality and safety standards.",
     summary:
-      "Hands-on site coordination and delivery control for safer, clearer, and better managed construction execution.",
+      "T&W Quantus oversees all site activities, coordinates subcontractors and trades, monitors progress, and enforces stringent quality and safety standards.",
     highlights: [
       "Site Mobilization & Supervision",
       "Construction Program & Scheduling",
@@ -187,11 +198,11 @@ export const services = [
     number: "03",
     slug: "project-management",
     title: "Project Management Services",
-    pageTitle: "Structured leadership from concept to successful completion.",
+    pageTitle: "Strategic leadership and structured control on every project.",
     pageIntro:
-      "We provide strategic leadership and structured control across every phase, ensuring projects are delivered on time, within budget, and to the highest quality standards.",
+      "At T&W QUANTUS, our Project Management Services provide clients with strategic leadership and structured control across every phase of a construction project. We guide projects from initial concept to successful completion, ensuring they are delivered on time, within budget, and to the highest quality standards.",
     summary:
-      "Structured leadership from early concept through close-out, aligning design, procurement, stakeholders, time, quality, and cost.",
+      "We guide projects from initial concept to successful completion, ensuring they are delivered on time, within budget, and to the highest quality standards.",
     highlights: [
       "Project Initiation & Feasibility",
       "Design & Consultant Coordination",
@@ -214,37 +225,6 @@ export const services = [
       {
         title: "Stakeholder Management & Project Close-Out",
         items: ["Client and stakeholder engagement", "Change management and claims resolution", "Final handover, commissioning, and project close-out"],
-      },
-    ],
-  },
-  {
-    number: "04",
-    slug: "turnkey-construction-technical-services",
-    title: "Turnkey Construction & Technical Services",
-    pageTitle: "One accountable delivery partner for technical and turnkey works.",
-    pageIntro:
-      "We deliver end-to-end solutions for building projects from concept to completion, managing the full project life-cycle with precision, speed, and accountability.",
-    summary:
-      "End-to-end delivery for residential, commercial, and institutional developments with one accountable delivery partner.",
-    highlights: [
-      "General Building Construction",
-      "Architectural Drawing",
-      "Civil & Structural Works Execution",
-      "Electrical & Mechanical Installations",
-      "Minor Works, Renovations, and Repairs",
-      "Supply and Installation of Construction Materials",
-    ],
-    detailGroups: [
-      {
-        title: "Turnkey Construction & Technical Services",
-        items: [
-          "General Building Construction (residential, commercial, institutional)",
-          "Architectural Drawing",
-          "Civil & Structural Works Execution",
-          "Electrical & Mechanical Installations (HVAC, plumbing, fire systems)",
-          "Minor Works, Renovations, and Repairs",
-          "Supply and Installation of Construction Materials (tiles, fixtures, finishes, piping, roofing, etc.)",
-        ],
       },
     ],
   },

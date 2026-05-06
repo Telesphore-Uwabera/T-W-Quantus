@@ -23,7 +23,7 @@ export default function Contact() {
       <PageHero
         eyebrow="Contact"
         title="Start your project with a clear conversation about cost, scope, and delivery."
-        description="Reach T&W Quantus in Kigali for quantity surveying, project management, construction management, technical services, and turnkey construction support."
+        description="Reach T&W Quantus in Kigali for quantity surveying, project management, and construction management."
         visual="contact"
       />
 
@@ -172,9 +172,9 @@ export default function Contact() {
                   "Yes. The company is based in Gasabo, Kigali, and serves clients across Rwanda, East Africa, and broader international project needs.",
               },
               {
-                question: "Can you support turnkey construction and technical services?",
+                question: "Do you support technical and multi-disciplinary project delivery?",
                 answer:
-                  "Yes. We support general building construction, architectural drawing, civil and structural works, MEP installations, renovations, repairs, and material supply.",
+                  "Yes. Through project and construction management we coordinate design, consultants, procurement, site execution, quality assurance, and handover—aligned with your procurement model and standards.",
               },
               {
                 question: "How quickly can I get a response?",
