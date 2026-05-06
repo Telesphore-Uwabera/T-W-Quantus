@@ -47,7 +47,7 @@ const baseSearchItems: SearchItem[] = [
   {
     title: "About T&W Quantus",
     category: "Page",
-    description: "Company overview, vision, mission, values, and registration details.",
+    description: "Who we are, collaboration, vision, mission, and core values.",
     href: "/about",
   },
   {
@@ -738,8 +738,9 @@ export function Layout({ children }: LayoutProps) {
                   titleIcon={Users}
                   links={[
                     { label: "Who We Are", href: "/about#who-we-are", Icon: ChevronRight },
+                    { label: "Collaborate With Us", href: "/about#collaborate", Icon: ChevronRight },
                     { label: "What We Do", href: "/services#services-overview", Icon: ChevronRight },
-                    { label: "Vision And Values", href: "/about#vision-mission", Icon: ChevronRight },
+                    { label: "Vision And Mission", href: "/about#vision-mission", Icon: ChevronRight },
                   ]}
                 />
                 <FooterContactBlock />

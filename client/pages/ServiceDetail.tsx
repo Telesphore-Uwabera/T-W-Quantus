@@ -103,8 +103,8 @@ export default function ServiceDetail() {
               <h2
                 className={
                   isDarkCards
-                    ? "mt-4 text-[clamp(2rem,4.8vw,4rem)] font-black leading-[1.06] tracking-tight text-white"
-                    : "mt-4 text-[clamp(2rem,4.8vw,4rem)] font-black leading-[1.06] tracking-tight text-neutral-950"
+                    ? "mt-4 text-[clamp(1.625rem,3.9vw,3.25rem)] font-black leading-[1.06] tracking-tight text-white"
+                    : "mt-4 text-[clamp(1.625rem,3.9vw,3.25rem)] font-black leading-[1.06] tracking-tight text-neutral-950"
                 }
               >
                 {service.pageTitle}
@@ -176,7 +176,7 @@ export default function ServiceDetail() {
         <Reveal className="relative mx-auto flex max-w-7xl flex-col justify-between gap-8 md:flex-row md:items-center">
           <div>
             <p className="eyebrow text-brand-light">Next step</p>
-            <h2 className="mt-4 max-w-4xl text-[clamp(2rem,4.8vw,4rem)] font-black leading-[1.06] tracking-tight">
+            <h2 className="mt-4 max-w-4xl text-[clamp(1.625rem,3.9vw,3.25rem)] font-black leading-[1.06] tracking-tight">
               Let us align scope, cost, timeline, and delivery controls for your project.
             </h2>
           </div>

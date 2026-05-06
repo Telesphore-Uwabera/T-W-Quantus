@@ -86,7 +86,7 @@ export default function Services() {
         <Reveal className="mx-auto flex max-w-7xl flex-col justify-between gap-8 md:flex-row md:items-center" direction="rotate">
           <div>
             <p className="eyebrow text-brand-light">Procurement and standards</p>
-            <h2 className="mt-4 max-w-4xl text-[clamp(2rem,4.8vw,4rem)] font-black leading-[1.05] tracking-tight">
+            <h2 className="mt-4 max-w-4xl text-[clamp(1.625rem,3.9vw,3.25rem)] font-black leading-[1.05] tracking-tight">
               Support for FIDIC, RPPA, JCT, NEC, traditional, D&B, and EPC procurement models.
             </h2>
           </div>

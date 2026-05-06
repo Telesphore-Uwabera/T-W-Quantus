@@ -1,65 +1,85 @@
-import { Building2, Calendar, UserRound } from "lucide-react";
 import { Layout } from "@/components/site/Layout";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
-import { businessActivities, company, values } from "@/data/site";
+import { values } from "@/data/site";
 
 export default function About() {
   return (
     <Layout>
       <PageHero
         eyebrow="About T&W Quantus"
-        title="A Kigali-based firm built around precision, trust, and complete construction solutions."
-        description="T&W Quantus derives its name from the Latin quantus, meaning how much or how great. That philosophy guides our focus on accurate evaluation, optimal project outcomes, and excellence in delivery."
+        title="Excellence in quantity surveying and the built environment."
+        description="From concept through handover, we focus on precise evaluation, value optimization, and dependable project outcomes."
         visual="about"
       />
 
       <section id="who-we-are" data-header-theme="light" className="section-padding bg-white">
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1fr_0.8fr] lg:gap-12">
+        <div className="mx-auto max-w-4xl">
           <Reveal direction="left">
-            <p className="eyebrow">Company overview</p>
-            <h2 className="section-title mt-4">We turn precise insights into dependable construction results.</h2>
-            <div className="mt-6 space-y-5 text-base leading-7 text-neutral-600 sm:mt-8 sm:space-y-6 sm:text-lg sm:leading-8">
+            <h2 className="section-title uppercase tracking-[0.08em]">Who we are</h2>
+            <div className="mt-8 space-y-6 text-base leading-8 text-neutral-600 sm:text-lg sm:leading-9">
               <p>
-                {company.shortName} serves clients across East Africa and beyond with
-                multidisciplinary support from concept development and financial planning
-                to on-site execution and final handover.
+                We are T&W QUANTUS, a Quantity Surveying team committed to delivering excellence in the
+                built environment. Derived from the Latin word &ldquo;Quantus,&rdquo; meaning
+                &ldquo;How much?&rdquo; or &ldquo;How great,&rdquo; our name reflects our core
+                philosophy—precise evaluation, value optimization, and outstanding project outcomes. We
+                support our clients at every stage of the project lifecycle, from concept development
+                and financial planning through to execution and final handover.
               </p>
               <p>
-                Our reputation is built on integrity, collaboration, and innovation,
-                supported by a commitment to measurable outcomes and long-term client
-                partnerships.
+                T&W QUANTUS. Founded with a vision to provide reliable and cost-effective construction
+                services, T&W Quantus is built on technical ability, collaboration, and a clear
+                understanding of project demands. Our multidisciplinary team works across a range of
+                projects, including multi-unit developments, institutional infrastructure, and
+                renovation works, delivering solutions defined by precision, transparency, and
+                reliability.
               </p>
             </div>
-          </Reveal>
-
-          <Reveal delay={0.1} direction="right">
-            <div className="overflow-hidden rounded-[1.5rem] bg-neutral-950 text-white sm:rounded-[2rem]">
-              <div className="about-profile-visual min-h-56 p-5 sm:min-h-72 sm:p-8">
-                <img src={company.logo} alt={`${company.name} logo`} className="relative z-10 h-20 w-20 object-contain sm:h-28 sm:w-28" />
-              </div>
-              <div className="p-5 sm:p-8">
-              <div className="space-y-5">
-                <Info icon={<Building2 />} label="Registered name" value={company.name} />
-                <Info icon={<Calendar />} label="Registration date" value={company.registrationDate} />
-                <Info icon={<UserRound />} label="Managing director" value={company.managingDirector} />
-              </div>
-              </div>
-            </div>
+            <blockquote className="mt-10 border-l-4 border-brand pl-6 text-base font-semibold leading-8 text-neutral-800 sm:text-lg sm:leading-9">
+              <p>
+                &ldquo;At T&W Quantus, our reputation is grounded in integrity, innovation, and
+                measurable results. We go beyond managing costs; we create lasting value for our
+                clients, communities, and stakeholders by ensuring every project is delivered with
+                accuracy, efficiency, and excellence.&rdquo;
+              </p>
+            </blockquote>
           </Reveal>
         </div>
       </section>
 
-      <section id="vision-mission" data-header-theme="light" className="section-padding bg-neutral-100">
+      <section id="collaborate" data-header-theme="light" className="section-padding bg-neutral-100">
+        <div className="mx-auto max-w-4xl">
+          <Reveal direction="up">
+            <h2 className="section-title">Collaborate With Us</h2>
+            <p className="mt-8 text-base leading-8 text-neutral-600 sm:mt-10 sm:text-lg sm:leading-9">
+              Work with T&W QUANTUS and engage a highly competent team committed to delivering
+              precision, efficiency, and measurable value across every stage of your project
+              lifecycle. Our approach is grounded in technical ability, rigorous cost control, and a
+              disciplined understanding of construction processes, ensuring outcomes that meet the
+              highest standards of quality, time, and budget performance. We deliver tailored,
+              value-driven solutions aligned to your specific project requirements, while integrating
+              sustainable practices that support long-term viability and responsible development.
+              Through structured communication, transparency, and a client-focused method, we build
+              trusted partnerships and consistently deliver projects with accuracy, reliability, and
+              professional excellence.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      <section id="vision-mission" data-header-theme="light" className="section-padding bg-white">
         <div className="mx-auto grid max-w-7xl gap-5 sm:gap-8 lg:grid-cols-2">
           <Reveal direction="clip">
-            <div className="h-full overflow-hidden rounded-[1.5rem] bg-white shadow-sm ring-1 ring-black/5 sm:rounded-[2rem]">
+            <div className="h-full overflow-hidden rounded-[1.5rem] bg-neutral-100 shadow-sm ring-1 ring-black/5 sm:rounded-[2rem]">
               <div className="service-detail-visual service-visual-2 h-36 sm:h-44" />
               <div className="p-5 sm:p-8">
-              <p className="eyebrow">Our vision</p>
-              <h2 className="mt-5 text-2xl font-black sm:text-3xl md:text-5xl">
-                To become a leading provider of innovative, high-quality, sustainable construction solutions.
-              </h2>
+                <p className="eyebrow">Our Vision</p>
+                <p className="mt-5 text-base font-semibold leading-8 text-neutral-800 sm:mt-6 sm:text-lg sm:leading-9">
+                  To be a leading force in delivering innovative, high-quality, and sustainable
+                  construction solutions that transform the built environment and enhance
+                  communities. We strive to be recognized for our precision, professionalism, and
+                  commitment to excellence in every project we undertake.
+                </p>
               </div>
             </div>
           </Reveal>
@@ -67,17 +87,21 @@ export default function About() {
             <div className="h-full overflow-hidden rounded-[1.5rem] bg-brand text-white sm:rounded-[2rem]">
               <div className="service-detail-visual service-visual-4 h-36 sm:h-44" />
               <div className="p-5 sm:p-8">
-              <p className="eyebrow text-white/70">Our mission</p>
-              <h2 className="mt-5 text-2xl font-black sm:text-3xl md:text-5xl">
-                To deliver cost-effective, timely, and high-quality services through expertise, skill, and precision.
-              </h2>
+                <p className="eyebrow text-white/80">Our Mission</p>
+                <p className="mt-5 text-base font-semibold leading-8 text-white/95 sm:mt-6 sm:text-lg sm:leading-9">
+                  Our mission is to deliver exceptional construction services through technical ability,
+                  disciplined execution, and precise cost management. We are committed to providing
+                  value-driven, high-quality, and prompt solutions that respond to the unique needs of
+                  our clients, while building long-term partnerships founded on trust, reliability, and
+                  consistent performance.
+                </p>
               </div>
             </div>
           </Reveal>
         </div>
       </section>
 
-      <section id="core-values" data-header-theme="light" className="section-padding bg-white">
+      <section id="core-values" data-header-theme="light" className="section-padding bg-neutral-100">
         <div className="mx-auto max-w-7xl">
           <Reveal className="max-w-3xl" direction="rotate">
             <p className="eyebrow">Core values</p>
@@ -86,7 +110,7 @@ export default function About() {
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 lg:gap-5">
             {values.map((value, index) => (
               <Reveal key={value.title} delay={index * 0.06} direction={index % 2 === 0 ? "up" : "skew"}>
-                <div className="h-full rounded-[1.5rem] border border-black/10 p-5 transition hover:-translate-y-1 hover:border-brand/40 hover:shadow-xl sm:rounded-3xl sm:p-7">
+                <div className="h-full rounded-[1.5rem] border border-black/10 bg-white p-5 transition hover:-translate-y-1 hover:border-brand/40 hover:shadow-xl sm:rounded-3xl sm:p-7">
                   <div className="mb-6 text-sm font-black text-brand sm:mb-8">{String(index + 1).padStart(2, "0")}</div>
                   <h3 className="text-xl font-black sm:text-2xl">{value.title}</h3>
                   <p className="mt-4 leading-7 text-neutral-600">{value.description}</p>
@@ -96,56 +120,6 @@ export default function About() {
           </div>
         </div>
       </section>
-
-      <section id="registration" data-header-theme="dark" className="section-padding bg-neutral-950 text-white">
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:gap-10">
-          <Reveal direction="left" className="min-w-0">
-            <p className="eyebrow text-[0.65rem] text-brand-light sm:text-xs">Registered scope</p>
-            <h2 className="mt-3 max-w-2xl text-[clamp(1.35rem,2.1vw+0.55rem,2.25rem)] font-black leading-[1.14] tracking-tight sm:mt-4 xl:max-w-3xl">
-              A domestic private company limited by shares, registered in Rwanda.
-            </h2>
-            <div className="mt-6 grid gap-4 text-xs font-semibold text-neutral-300 sm:mt-8 sm:text-sm">
-              <Info icon={<Building2 />} label="Registered office" value={company.registeredAddress} />
-              <Info icon={<Calendar />} label="Last amendment" value={company.amendmentDate} />
-              <Info icon={<UserRound />} label="Management" value={company.managingDirector} />
-            </div>
-          </Reveal>
-
-          <div className="grid gap-4 md:grid-cols-2 md:gap-5">
-            {businessActivities.map((activity, index) => (
-              <Reveal key={activity.title} delay={index * 0.05} direction={index % 2 === 0 ? "scale" : "right"}>
-                <div className="h-full min-w-0 rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur sm:p-6">
-                  <div className="text-xs font-black text-brand-light sm:text-sm">
-                    {String(index + 1).padStart(2, "0")}
-                  </div>
-                  <h3 className="mt-4 text-base font-black leading-snug sm:mt-5 sm:text-lg md:text-xl">
-                    {activity.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-6 text-neutral-400 sm:mt-3 sm:text-base sm:leading-7">
-                    {activity.description}
-                  </p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
     </Layout>
-  );
-}
-
-function Info({ icon, label, value }: { icon: JSX.Element; label: string; value: string }) {
-  return (
-    <div className="flex min-w-0 gap-4 border-b border-white/10 pb-5 last:border-0 last:pb-0">
-      <span className="shrink-0 text-brand-light [&_svg]:h-4 [&_svg]:w-4 sm:[&_svg]:h-5 sm:[&_svg]:w-5">
-        {icon}
-      </span>
-      <div className="min-w-0">
-        <div className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-neutral-500 sm:text-xs">
-          {label}
-        </div>
-        <div className="mt-1 break-words text-sm font-semibold leading-relaxed sm:text-base">{value}</div>
-      </div>
-    </div>
   );
 }

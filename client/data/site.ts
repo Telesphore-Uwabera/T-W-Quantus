@@ -33,9 +33,9 @@ export const navigation = [
     href: "/about",
     children: [
       { label: "Who We Are", href: "/about#who-we-are" },
+      { label: "Collaborate With Us", href: "/about#collaborate" },
       { label: "Vision & Mission", href: "/about#vision-mission" },
       { label: "Core Values", href: "/about#core-values" },
-      { label: "Registration", href: "/about#registration" },
     ],
   },
   {
