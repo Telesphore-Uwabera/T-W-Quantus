@@ -1,4 +1,4 @@
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronRight, Layers } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -305,9 +305,10 @@ export default function Services() {
 
                 <div className="mt-24 lg:mt-32">
                   <div className="flex items-center justify-between gap-4 border-b border-black/[0.05] pb-6">
-                    <h3 className={cn("text-xs font-black uppercase tracking-[0.2em]", isDark ? "text-neutral-500" : "text-neutral-400")}>
-                      Service Workstreams
-                    </h3>
+                    <div className="flex items-center gap-3">
+                      <Layers className={cn("h-4 w-4", isDark ? "text-brand-light" : "text-brand")} />
+                      <span className={cn("text-[0.65rem] font-black uppercase tracking-[0.2em]", isDark ? "text-neutral-500" : "text-neutral-400")}>Workstreams</span>
+                    </div>
                     <div className="hidden h-px flex-1 bg-black/[0.05] lg:mx-8 lg:block" />
                   </div>
                   

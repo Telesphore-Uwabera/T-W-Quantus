@@ -43,12 +43,12 @@ export default function Contact() {
         </div>
       </section>
 
-      <section className="relative z-10 -mt-20 pb-24 lg:pb-40">
+      <section className="relative z-10 -mt-20 bg-neutral-50/50 pb-24 lg:pb-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
           <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:gap-20">
             {/* Contact Information Sidebar */}
             <div className="lg:sticky lg:top-32">
-              <Reveal direction="left">
+              <Reveal direction="left" className="p-4">
                 <div className="overflow-hidden rounded-[3rem] bg-neutral-950 p-8 text-white shadow-2xl lg:p-12">
                    <div className="flex items-center gap-4">
                       <span className="h-px w-8 bg-brand" />
@@ -79,7 +79,7 @@ export default function Contact() {
 
             {/* Premium Consultation Form */}
             <div className="relative">
-              <Reveal delay={0.1} direction="right">
+              <Reveal delay={0.1} direction="right" className="p-4">
                 <div className="rounded-[3rem] border border-black/5 bg-white p-8 shadow-2xl shadow-black/5 lg:p-16">
                   <div className="flex items-center gap-4 mb-10">
                     <MessageSquare className="h-6 w-6 text-brand" />
