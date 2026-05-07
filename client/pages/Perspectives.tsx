@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, CalendarDays, ExternalLink } from "lucide-react";
+import { ArrowRight, CalendarDays, ExternalLink, Bookmark, Share2, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Layout } from "@/components/site/Layout";
-import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { perspectives } from "@/data/site";
 import { fetchIndustryNews } from "@/lib/api";
 import type { NewsArticle } from "@shared/cms";
+import { cn } from "@/lib/utils";
 
 export default function Perspectives() {
   const { data: newsData } = useQuery({
@@ -19,78 +20,156 @@ export default function Perspectives() {
 
   return (
     <Layout>
-      <PageHero
-        eyebrow="Perspectives & News"
-        title="Practical thinking on cost, tendering, and construction delivery."
-        description="Explore T&W Quantus insights shaped around quantity surveying, procurement, site coordination, technical delivery, and project controls."
-        visual="projects"
-      />
+      {/* Editorial Hero */}
+      <section data-header-theme="dark" className="relative isolate min-h-[70vh] overflow-hidden bg-neutral-950 pt-32 text-white">
+        <div className="absolute inset-0 -z-10">
+          <div className="page-hero-visual projects absolute inset-0 scale-105 opacity-20 blur-sm" />
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-950 via-neutral-950/60 to-neutral-950" />
+        </div>
+        
+        <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 md:px-8">
+          <Reveal direction="down">
+            <span className="text-[0.65rem] font-black uppercase tracking-[0.4em] text-brand-light">Insights & Thinking</span>
+            <h1 className="mt-8 text-[clamp(2.5rem,8vw,5.5rem)] font-black leading-[0.9] tracking-tighter text-white">
+              The <span className="text-brand-light italic font-serif">Quantus</span> <br />
+              Perspectives.
+            </h1>
+            <p className="mt-10 max-w-2xl text-lg font-medium leading-relaxed text-neutral-400 sm:text-2xl">
+              Exploring the intersection of cost intelligence, technical delivery, and 
+              strategic procurement in the modern built environment.
+            </p>
+          </Reveal>
+        </div>
+      </section>
 
+      {/* Featured Insights */}
+      <section data-header-theme="light" className="relative z-10 -mt-20 pb-24 lg:pb-40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+          <div className="grid gap-12">
+            {perspectives.map((item, index) => (
+              <Reveal key={item.slug} delay={index * 0.1} direction="up">
+                <Link
+                  to={`/perspectives/${item.slug}`}
+                  className="group relative grid overflow-hidden rounded-[3rem] border border-black/5 bg-white shadow-2xl transition-all duration-700 hover:-translate-y-2 hover:shadow-brand/5 lg:grid-cols-[1.1fr_0.9fr]"
+                >
+                  <div className="p-8 md:p-16 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-6">
+                         <span className="text-[0.65rem] font-black uppercase tracking-[0.3em] text-brand">{item.category}</span>
+                         <div className="flex items-center gap-2 text-[0.65rem] font-bold text-neutral-400">
+                           <Clock className="h-3 w-3" />
+                           <span>5 min read</span>
+                         </div>
+                      </div>
+                      <h2 className="mt-8 text-[clamp(1.75rem,4vw,3.5rem)] font-black leading-[1.05] tracking-tight text-neutral-950 text-pretty group-hover:text-brand transition-colors">
+                        {item.title}
+                      </h2>
+                      <p className="mt-8 text-lg leading-relaxed text-neutral-600 antialiased">
+                        {item.summary}
+                      </p>
+                    </div>
+                    
+                    <div className="mt-12 flex items-center justify-between">
+                       <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-full bg-brand/10 flex items-center justify-center text-brand font-black text-xs">TQ</div>
+                          <div className="text-xs">
+                             <div className="font-black text-neutral-950">T&W Editorial</div>
+                             <div className="text-neutral-400 mt-0.5">{item.date}</div>
+                          </div>
+                       </div>
+                       <div className="flex items-center gap-2">
+                          <button className="p-2 text-neutral-300 hover:text-brand transition-colors"><Bookmark className="h-4 w-4" /></button>
+                          <button className="p-2 text-neutral-300 hover:text-brand transition-colors"><Share2 className="h-4 w-4" /></button>
+                       </div>
+                    </div>
+                  </div>
+                  <div className="relative min-h-[350px] lg:min-h-full overflow-hidden">
+                    <div className={cn("service-detail-visual absolute inset-0 transition-transform duration-[3s] group-hover:scale-110", item.visual)} />
+                    <div className="absolute inset-0 bg-gradient-to-l from-black/20 to-transparent" />
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Global Industry News Marquee/Grid */}
       {newsOn && (
-        <section data-header-theme="light" className="section-padding bg-neutral-100">
-          <div className="mx-auto max-w-7xl">
-            <Reveal className="max-w-3xl" direction="clip">
-              <p className="eyebrow">Industry headlines</p>
-              <h2 className="section-title mt-4">Latest news related to our fields.</h2>
-              <p className="mt-4 text-neutral-600">
-                Curated headlines from international sources on construction, quantity surveying, and project delivery.
-              </p>
+        <section data-header-theme="dark" className="bg-neutral-950 py-32 lg:py-48 relative overflow-hidden">
+           <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+           
+           <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+            <Reveal className="text-center max-w-3xl mx-auto mb-20" direction="zoom">
+               <p className="eyebrow text-brand-light">Market Intelligence</p>
+               <h2 className="mt-6 text-5xl font-black tracking-tighter text-white">Global Industry <span className="text-neutral-500 italic font-serif lowercase">Pulse.</span></h2>
             </Reveal>
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-              {(newsArticles as NewsArticle[]).slice(0, 9).map((article, index) => (
-                <Reveal key={`${article.url}-${index}`} delay={index * 0.04} direction="up">
+
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {(newsArticles as NewsArticle[]).slice(0, 6).map((article, index) => (
+                <Reveal key={`${article.url}-${index}`} delay={index * 0.1} direction="up">
                   <a
                     href={article.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex h-full flex-col overflow-hidden rounded-[1.25rem] border border-black/10 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:border-brand/40 hover:shadow-lg sm:rounded-2xl sm:p-5"
+                    className="group relative flex h-full flex-col rounded-[2.5rem] border border-white/5 bg-white/[0.02] p-8 transition-all duration-500 hover:bg-white/[0.04] hover:border-brand/30"
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="text-xs font-black uppercase tracking-wider text-brand">
-                        {article.source ?? "News"}
-                      </span>
-                      <ExternalLink className="h-4 w-4 shrink-0 text-neutral-400" />
+                    <div className="flex items-center justify-between">
+                       <span className="text-[0.6rem] font-black uppercase tracking-widest text-brand-light/60">{article.source || "Industry News"}</span>
+                       <ExternalLink className="h-4 w-4 text-neutral-600 transition-colors group-hover:text-brand-light" />
                     </div>
-                    <h3 className="mt-3 flex-1 text-base font-black leading-snug text-neutral-950 sm:text-lg">
+                    <h3 className="mt-8 text-xl font-black leading-tight text-white group-hover:text-brand-light transition-colors">
                       {article.title}
                     </h3>
-                    <p className="mt-2 line-clamp-3 text-sm text-neutral-600">{article.description}</p>
-                    <span className="mt-4 text-xs text-neutral-400">
-                      {article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : ""}
-                    </span>
+                    <p className="mt-6 flex-1 line-clamp-3 text-sm text-neutral-400 antialiased">
+                      {article.description}
+                    </p>
+                    <div className="mt-10 flex items-center gap-3 text-[0.6rem] font-bold uppercase tracking-widest text-neutral-600">
+                       <CalendarDays className="h-3 w-3" />
+                       {article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : "Recent"}
+                    </div>
                   </a>
                 </Reveal>
               ))}
+            </div>
+            
+            <div className="mt-20 text-center">
+               <a 
+                href="https://news.google.com/search?q=construction+quantity+surveying" 
+                target="_blank" 
+                rel="noreferrer"
+                className="group inline-flex items-center gap-3 text-sm font-black uppercase tracking-widest text-white hover:text-brand-light transition-colors"
+               >
+                 Explore Full Industry Feed
+                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+               </a>
             </div>
           </div>
         </section>
       )}
 
-      <section data-header-theme="light" className="section-padding bg-white">
-        <div className="mx-auto grid max-w-7xl gap-8">
-          {perspectives.map((item, index) => (
-            <Reveal key={item.slug} delay={index * 0.08} direction={index % 2 === 0 ? "left" : "right"}>
-              <Link
-                to={`/perspectives/${item.slug}`}
-                className="group grid overflow-hidden rounded-[2rem] border border-black/10 bg-white shadow-sm transition hover:-translate-y-1 hover:border-brand/40 hover:shadow-2xl lg:grid-cols-[0.85fr_1.15fr]"
-              >
-                <div className={`service-detail-visual ${item.visual} min-h-80`} />
-                <div className="p-7 md:p-10">
-                  <div className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-brand">
-                    <CalendarDays className="h-4 w-4" />
-                    {item.date} / {item.category}
-                  </div>
-                  <h2 className="mt-8 max-w-3xl text-[clamp(1.625rem,3.65vw,3.25rem)] font-black leading-tight tracking-tight text-neutral-950">
-                    {item.title}
-                  </h2>
-                  <p className="mt-6 max-w-2xl leading-8 text-neutral-600">{item.summary}</p>
-                  <span className="mt-8 inline-flex items-center border-b-2 border-brand pb-1 text-sm font-black text-neutral-950 transition group-hover:text-brand">
-                    Read perspective <ArrowRight className="ml-2 h-4 w-4" />
-                  </span>
-                </div>
-              </Link>
-            </Reveal>
-          ))}
+      {/* CTA Section */}
+      <section className="section-padding bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+           <div className="rounded-[4rem] bg-neutral-100 p-12 lg:p-24 flex flex-col items-center text-center">
+              <Reveal direction="zoom">
+                 <h2 className="text-[clamp(1.75rem,4vw,3.5rem)] font-black tracking-tighter text-neutral-950">
+                    Stay informed. Stay ahead.
+                 </h2>
+                 <p className="mt-8 text-xl text-neutral-500 max-w-2xl">
+                    Subscribe to our quarterly perspective summary for insights on cost certainty 
+                    and project delivery in the East African market.
+                 </p>
+                 <div className="mt-12 flex flex-wrap justify-center gap-4">
+                    <Link to="/contact" className="btn-brand">
+                       Get in touch
+                    </Link>
+                    <Link to="/services" className="btn-dark">
+                       Our Services
+                    </Link>
+                 </div>
+              </Reveal>
+           </div>
         </div>
       </section>
     </Layout>

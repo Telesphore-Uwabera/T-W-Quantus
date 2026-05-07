@@ -266,8 +266,8 @@ export function Layout({ children }: LayoutProps) {
         <div
           className={cn(
             "pointer-events-auto transition-all duration-500 ease-out",
-            "border-0 shadow-none ring-0 outline-none backdrop-blur-none",
-            isHeaderOnDark ? "bg-white" : "bg-black",
+            "border-0 shadow-none ring-0 outline-none backdrop-blur-xl",
+            isHeaderOnDark ? "bg-white/85" : "bg-black/85",
             // Home desktop: transparent strip so MENU floats like before (sm/md keep solid bar)
             isHome && "lg:bg-transparent lg:border-transparent lg:shadow-none",
           )}
@@ -486,7 +486,7 @@ export function Layout({ children }: LayoutProps) {
                 className="fixed inset-0 z-[190] bg-black/40 backdrop-blur-sm lg:hidden"
               />
               <motion.div
-              className="pointer-events-auto fixed right-0 top-0 bottom-0 z-[200] w-full max-w-[340px] overflow-y-auto bg-white px-6 py-6 text-neutral-950 shadow-[-20px_0_60px_-15px_rgba(0,0,0,0.15)] sm:px-8 lg:static lg:inset-auto lg:z-auto lg:mx-4 lg:ml-auto lg:mr-8 lg:max-h-[calc(100vh-6rem)] lg:max-w-sm lg:rounded-[2rem] lg:px-6 lg:ring-1 lg:ring-black/10 xl:mr-10 2xl:mr-12"
+              className="pointer-events-auto fixed right-0 top-0 bottom-0 z-[200] w-full max-w-[340px] overflow-y-auto bg-white/90 px-6 py-6 text-neutral-950 shadow-[-20px_0_60px_-15px_rgba(0,0,0,0.15)] backdrop-blur-2xl sm:px-8 lg:static lg:inset-auto lg:z-auto lg:mx-4 lg:ml-auto lg:mr-8 lg:max-h-[calc(100vh-6rem)] lg:max-w-sm lg:rounded-[2rem] lg:px-6 lg:ring-1 lg:ring-black/10 xl:mr-10 2xl:mr-12"
               initial={{ opacity: 0, y: -28, scale: 0.98, filter: "blur(12px)" }}
               animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -24, scale: 0.98, filter: "blur(12px)" }}
@@ -829,7 +829,7 @@ export function Layout({ children }: LayoutProps) {
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-full border border-brand/50 px-4 py-2 font-black text-white transition hover:-translate-y-0.5 hover:border-brand-light hover:bg-brand/20"
               >
-                Feel Free to Contact Developer
+                Contact &lt;/&gt;
                 <ArrowRight className="h-3.5 w-3.5" />
               </a>
             </div>

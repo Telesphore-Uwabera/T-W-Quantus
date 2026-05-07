@@ -209,7 +209,7 @@ export default function Services() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1.2, ease: "easeOut" }}
                 className={cn(
-                  "pointer-events-none absolute -right-8 top-12 select-none text-[clamp(8rem,25vw,18rem)] font-black leading-none tracking-tighter",
+                  "pointer-events-none absolute -right-8 top-12 select-none text-[clamp(5rem,14vw,10rem)] font-black leading-none tracking-tighter",
                   isDark ? "text-white/[0.03]" : "text-black/[0.04]",
                 )}
                 aria-hidden
@@ -225,7 +225,7 @@ export default function Services() {
                   )}
                 >
                   <div className={cn("relative group", !imageFirst && "lg:order-2")}>
-                    <Reveal direction={imageFirst ? "left" : "right"}>
+                    <Reveal direction={imageFirst ? "left" : "right"} className="relative z-10">
                       <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2.5rem] lg:aspect-square">
                         <div
                           className={cn(
@@ -243,7 +243,7 @@ export default function Services() {
                     
                     {/* Decorative element */}
                     <div className={cn(
-                      "absolute -bottom-6 -right-6 h-32 w-32 rounded-3xl border border-brand/20 bg-brand/5 backdrop-blur-sm transition-transform duration-700 group-hover:scale-110",
+                      "absolute -bottom-6 -right-6 z-0 h-32 w-32 rounded-3xl border border-brand/20 bg-brand/5 backdrop-blur-sm transition-transform duration-700 group-hover:scale-110",
                       !imageFirst && "-left-6 -right-auto"
                     )} />
                   </div>

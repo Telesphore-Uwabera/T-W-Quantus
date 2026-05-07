@@ -102,7 +102,7 @@ export default function ServiceDetail() {
         </div>
 
         {/* Floating background numbers */}
-        <div className="pointer-events-none absolute -bottom-12 right-0 select-none text-[20vw] font-black leading-none text-white/[0.03]">
+        <div className="pointer-events-none absolute -bottom-12 right-0 select-none text-[12vw] font-black leading-none text-white/[0.03]">
           {service.number}
         </div>
       </section>

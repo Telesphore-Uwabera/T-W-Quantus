@@ -1,8 +1,8 @@
-import { Mail, MapPin, Phone, Send } from "lucide-react";
+import { Mail, MapPin, Phone, Send, ArrowRight, MessageSquare, Clock } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/site/Layout";
-import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { company, services } from "@/data/site";
 import { submitContact } from "@/lib/api";
@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 export default function Contact() {
   const [service, setService] = useState<string>("");
@@ -20,224 +21,236 @@ export default function Contact() {
 
   return (
     <Layout>
-      <PageHero
-        eyebrow="Contact"
-        title="Start your project with a clear conversation about cost, scope, and delivery."
-        description="Reach T&W Quantus in Kigali for quantity surveying, project management, and construction management."
-        visual="contact"
-      />
-
-      <section id="request-consultation" data-header-theme="light" className="section-padding bg-white">
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-stretch lg:gap-10">
-          {/* Sticky wrapper must sit outside Reveal: motion transforms break position:sticky on descendants. */}
-          <div className="lg:sticky lg:top-28 lg:z-10 lg:h-full lg:min-h-0">
-            <Reveal direction="left" className="h-full min-h-0">
-              <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[1.5rem] bg-neutral-950 text-white lg:rounded-[2rem]">
-                <div className="contact-map-visual flex min-h-52 flex-1 flex-col p-5 sm:min-h-72 sm:p-8">
-                  <div className="relative z-10 inline-flex rounded-full bg-black/45 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-white backdrop-blur">
-                    Kigali, Rwanda
-                  </div>
-                </div>
-                <div className="shrink-0 p-5 sm:p-8">
-                  <h2 className="text-2xl font-black sm:text-3xl">Contact details</h2>
-                  <div className="mt-6 space-y-5 sm:mt-8 sm:space-y-6">
-                    <ContactItem icon={<MapPin />} label="Office" value={company.registeredAddress} />
-                    <ContactItem icon={<Phone />} label="Phone" value={company.phone} href={company.phoneHref} />
-                    <ContactItem icon={<Mail />} label="Email" value={company.email} href={company.emailHref} />
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          </div>
-
-          <Reveal delay={0.1} direction="right" className="min-h-0 lg:h-full">
-            <div className="flex h-full min-h-0 min-w-0 flex-col rounded-[1.5rem] border border-black/10 p-4 shadow-sm sm:p-6 md:rounded-[2rem] md:p-10">
-              <p className="eyebrow">Request consultation</p>
-              <h2 className="mt-4 whitespace-nowrap text-[clamp(0.8125rem,calc(0.55rem+2.75vw),2.75rem)] font-black leading-[1.04] tracking-tight">
-                Tell us what you are building.
-              </h2>
-              <p className="mt-5 text-base leading-7 text-neutral-600 sm:leading-8">
-                Submit the form and we will receive your message securely. You can also reach us
-                directly by email or phone for project location, stage, budget, and the services you need.
-              </p>
-
-              <form
-                className="mt-8 grid min-w-0 gap-4 sm:mt-10 sm:gap-5"
-                onSubmit={async (event) => {
-                  event.preventDefault();
-                  const form = event.currentTarget;
-                  const fd = new FormData(form);
-                  const name = String(fd.get("name") ?? "").trim();
-                  const email = String(fd.get("email") ?? "").trim();
-                  const phone = String(fd.get("phone") ?? "").trim();
-                  const message = String(fd.get("message") ?? "").trim();
-                  setSending(true);
-                  try {
-                    await submitContact({
-                      name,
-                      email,
-                      phone: phone || undefined,
-                      service: service || undefined,
-                      message,
-                    });
-                    toast.success("Message received. We will get back to you soon.");
-                    form.reset();
-                    setService("");
-                  } catch (e) {
-                    toast.error(e instanceof Error ? e.message : "Could not send. Try email or phone.");
-                  } finally {
-                    setSending(false);
-                  }
-                }}
-              >
-                <div className="grid min-w-0 gap-4 md:grid-cols-2 md:gap-5">
-                  <label className="contact-field">
-                    <span>Your Name</span>
-                    <input type="text" name="name" placeholder="Full name" required />
-                  </label>
-                  <label className="contact-field">
-                    <span>Your Email</span>
-                    <input type="email" name="email" placeholder="you@example.com" required />
-                  </label>
-                </div>
-                <div className="grid min-w-0 gap-4 md:grid-cols-2 md:gap-5">
-                  <label className="contact-field">
-                    <span>Phone Number</span>
-                    <input type="tel" name="phone" placeholder="+250 ..." />
-                  </label>
-                  <label className="contact-field">
-                    <span>Project Type</span>
-                    <Select value={service || undefined} onValueChange={setService}>
-                      <SelectTrigger className="h-auto min-w-0 rounded-2xl border-black/10 bg-white px-4 py-4 text-base font-semibold text-neutral-950 shadow-none transition focus:ring-4 focus:ring-brand/10 sm:px-5">
-                        <SelectValue placeholder="Select service" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-2xl border-brand/20 bg-white p-2 shadow-2xl">
-                        {services.map((service) => (
-                          <SelectItem
-                            key={service.title}
-                            value={service.title}
-                            className="rounded-xl py-3 pl-9 pr-3 font-semibold text-neutral-900 focus:bg-brand focus:text-white"
-                          >
-                            {service.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </label>
-                </div>
-                <label className="contact-field">
-                  <span>Project Message</span>
-                  <textarea
-                    name="message"
-                    rows={5}
-                    placeholder="Tell us about location, stage, scope, timeline, and budget status."
-                    required
-                  />
-                </label>
-                <button type="submit" className="btn-brand justify-self-start" disabled={sending}>
-                  {sending ? "Sending…" : "Send Message"} <Send className="ml-2 h-5 w-5" />
-                </button>
-              </form>
-            </div>
+      {/* Immersive Hero */}
+      <section data-header-theme="dark" className="relative isolate min-h-[60vh] overflow-hidden bg-neutral-950 pt-32 text-white">
+        <div className="absolute inset-0 -z-10">
+          <div className="page-hero-visual contact absolute inset-0 scale-105 opacity-20 blur-sm" />
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-950 via-neutral-950/60 to-neutral-950" />
+        </div>
+        
+        <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 md:px-8">
+          <Reveal direction="down">
+            <span className="text-[0.65rem] font-black uppercase tracking-[0.4em] text-brand-light">Get in touch</span>
+            <h1 className="mt-8 text-[clamp(2.5rem,8vw,5.5rem)] font-black leading-[0.9] tracking-tighter text-white">
+              Securing your <br />
+              <span className="text-brand-light italic font-serif">Project's</span> Future.
+            </h1>
+            <p className="mt-10 max-w-2xl text-lg font-medium leading-relaxed text-neutral-400 sm:text-2xl">
+              Start a conversation about cost, scope, and technical delivery 
+              with our expert team in Kigali.
+            </p>
           </Reveal>
         </div>
       </section>
 
-      <section id="faqs" data-header-theme="light" className="section-padding bg-neutral-100">
-        <div className="mx-auto max-w-7xl">
-          <Reveal className="max-w-3xl" direction="clip">
-            <p className="eyebrow">FAQs</p>
-            <h2 className="section-title mt-4">Questions before starting a project?</h2>
-          </Reveal>
-          <div className="mt-10 grid gap-4 lg:mt-12 lg:grid-cols-2 lg:gap-5 lg:items-stretch">
-            {[
-              {
-                question: "What information should I share for a first consultation?",
-                answer:
-                  "Share the project location, intended use, current stage, approximate size, timeline, budget status, drawings if available, and the service you need.",
-              },
-              {
-                question: "Do you provide quantity surveying and cost management?",
-                answer:
-                  "Yes. T&W Quantus supports cost estimating, feasibility studies, BOQs, tender documentation, budget monitoring, final accounts, and value management.",
-              },
-              {
-                question: "Can T&W Quantus manage construction execution?",
-                answer:
-                  "Yes. We support site mobilization, supervision, subcontractor coordination, schedule tracking, quality assurance, HSE monitoring, and handover.",
-              },
-              {
-                question: "Do you work outside Kigali?",
-                answer:
-                  "Yes. The company is based in Gasabo, Kigali, and serves clients across Rwanda, East Africa, and broader international project needs.",
-              },
-              {
-                question: "Do you support technical and multi-disciplinary project delivery?",
-                answer:
-                  "Yes. Through project and construction management we coordinate design, consultants, procurement, site execution, quality assurance, and handover—aligned with your procurement model and standards.",
-              },
-              {
-                question: "How quickly can I get a response?",
-                answer:
-                  "For urgent project inquiries, call directly. For email or form submissions, include clear project details so the team can respond with the right next step.",
-              },
-            ].map((item, index) => (
-              <Reveal
-                key={item.question}
-                className="min-h-0 lg:h-full"
-                delay={index * 0.05}
-                direction={index % 2 === 0 ? "up" : "scale"}
-              >
-                <details className="group flex h-full min-h-0 flex-col rounded-[1.25rem] bg-white p-4 shadow-sm ring-1 ring-black/5 sm:rounded-[1.5rem] sm:p-6">
-                  <summary className="flex cursor-pointer list-none items-start justify-between gap-3 text-base font-black text-neutral-950 sm:text-xl [&::-webkit-details-marker]:hidden">
-                    <span className="min-w-0 flex-1 pr-1">{item.question}</span>
-                    <span className="mt-0.5 shrink-0 text-lg leading-none text-brand transition group-open:rotate-45 sm:text-xl">
-                      +
-                    </span>
-                  </summary>
-                  <div className="mt-4 flex min-h-0 flex-1 flex-col border-t border-transparent pt-0">
-                    <p className="leading-7 text-neutral-600">{item.answer}</p>
-                  </div>
-                </details>
+      <section className="relative z-10 -mt-20 pb-24 lg:pb-40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+          <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:gap-20">
+            {/* Contact Information Sidebar */}
+            <div className="lg:sticky lg:top-32">
+              <Reveal direction="left">
+                <div className="overflow-hidden rounded-[3rem] bg-neutral-950 p-8 text-white shadow-2xl lg:p-12">
+                   <div className="flex items-center gap-4">
+                      <span className="h-px w-8 bg-brand" />
+                      <span className="text-[0.6rem] font-black uppercase tracking-[0.3em] text-brand-light">Kigali Headquarters</span>
+                   </div>
+                   
+                   <h2 className="mt-8 text-4xl font-black tracking-tight">Direct reach.</h2>
+                   <p className="mt-6 text-neutral-400 text-lg leading-relaxed">
+                     Our reputation is built on transparency. Use the details below for a direct line to our project directors.
+                   </p>
+                   
+                   <div className="mt-12 space-y-10">
+                     <ContactItem icon={<MapPin />} label="Global Office" value={company.registeredAddress} />
+                     <ContactItem icon={<Phone />} label="Priority Line" value={company.phone} href={company.phoneHref} />
+                     <ContactItem icon={<Mail />} label="Project Enquiries" value={company.email} href={company.emailHref} />
+                   </div>
+                   
+                   <div className="mt-16 pt-10 border-t border-white/5 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                         <div className="h-2 w-2 rounded-full bg-brand animate-pulse" />
+                         <span className="text-[0.6rem] font-black uppercase tracking-widest text-neutral-500">Currently Open</span>
+                      </div>
+                      <div className="text-[0.6rem] font-bold text-neutral-500">GMT +2</div>
+                   </div>
+                </div>
               </Reveal>
-            ))}
+            </div>
+
+            {/* Premium Consultation Form */}
+            <div className="relative">
+              <Reveal delay={0.1} direction="right">
+                <div className="rounded-[3rem] border border-black/5 bg-white p-8 shadow-2xl shadow-black/5 lg:p-16">
+                  <div className="flex items-center gap-4 mb-10">
+                    <MessageSquare className="h-6 w-6 text-brand" />
+                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-neutral-400">Consultation Request</h3>
+                  </div>
+                  
+                  <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-black leading-none tracking-tighter text-neutral-950">
+                    Tell us what you <br />
+                    are <span className="text-brand">building.</span>
+                  </h2>
+                  
+                  <form
+                    className="mt-12 space-y-8"
+                    onSubmit={async (event) => {
+                      event.preventDefault();
+                      const form = event.currentTarget;
+                      const fd = new FormData(form);
+                      const name = String(fd.get("name") ?? "").trim();
+                      const email = String(fd.get("email") ?? "").trim();
+                      const phone = String(fd.get("phone") ?? "").trim();
+                      const message = String(fd.get("message") ?? "").trim();
+                      setSending(true);
+                      try {
+                        await submitContact({
+                          name,
+                          email,
+                          phone: phone || undefined,
+                          service: service || undefined,
+                          message,
+                        });
+                        toast.success("Consultation request received successfully.");
+                        form.reset();
+                        setService("");
+                      } catch (e) {
+                        toast.error(e instanceof Error ? e.message : "Could not send. Try email or phone.");
+                      } finally {
+                        setSending(false);
+                      }
+                    }}
+                  >
+                    <div className="grid gap-8 md:grid-cols-2">
+                      <FormGroup label="Full Name" name="name" type="text" placeholder="Isaac Uwumuremyi" required />
+                      <FormGroup label="Email Address" name="email" type="email" placeholder="isaac@company.com" required />
+                    </div>
+                    
+                    <div className="grid gap-8 md:grid-cols-2">
+                      <FormGroup label="Phone (Optional)" name="phone" type="tel" placeholder="+250 ..." />
+                      <div className="flex flex-col gap-3">
+                        <span className="text-[0.65rem] font-black uppercase tracking-[0.2em] text-neutral-400">Project Sector</span>
+                        <Select value={service || undefined} onValueChange={setService}>
+                          <SelectTrigger className="h-[60px] rounded-2xl border-black/5 bg-neutral-50 px-6 font-bold text-neutral-950 shadow-none transition-all focus:ring-4 focus:ring-brand/10">
+                            <SelectValue placeholder="Select interest" />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-2xl border-black/5 bg-white p-2 shadow-2xl">
+                            {services.map((s) => (
+                              <SelectItem
+                                key={s.title}
+                                value={s.title}
+                                className="rounded-xl py-3 pl-9 pr-3 font-bold text-neutral-900 focus:bg-brand focus:text-white"
+                              >
+                                {s.title}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                      <span className="text-[0.65rem] font-black uppercase tracking-[0.2em] text-neutral-400">Project Brief</span>
+                      <textarea
+                        name="message"
+                        rows={4}
+                        placeholder="Tell us about location, stage, scope, and timeline..."
+                        required
+                        className="w-full rounded-[2rem] border-0 bg-neutral-50 p-6 text-base font-bold text-neutral-950 placeholder:text-neutral-400 focus:ring-4 focus:ring-brand/10"
+                      />
+                    </div>
+
+                    <button 
+                      type="submit" 
+                      disabled={sending}
+                      className="group flex items-center justify-center gap-4 rounded-full bg-neutral-950 px-10 py-5 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-brand hover:shadow-2xl hover:shadow-brand/20"
+                    >
+                      {sending ? "Processing..." : "Send Request"}
+                      <Send className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                    </button>
+                  </form>
+                </div>
+              </Reveal>
+            </div>
           </div>
+        </div>
+      </section>
+
+      {/* Modern FAQ Section */}
+      <section id="faqs" className="bg-neutral-50 py-24 lg:py-40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-12 mb-20">
+              <Reveal direction="left" className="max-w-2xl">
+                <p className="eyebrow">Project FAQ</p>
+                <h2 className="mt-6 text-5xl font-black tracking-tighter text-neutral-950">Common <span className="text-neutral-400">Inquiries.</span></h2>
+              </Reveal>
+           </div>
+
+           <div className="grid gap-6 lg:grid-cols-2">
+             {[
+               {
+                 q: "What information should I share for a first consultation?",
+                 a: "Share the project location, intended use, current stage, size, timeline, and budget status."
+               },
+               {
+                 q: "Do you provide quantity surveying outside Kigali?",
+                 a: "Yes. We serve clients across Rwanda, East Africa, and support international project delivery needs."
+               },
+               {
+                 q: "Can T&W Quantus manage full construction execution?",
+                 a: "Absolutely. We manage everything from site mobilization to quality assurance and final handover."
+               },
+               {
+                 q: "How quickly can I get a response?",
+                 a: "We prioritize all project inquiries and typically respond within 24 business hours."
+               }
+             ].map((item, i) => (
+               <Reveal key={i} delay={i * 0.1} direction="up">
+                  <div className="group rounded-[2.5rem] border border-black/5 bg-white p-8 transition-all duration-500 hover:shadow-2xl hover:shadow-black/5">
+                     <h3 className="text-xl font-black tracking-tight text-neutral-950 group-hover:text-brand transition-colors">{item.q}</h3>
+                     <p className="mt-6 text-base leading-relaxed text-neutral-600 antialiased">{item.a}</p>
+                  </div>
+               </Reveal>
+             ))}
+           </div>
         </div>
       </section>
     </Layout>
   );
 }
 
-function ContactItem({
-  icon,
-  label,
-  value,
-  href,
-}: {
-  icon: JSX.Element;
-  label: string;
-  value: string;
-  href?: string;
-}) {
+function FormGroup({ label, name, type, placeholder, required }: { label: string, name: string, type: string, placeholder: string, required?: boolean }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <span className="text-[0.65rem] font-black uppercase tracking-[0.2em] text-neutral-400">{label}</span>
+      <input 
+        type={type} 
+        name={name} 
+        placeholder={placeholder} 
+        required={required}
+        className="h-[60px] w-full rounded-2xl border-0 bg-neutral-50 px-6 text-base font-bold text-neutral-950 placeholder:text-neutral-400 transition-all focus:ring-4 focus:ring-brand/10"
+      />
+    </div>
+  );
+}
+
+function ContactItem({ icon, label, value, href }: { icon: JSX.Element, label: string, value: string, href?: string }) {
   const content = (
-    <>
-      <span className="text-brand-light [&_svg]:h-5 [&_svg]:w-5">{icon}</span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
-          {label}
-        </span>
-        <span className="mt-1 block break-words font-semibold leading-6">{value}</span>
-      </span>
-    </>
+    <div className="flex gap-6 group">
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-brand transition-all duration-500 group-hover:bg-brand group-hover:text-white">
+        {icon}
+      </div>
+      <div>
+        <span className="text-[0.6rem] font-black uppercase tracking-[0.3em] text-neutral-500">{label}</span>
+        <span className="mt-1 block text-lg font-bold transition-colors group-hover:text-brand-light">{value}</span>
+      </div>
+    </div>
   );
 
-  if (href) {
-    return (
-      <a href={href} className="flex min-w-0 gap-4 transition hover:text-brand-light">
-        {content}
-      </a>
-    );
-  }
-
-  return <div className="flex min-w-0 gap-4">{content}</div>;
+  return href ? (
+    <a href={href} className="block transition-all">
+      {content}
+    </a>
+  ) : (
+    <div>{content}</div>
+  );
 }

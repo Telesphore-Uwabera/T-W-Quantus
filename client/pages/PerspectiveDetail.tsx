@@ -1,8 +1,9 @@
-import { ArrowLeft, ArrowRight, CalendarDays } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, Share2, Bookmark, Clock, User } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { Layout } from "@/components/site/Layout";
 import { Reveal } from "@/components/site/Reveal";
 import { perspectives } from "@/data/site";
+import { cn } from "@/lib/utils";
 
 export default function PerspectiveDetail() {
   const { slug } = useParams();
@@ -13,11 +14,11 @@ export default function PerspectiveDetail() {
     return (
       <Layout>
         <section data-header-theme="dark" className="section-padding bg-neutral-950 pt-40 text-white">
-          <div className="mx-auto max-w-4xl">
+          <div className="mx-auto max-w-4xl text-center py-40">
             <p className="eyebrow text-brand-light">Perspective not found</p>
-            <h1 className="mt-5 text-5xl font-black">This article is not available.</h1>
-            <Link to="/perspectives" className="btn-brand mt-8">
-              Back to perspectives <ArrowRight className="ml-2 h-5 w-5" />
+            <h1 className="mt-8 text-5xl font-black tracking-tighter">This article is not available.</h1>
+            <Link to="/perspectives" className="btn-brand mt-12 inline-flex items-center">
+              <ArrowLeft className="mr-3 h-5 w-5" /> Back to perspectives
             </Link>
           </div>
         </section>
@@ -25,69 +26,88 @@ export default function PerspectiveDetail() {
     );
   }
 
-  const isOffset = index % 2 === 1;
-
   return (
     <Layout>
-      <section data-header-theme="dark" className="relative overflow-hidden bg-neutral-950 pt-28 text-white">
-        <div className={`service-detail-visual ${perspective.visual} absolute inset-0`} />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/68 to-black/32" />
-        <div className="relative mx-auto min-h-[70vh] max-w-7xl px-6 pb-16 pt-32 md:px-12 lg:px-16">
-          <Reveal direction="scale" className={isOffset ? "ml-auto max-w-4xl" : "max-w-4xl"}>
-            <Link
-              to="/perspectives"
-              className="inline-flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-white/75 transition hover:text-brand-light"
-            >
-              <ArrowLeft className="h-4 w-4 text-brand-light" />
-              Back to Perspectives
-            </Link>
-            <div className="mt-12 flex items-center gap-3 text-xs font-black uppercase tracking-[0.22em] text-brand-light">
-              <CalendarDays className="h-4 w-4" />
-              {perspective.date} / {perspective.category}
-            </div>
-            <h1 className="mt-6 text-[clamp(2.35rem,6vw,4.75rem)] font-black leading-[1.02] tracking-tight md:leading-[0.95]">
-              {perspective.title}
-            </h1>
-            <p className="mt-7 text-lg leading-8 text-neutral-200 md:text-xl">{perspective.intro}</p>
-          </Reveal>
+      {/* Immersive Article Hero */}
+      <section data-header-theme="dark" className="relative isolate min-h-[70vh] overflow-hidden bg-neutral-950 pt-32 text-white">
+        <div className="absolute inset-0 -z-10">
+          <div className={cn("service-detail-visual absolute inset-0 scale-105 opacity-30 blur-sm", perspective.visual)} />
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-950 via-neutral-950/60 to-neutral-950" />
+        </div>
+        
+        <div className="relative mx-auto max-w-5xl px-4 py-20 sm:px-6 md:px-8">
+           <Reveal direction="down">
+              <Link to="/perspectives" className="group inline-flex items-center gap-3 text-[0.65rem] font-black uppercase tracking-widest text-white/50 transition hover:text-brand-light">
+                 <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                 Back to Journal
+              </Link>
+           </Reveal>
+           
+           <div className="mt-16">
+              <Reveal direction="up" delay={0.1}>
+                 <div className="flex items-center gap-6">
+                    <span className="text-[0.65rem] font-black uppercase tracking-[0.3em] text-brand-light">{perspective.category}</span>
+                    <div className="flex items-center gap-2 text-[0.65rem] font-bold text-white/30">
+                       <Clock className="h-3 w-3" />
+                       <span>5 MIN READ</span>
+                    </div>
+                 </div>
+                 <h1 className="mt-8 text-[clamp(2.5rem,7vw,5.5rem)] font-black leading-[0.95] tracking-tighter text-white">
+                   {perspective.title}
+                 </h1>
+                 <p className="mt-10 text-xl md:text-2xl leading-relaxed text-neutral-300 max-w-3xl antialiased">
+                   {perspective.intro}
+                 </p>
+                 
+                 <div className="mt-12 flex items-center justify-between border-t border-white/10 pt-10">
+                    <div className="flex items-center gap-4">
+                       <div className="h-12 w-12 rounded-full bg-brand/20 flex items-center justify-center text-brand font-black text-sm">TQ</div>
+                       <div>
+                          <div className="text-sm font-black text-white">T&W Editorial</div>
+                          <div className="text-xs text-neutral-500 mt-0.5">{perspective.date}</div>
+                       </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                       <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 hover:bg-white/5 transition-colors"><Share2 className="h-4 w-4" /></button>
+                       <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 hover:bg-white/5 transition-colors"><Bookmark className="h-4 w-4" /></button>
+                    </div>
+                 </div>
+              </Reveal>
+           </div>
         </div>
       </section>
 
-      <section data-header-theme="light" className="section-padding bg-white">
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.24fr_1fr]">
-          <Reveal className="hidden lg:block">
-            <div className="sticky top-32 origin-top rotate-180 [writing-mode:vertical-rl] text-xs font-black uppercase tracking-[0.28em] text-neutral-400">
-              {perspective.category}
-            </div>
-          </Reveal>
-
-          <div className={isOffset ? "grid gap-6 md:grid-cols-3" : "space-y-8"}>
-            {perspective.sections.map((section, sectionIndex) => (
-              <Reveal
-                key={section.title}
-                delay={sectionIndex * 0.08}
-                direction={isOffset ? "up" : sectionIndex % 2 === 0 ? "left" : "right"}
-              >
-                <article
-                  className={
-                    isOffset
-                      ? "h-full rounded-[2rem] border border-black/10 bg-neutral-50 p-7 transition hover:-translate-y-1 hover:border-brand/40 hover:shadow-xl"
-                      : "grid gap-8 rounded-[2rem] border border-black/10 bg-white p-7 shadow-sm md:grid-cols-[0.35fr_1fr] md:p-10"
-                  }
-                >
-                  <div>
-                    <div className="text-sm font-black text-brand">
-                      {String(sectionIndex + 1).padStart(2, "0")}
-                    </div>
-                    <h2 className="mt-5 text-3xl font-black tracking-tight text-neutral-950">
-                      {section.title}
-                    </h2>
-                  </div>
-                  <p className="text-lg leading-8 text-neutral-600">{section.body}</p>
-                </article>
+      {/* Article Content */}
+      <section data-header-theme="light" className="bg-white py-24 lg:py-40">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 md:px-8">
+           <div className="grid gap-20">
+              {perspective.sections.map((section, idx) => (
+                <Reveal key={section.title} delay={idx * 0.1} direction="up">
+                   <article className="grid gap-12 lg:grid-cols-[0.35fr_1fr] lg:gap-20">
+                      <div className="lg:sticky lg:top-32 h-fit">
+                         <span className="text-[0.65rem] font-black uppercase tracking-[0.4em] text-brand">Section 0{idx + 1}</span>
+                         <h2 className="mt-6 text-3xl font-black leading-tight tracking-tight text-neutral-950">{section.title}</h2>
+                      </div>
+                      <div className="prose prose-neutral max-w-none">
+                         <p className="text-lg leading-[1.8] text-neutral-600 antialiased">
+                            {section.body}
+                         </p>
+                      </div>
+                   </article>
+                </Reveal>
+              ))}
+           </div>
+           
+           <div className="mt-32 pt-20 border-t border-black/5">
+              <Reveal direction="zoom" className="flex flex-col items-center text-center max-w-3xl mx-auto">
+                 <h2 className="text-3xl font-black tracking-tighter text-neutral-950">Expert advice is just a <span className="text-brand">conversation away.</span></h2>
+                 <p className="mt-6 text-neutral-500 text-lg">Align your project goals with our cost intelligence and technical delivery standards.</p>
+                 <div className="mt-10 flex flex-wrap justify-center gap-4">
+                    <Link to="/contact" className="btn-brand">Enquire Now</Link>
+                    <Link to="/perspectives" className="btn-dark">More Insights</Link>
+                 </div>
               </Reveal>
-            ))}
-          </div>
+           </div>
         </div>
       </section>
     </Layout>
