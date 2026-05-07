@@ -37,7 +37,7 @@ export default function Contact() {
             </h1>
             <p className="mt-10 max-w-2xl text-lg font-medium leading-relaxed text-neutral-400 sm:text-2xl">
               Start a conversation about cost, scope, and technical delivery 
-              with our expert team in Kigali.
+              with our expert team.
             </p>
           </Reveal>
         </div>
