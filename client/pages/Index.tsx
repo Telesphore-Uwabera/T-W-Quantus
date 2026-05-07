@@ -338,17 +338,6 @@ export default function Index() {
         </div>
       </section>
 
-      <section data-header-theme="light" className="what-we-do-section relative overflow-hidden bg-white px-4 py-14 sm:px-6 md:px-8 md:py-24 lg:py-28">
-        <Reveal className="relative mx-auto max-w-5xl" direction="zoom">
-          <h2 className="text-[clamp(1.625rem,3.25vw,2.875rem)] font-black leading-[1.06] tracking-tight text-neutral-950">
-            Registered in Rwanda. Kigali-based construction consultants serving East Africa and
-            clients all over the world.
-          </h2>
-          <Link to="/contact" className="btn-brand mt-10">
-            Find our office <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
-        </Reveal>
-      </section>
 
       <section data-header-theme="dark" className="relative overflow-hidden bg-brand px-5 py-16 text-white md:px-8">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.22),transparent_24%)]" />

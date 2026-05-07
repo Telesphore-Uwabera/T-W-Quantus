@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { businessActivities, company, projectTypes } from "@/data/site";
+import { company, projectTypes } from "@/data/site";
 import { fetchPublishedProjects } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { isValidProjectSector, PROJECT_SECTORS, projectGalleryUrls, type ProjectDoc } from "@shared/cms";
@@ -407,34 +407,6 @@ export default function Projects() {
         </section>
       </section>
 
-      <section id="registered-activities" data-header-theme="light" className="section-padding bg-neutral-100">
-        <div className="mx-auto max-w-7xl">
-          <Reveal className="max-w-3xl" direction="left">
-            <p className="eyebrow">Registered project capabilities</p>
-            <h2 className="section-title mt-4">Business activities aligned with practical construction delivery.</h2>
-            <p className="mt-6 text-lg leading-8 text-neutral-600">
-              T&W Quantus is registered for quantity surveying, building project development, construction materials,
-              finishes, technical installations, and selected repair works.
-            </p>
-          </Reveal>
-
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 lg:gap-5">
-            {businessActivities.map((activity, index) => (
-              <Reveal
-                key={activity.title}
-                delay={index * 0.05}
-                direction={index % 3 === 0 ? "right" : index % 3 === 1 ? "skew" : "up"}
-              >
-                <div className="h-full rounded-[1.5rem] bg-white p-5 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-1 hover:ring-brand/30 sm:rounded-[2rem] sm:p-7">
-                  <div className="text-sm font-black text-brand">{String(index + 1).padStart(2, "0")}</div>
-                  <h3 className="mt-6 text-xl font-black text-neutral-950 sm:mt-8 sm:text-2xl">{activity.title}</h3>
-                  <p className="mt-4 leading-7 text-neutral-600">{activity.description}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <section data-header-theme="light" className="section-padding bg-white">
         <Reveal
