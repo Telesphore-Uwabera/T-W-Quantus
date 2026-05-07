@@ -476,8 +476,17 @@ export function Layout({ children }: LayoutProps) {
 
         <AnimatePresence>
           {isMenuOpen && (
-            <motion.div
-              className="pointer-events-auto fixed inset-0 z-[200] overflow-y-auto bg-white px-4 py-5 text-neutral-950 shadow-2xl sm:px-8 lg:static lg:z-auto lg:inset-auto lg:mx-4 lg:ml-auto lg:mr-8 lg:max-h-[calc(100vh-6rem)] lg:max-w-sm lg:rounded-[2rem] lg:px-6 lg:ring-1 lg:ring-black/10 xl:mr-10 2xl:mr-12"
+            <>
+              {/* Backdrop overlay */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsMenuOpen(false)}
+                className="fixed inset-0 z-[190] bg-black/40 backdrop-blur-sm lg:hidden"
+              />
+              <motion.div
+              className="pointer-events-auto fixed right-0 top-0 bottom-0 z-[200] w-full max-w-[340px] overflow-y-auto bg-white px-6 py-6 text-neutral-950 shadow-[-20px_0_60px_-15px_rgba(0,0,0,0.15)] sm:px-8 lg:static lg:inset-auto lg:z-auto lg:mx-4 lg:ml-auto lg:mr-8 lg:max-h-[calc(100vh-6rem)] lg:max-w-sm lg:rounded-[2rem] lg:px-6 lg:ring-1 lg:ring-black/10 xl:mr-10 2xl:mr-12"
               initial={{ opacity: 0, y: -28, scale: 0.98, filter: "blur(12px)" }}
               animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -24, scale: 0.98, filter: "blur(12px)" }}
@@ -512,19 +521,6 @@ export function Layout({ children }: LayoutProps) {
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="mb-5 flex w-full items-center gap-4 border-b border-black/10 pb-5 text-left text-neutral-400 transition hover:text-brand"
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  setIsSearchOpen(true);
-                }}
-              >
-                <Search className="h-[clamp(1.25rem,1.1rem+0.45vw,1.75rem)] w-[clamp(1.25rem,1.1rem+0.45vw,1.75rem)] flex-none text-neutral-950" />
-                <span className="text-[clamp(1rem,0.92rem+0.35vw,1.25rem)] font-semibold leading-snug">
-                  Type to search
-                </span>
-              </button>
 
               <nav className="flex flex-col">
                 {navigation.map((item, index) => {
@@ -542,7 +538,7 @@ export function Layout({ children }: LayoutProps) {
                     <div className="flex items-center justify-between gap-4">
                     <NavLink
                       to={item.href}
-                      className="text-lg font-black text-neutral-950 transition hover:text-brand"
+                      className="text-base font-black text-neutral-950 transition hover:text-brand"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {item.label}
@@ -617,8 +613,9 @@ export function Layout({ children }: LayoutProps) {
                 </a>
               </nav>
             </motion.div>
-          )}
-        </AnimatePresence>
+          </>
+        )}
+      </AnimatePresence>
 
         <AnimatePresence>
           {isSearchOpen && (

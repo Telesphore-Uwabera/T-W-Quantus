@@ -1,6 +1,7 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/site/Layout";
 import { Reveal } from "@/components/site/Reveal";
 import { services } from "@/data/site";
@@ -15,17 +16,17 @@ const getServiceId = (title: string) =>
 
 const SECTION_IDS = services.map((s) => getServiceId(s.title));
 
-const SCROLL_PIN_OFFSET = 130;
+const SCROLL_PIN_OFFSET = 140;
 
-/** Compact line for the rail — numbers stay in their own badge; text can wrap here. */
 const SERVICE_RAIL_LABEL: Record<string, string> = {
-  "quantity-surveying-cost-management": "Quantity surveying & cost management",
-  "construction-management": "Construction management",
-  "project-management": "Project management",
+  "quantity-surveying-cost-management": "Cost Management",
+  "construction-management": "Construction Mgmt",
+  "project-management": "Project Mgmt",
+  "construction-technical-services": "Technical Services",
 };
 
 function railLabel(slug: string, fallback: string) {
-  return SERVICE_RAIL_LABEL[slug] ?? fallback.replace(/\s+Services$/i, "");
+  return SERVICE_RAIL_LABEL[slug] ?? fallback.replace(/\s+Services$/i, "").replace(/&/g, "").split(" ")[0];
 }
 
 function initialRailIndexFromHash() {
@@ -35,7 +36,6 @@ function initialRailIndexFromHash() {
   return idx >= 0 ? idx : 0;
 }
 
-/** Which service block is “current” — drives the sticky capsule rail only. */
 function useServicesRailActive() {
   const [activeIndex, setActiveIndex] = useState(initialRailIndexFromHash);
 
@@ -73,7 +73,6 @@ function detailCardKey(slug: string, groupTitle: string) {
 
 export default function Services() {
   const activeIndex = useServicesRailActive();
-
   const [detailOpen, setDetailOpen] = useState<Set<string>>(() => new Set());
   const [detailHover, setDetailHover] = useState<string | null>(null);
 
@@ -86,65 +85,71 @@ export default function Services() {
     });
   }, []);
 
-  const showDetailBullets = useCallback(
-    (key: string) => detailOpen.has(key) || detailHover === key,
-    [detailOpen, detailHover],
-  );
-
-  const heroLead =
-    "Integrated delivery for the built environment—cost intelligence, site execution, and programme leadership—calibrated for East African projects and international standards.";
-
   return (
     <Layout>
-      {/* Hero: mesh field + stacked type — distinct from About’s editorial layout */}
       <section
         data-header-theme="dark"
-        className="relative isolate overflow-hidden bg-neutral-950 px-4 pb-16 pt-28 text-white sm:px-6 sm:pb-20 sm:pt-32 md:px-8 md:pb-24 md:pt-36"
+        className="relative isolate overflow-hidden bg-neutral-950 px-4 pb-24 pt-32 text-white sm:px-6 sm:pb-32 sm:pt-40 md:px-8 md:pb-40 md:pt-48"
       >
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.55]"
-          aria-hidden
-        >
-          <div className="page-hero-visual absolute inset-0 scale-105 page-hero-services" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.65]" aria-hidden>
+          <div className="page-hero-visual absolute inset-0 scale-110 page-hero-services opacity-40 blur-sm" />
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 2 }}
+            className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(43,143,148,0.15),transparent_50%),radial-gradient(circle_at_80%_70%,rgba(23,102,106,0.15),transparent_50%)]" 
+          />
         </div>
-        <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_10%_-10%,rgba(43,143,148,0.35),transparent_55%),radial-gradient(ellipse_70%_50%_at_90%_30%,rgba(23,102,106,0.2),transparent_50%),radial-gradient(ellipse_50%_40%_at_50%_100%,rgba(0,0,0,0.5),transparent)]"
-          aria-hidden
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/75 to-neutral-950" />
-
+        
         <div className="relative mx-auto max-w-7xl">
-          <Link
-            to="/"
-            className="mb-12 inline-flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-[0.22em] text-white/55 transition hover:text-brand-light"
-          >
-            <span aria-hidden className="text-brand-light">
-              ←
-            </span>
-            Home
-          </Link>
-
-          <div className="max-w-4xl">
-            <p className="inline-block -rotate-2 rounded-md bg-brand/90 px-3 py-1 text-[0.65rem] font-black uppercase tracking-[0.2em] text-white shadow-lg shadow-brand/20">
-              Capabilities
-            </p>
-            <h1 className="mt-6 text-[clamp(2.25rem,7vw,4.5rem)] font-black leading-[0.95] tracking-[-0.03em] text-pretty text-white">
-              Services
-              <span className="block text-white/55">&amp; sectors</span>
-            </h1>
-            <p className="mt-8 max-w-2xl text-base font-medium leading-relaxed text-neutral-300/95 sm:text-lg">
-              {heroLead}
-            </p>
+          <div className="flex flex-col gap-12 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-4xl">
+              <Reveal direction="down" delay={0.1}>
+                <span className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[0.65rem] font-black uppercase tracking-[0.25em] text-brand-light backdrop-blur-md">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-light opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-brand" />
+                  </span>
+                  Capabilities 2026
+                </span>
+              </Reveal>
+              
+              <Reveal direction="clip" delay={0.2}>
+                <h1 className="mt-8 text-[clamp(2.5rem,8vw,5.5rem)] font-black leading-[0.9] tracking-[-0.04em] text-white text-pretty">
+                  Built environment
+                  <span className="block text-brand-light">solutions.</span>
+                </h1>
+              </Reveal>
+              
+              <Reveal direction="up" delay={0.3}>
+                <p className="mt-10 max-w-2xl text-lg font-medium leading-relaxed text-neutral-400 sm:text-xl">
+                  Integrated delivery model combining strategic cost management, 
+                  site execution, and program leadership calibrated for East African realities.
+                </p>
+              </Reveal>
+            </div>
+            
+            <Reveal direction="left" delay={0.4} className="hidden lg:block">
+              <div className="flex items-center gap-6 border-l border-white/10 pl-10">
+                <div className="text-right">
+                  <div className="text-4xl font-black text-white">04</div>
+                  <div className="text-[0.65rem] font-bold uppercase tracking-widest text-neutral-500">Service Pillars</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-4xl font-black text-white">20+</div>
+                  <div className="text-[0.65rem] font-bold uppercase tracking-widest text-neutral-500">Workstreams</div>
+                </div>
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* Sticky rail: index badge (never truncated) + label column — not a single squeezed line */}
       <div
-        className="sticky top-28 z-30 border-b border-black/[0.06] bg-white/75 shadow-sm shadow-black/[0.03] backdrop-blur-xl supports-[backdrop-filter]:bg-white/65"
+        className="sticky top-[72px] z-30 border-b border-black/[0.05] bg-white/80 shadow-sm backdrop-blur-2xl transition-all duration-300"
         data-header-theme="light"
       >
-        <div className="mx-auto flex max-w-7xl items-stretch gap-2 overflow-x-auto px-4 py-3 sm:gap-3 sm:px-6 md:px-8 [&::-webkit-scrollbar]:h-0">
+        <div className="mx-auto flex max-w-7xl items-stretch gap-2 overflow-x-auto px-4 py-4 sm:gap-4 sm:px-6 md:px-8 [&::-webkit-scrollbar]:h-0">
           {services.map((service, i) => {
             const active = activeIndex === i;
             const id = getServiceId(service.title);
@@ -153,38 +158,41 @@ export default function Services() {
               <a
                 key={service.slug}
                 href={`#${id}`}
-                title={service.title}
-                aria-label={`${service.number} ${service.title}`}
                 className={cn(
-                  "flex min-w-[min(100%,18rem)] shrink-0 snap-start items-center gap-3 rounded-2xl border px-3 py-2.5 text-left transition duration-200 sm:min-w-0 sm:flex-1 sm:gap-4 sm:px-4 sm:py-3",
+                  "group relative flex min-w-[140px] shrink-0 items-center gap-3 rounded-2xl border px-4 py-3 transition-all duration-500 sm:min-w-0 sm:flex-1",
                   active
-                    ? "border-brand bg-brand text-white shadow-md shadow-brand/25"
-                    : "border-neutral-200/80 bg-white/90 text-neutral-800 hover:border-brand/35 hover:bg-brand/[0.06]",
+                    ? "border-brand bg-neutral-950 text-white shadow-xl shadow-black/10"
+                    : "border-neutral-200 bg-white/50 text-neutral-500 hover:border-brand/40 hover:bg-white",
                 )}
               >
                 <span
                   className={cn(
-                    "grid h-12 w-12 shrink-0 place-items-center rounded-xl text-xl font-black tabular-nums leading-none tracking-tight sm:h-14 sm:w-14 sm:text-2xl",
-                    active ? "bg-white/20 text-white" : "bg-brand/10 text-brand",
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-black transition-colors duration-500",
+                    active ? "bg-brand text-white" : "bg-neutral-100 text-neutral-400 group-hover:bg-brand/10 group-hover:text-brand",
                   )}
-                  aria-hidden
                 >
                   {service.number}
                 </span>
-                <span className="min-w-0 flex-1 text-[0.68rem] font-bold uppercase leading-snug tracking-[0.06em] text-pretty sm:text-[0.72rem] sm:leading-tight">
+                <span className="min-w-0 flex-1 truncate text-[0.65rem] font-black uppercase tracking-widest">
                   {label}
                 </span>
+                {active && (
+                  <motion.div
+                    layoutId="active-pill-indicator"
+                    className="absolute -bottom-[1px] left-1/2 h-[2px] w-8 -translate-x-1/2 bg-brand"
+                  />
+                )}
               </a>
             );
           })}
         </div>
       </div>
 
-      <div className="bg-neutral-50">
+      <div className="bg-white">
         {services.map((service, index) => {
-          const isDark = index === 1;
+          const isDark = index % 2 !== 0;
           const id = getServiceId(service.title);
-          const imageFirst = index !== 1;
+          const imageFirst = index % 2 === 0;
 
           return (
             <article
@@ -192,176 +200,180 @@ export default function Services() {
               id={id}
               data-header-theme={isDark ? "dark" : "light"}
               className={cn(
-                "relative scroll-mt-36 overflow-hidden sm:scroll-mt-40",
-                isDark ? "bg-neutral-900 text-white" : "bg-neutral-50",
+                "relative scroll-mt-32 overflow-hidden border-b border-black/[0.03] transition-colors duration-700 sm:scroll-mt-36",
+                isDark ? "bg-neutral-950 text-white" : "bg-white",
               )}
             >
-              {/* Watermark index — large ambient numeral, unique to this page */}
-              <span
+              <motion.span
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
                 className={cn(
-                  "pointer-events-none absolute -right-4 top-8 select-none text-[clamp(6rem,22vw,14rem)] font-black leading-none tracking-tighter",
-                  isDark ? "text-white/[0.04]" : "text-neutral-900/[0.06]",
+                  "pointer-events-none absolute -right-8 top-12 select-none text-[clamp(8rem,25vw,18rem)] font-black leading-none tracking-tighter",
+                  isDark ? "text-white/[0.03]" : "text-black/[0.04]",
                 )}
                 aria-hidden
               >
                 {service.number}
-              </span>
+              </motion.span>
 
-              <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 md:px-8 lg:py-24">
+              <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 md:px-8 lg:py-36">
                 <div
                   className={cn(
-                    "grid items-center gap-12 lg:gap-16",
-                    imageFirst ? "lg:grid-cols-[1fr_1.05fr]" : "lg:grid-cols-[1.05fr_1fr]",
+                    "grid items-center gap-16 lg:grid-cols-2 lg:gap-24",
+                    !imageFirst && "lg:direction-rtl",
                   )}
                 >
-                  <div
-                    className={cn(
-                      "relative min-h-[14rem] sm:min-h-[18rem] lg:min-h-[22rem]",
-                      !imageFirst && "lg:order-2",
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "service-detail-visual absolute inset-0",
-                        `service-visual-${index + 1}`,
-                        isDark
-                          ? "rounded-2xl ring-1 ring-white/10"
-                          : "rounded-2xl shadow-xl shadow-black/10 ring-1 ring-black/[0.06]",
-                      )}
-                    />
+                  <div className={cn("relative group", !imageFirst && "lg:order-2")}>
+                    <Reveal direction={imageFirst ? "left" : "right"}>
+                      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2.5rem] lg:aspect-square">
+                        <div
+                          className={cn(
+                            "service-detail-visual absolute inset-0 transition-transform duration-1000 group-hover:scale-110",
+                            `service-visual-${index + 1}`,
+                          )}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
+                        <div className="absolute bottom-10 left-10 translate-y-4 opacity-0 transition-all duration-700 group-hover:translate-y-0 group-hover:opacity-100">
+                          <p className="text-xs font-bold uppercase tracking-widest text-brand-light">Service Area</p>
+                          <h4 className="mt-1 text-2xl font-black text-white">{service.title}</h4>
+                        </div>
+                      </div>
+                    </Reveal>
+                    
+                    {/* Decorative element */}
+                    <div className={cn(
+                      "absolute -bottom-6 -right-6 h-32 w-32 rounded-3xl border border-brand/20 bg-brand/5 backdrop-blur-sm transition-transform duration-700 group-hover:scale-110",
+                      !imageFirst && "-left-6 -right-auto"
+                    )} />
                   </div>
-                  <Reveal direction={index % 2 === 0 ? "left" : "right"}>
-                    <div className={cn(!imageFirst && "lg:order-1")}>
-                      <p
-                        className={cn(
-                          "text-xs font-black uppercase tracking-[0.2em]",
-                          isDark ? "text-brand-light" : "text-brand",
-                        )}
-                      >
-                        Pillar {service.number}
-                      </p>
-                      <h2
-                        className={cn(
-                          "mt-4 text-3xl font-black leading-[1.08] tracking-tight text-pretty sm:text-4xl lg:text-[clamp(2rem,3.5vw,2.75rem)]",
-                          isDark ? "text-white" : "text-neutral-950",
-                        )}
-                      >
+
+                  <div className={cn("relative z-10", !imageFirst && "lg:order-1")}>
+                    <Reveal direction="up">
+                      <div className="flex items-center gap-4">
+                        <span className={cn("h-px w-12", isDark ? "bg-brand-light" : "bg-brand")} />
+                        <span className={cn("text-xs font-black uppercase tracking-[0.3em]", isDark ? "text-brand-light" : "text-brand")}>
+                          Pillar {service.number}
+                        </span>
+                      </div>
+                      <h2 className={cn(
+                        "mt-8 text-[clamp(2rem,5vw,3.5rem)] font-black leading-[1.05] tracking-tight",
+                        isDark ? "text-white" : "text-neutral-950"
+                      )}>
                         {service.title}
                       </h2>
-                      <p
-                        className={cn(
-                          "mt-6 max-w-xl text-base leading-relaxed sm:text-lg",
-                          isDark ? "text-neutral-300" : "text-neutral-600",
-                        )}
-                      >
+                      <p className={cn(
+                        "mt-8 text-lg leading-relaxed sm:text-xl",
+                        isDark ? "text-neutral-400" : "text-neutral-600"
+                      )}>
                         {service.pageIntro}
                       </p>
-                      <Link
-                        to={`/services/${service.slug}`}
-                        className={cn(
-                          "group mt-8 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wide",
-                          isDark
-                            ? "text-white underline decoration-brand decoration-2 underline-offset-8 hover:decoration-brand-light"
-                            : "text-neutral-950 underline decoration-brand decoration-2 underline-offset-8 hover:text-brand",
-                        )}
-                      >
-                        Open full brief
-                        <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-                      </Link>
-                    </div>
-                  </Reveal>
+                      
+                      <div className="mt-12 flex flex-wrap gap-3">
+                        {service.highlights?.slice(0, 4).map((h) => (
+                          <span 
+                            key={h}
+                            className={cn(
+                              "rounded-full border px-4 py-1.5 text-[0.65rem] font-bold uppercase tracking-wider transition-colors",
+                              isDark 
+                                ? "border-white/10 bg-white/5 text-white/70 hover:border-brand-light hover:text-brand-light" 
+                                : "border-black/5 bg-neutral-100 text-neutral-600 hover:border-brand hover:text-brand"
+                            )}
+                          >
+                            {h}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="mt-12 flex items-center gap-8">
+                        <Link
+                          to={`/services/${service.slug}`}
+                          className={cn(
+                            "group flex items-center gap-4 rounded-full px-8 py-4 text-sm font-black uppercase tracking-widest transition-all",
+                            isDark
+                              ? "bg-brand text-white hover:bg-brand-light hover:shadow-lg hover:shadow-brand/20"
+                              : "bg-neutral-950 text-white hover:bg-brand hover:shadow-lg hover:shadow-brand/20"
+                          )}
+                        >
+                          Explore Service
+                          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </Link>
+                      </div>
+                    </Reveal>
+                  </div>
                 </div>
 
-                {/* Horizontal snap scroller for workstreams — different from About’s static grid */}
-                <div className="relative mt-12 lg:mt-16">
-                  <p
-                    className={cn(
-                      "mb-4 text-[0.65rem] font-black uppercase tracking-[0.18em]",
-                      isDark ? "text-neutral-500" : "text-neutral-500",
-                    )}
-                  >
-                    Workstreams
-                  </p>
-                  <div
-                    className={cn(
-                      "flex gap-3 overflow-x-auto pb-3 pt-1 [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-mandatory md:flex-wrap md:overflow-visible md:snap-none md:pb-0 [&::-webkit-scrollbar]:hidden",
-                    )}
-                  >
-                    {service.detailGroups.map((group) => {
+                <div className="mt-24 lg:mt-32">
+                  <div className="flex items-center justify-between gap-4 border-b border-black/[0.05] pb-6">
+                    <h3 className={cn("text-xs font-black uppercase tracking-[0.2em]", isDark ? "text-neutral-500" : "text-neutral-400")}>
+                      Service Workstreams
+                    </h3>
+                    <div className="hidden h-px flex-1 bg-black/[0.05] lg:mx-8 lg:block" />
+                  </div>
+                  
+                  <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {service.detailGroups.map((group, gIdx) => {
                       const dKey = detailCardKey(service.slug, group.title);
-                      const bulletsVisible = showDetailBullets(dKey);
+                      const isOpen = detailOpen.has(dKey);
 
                       return (
-                        <div
-                          key={group.title}
-                          className={cn(
-                            "w-[min(100%,280px)] shrink-0 snap-start sm:w-[min(100%,260px)] md:w-[calc(50%-0.375rem)] lg:w-[calc(33.333%-0.5rem)]",
-                          )}
-                          onMouseEnter={() => setDetailHover(dKey)}
-                          onMouseLeave={() => setDetailHover(null)}
-                        >
+                        <Reveal key={group.title} delay={gIdx * 0.1} direction="up">
                           <div
                             className={cn(
-                              "flex h-full flex-col rounded-2xl border p-4 transition sm:p-5",
+                              "group relative h-full overflow-hidden rounded-[2rem] border transition-all duration-500",
                               isDark
-                                ? "border-white/10 bg-white/[0.04] hover:border-brand/40"
-                                : "border-black/[0.08] bg-white shadow-sm hover:border-brand/30",
+                                ? "border-white/5 bg-white/[0.03] hover:border-brand-light/20 hover:bg-white/[0.05]"
+                                : "border-black/5 bg-neutral-50/50 hover:border-brand/20 hover:bg-white hover:shadow-xl"
                             )}
                           >
                             <button
-                              type="button"
-                              className="flex w-full items-start justify-between gap-2 text-left"
-                              aria-expanded={bulletsVisible}
                               onClick={() => toggleDetail(dKey)}
+                              className="flex w-full flex-col p-8 text-left"
                             >
-                              <h3
-                                className={cn(
-                                  "text-left text-[0.8rem] font-bold uppercase leading-snug tracking-wide",
-                                  isDark ? "text-white" : "text-neutral-900",
-                                )}
-                              >
+                              <div className="flex w-full items-start justify-between">
+                                <span className={cn(
+                                  "flex h-10 w-10 items-center justify-center rounded-xl text-xs font-black transition-all duration-500",
+                                  isDark ? "bg-white/5 text-brand-light group-hover:bg-brand-light group-hover:text-white" : "bg-black/5 text-brand group-hover:bg-brand group-hover:text-white"
+                                )}>
+                                  0{gIdx + 1}
+                                </span>
+                                <div className={cn(
+                                  "flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-500",
+                                  isDark ? "border-white/10 group-hover:rotate-90" : "border-black/10 group-hover:rotate-90",
+                                  isOpen && "rotate-90 bg-brand border-brand text-white"
+                                )}>
+                                  <ChevronRight className={cn("h-4 w-4", isOpen ? "text-white" : isDark ? "text-white/40" : "text-black/40")} />
+                                </div>
+                              </div>
+                              <h4 className={cn("mt-8 text-xl font-black leading-tight", isDark ? "text-white" : "text-neutral-900")}>
                                 {group.title}
-                              </h3>
-                              <span
-                                className={cn(
-                                  "mt-0.5 shrink-0 text-xs font-black transition-transform",
-                                  isDark ? "text-brand-light" : "text-brand",
-                                  bulletsVisible && "rotate-90",
+                              </h4>
+                              
+                              <AnimatePresence>
+                                {isOpen && (
+                                  <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                                    className="overflow-hidden"
+                                  >
+                                    <ul className="mt-8 space-y-4">
+                                      {group.items.map((item) => (
+                                        <li key={item} className="flex items-start gap-3">
+                                          <div className={cn("mt-2 h-1.5 w-1.5 shrink-0 rounded-full", isDark ? "bg-brand-light" : "bg-brand")} />
+                                          <span className={cn("text-sm font-medium leading-relaxed", isDark ? "text-neutral-400" : "text-neutral-600")}>
+                                            {item}
+                                          </span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </motion.div>
                                 )}
-                                aria-hidden
-                              >
-                                →
-                              </span>
+                              </AnimatePresence>
                             </button>
-                            <div
-                              className={cn(
-                                "grid transition-[grid-template-rows,opacity,margin] duration-300 ease-out",
-                                bulletsVisible
-                                  ? "mt-4 grid-rows-[1fr] opacity-100"
-                                  : "mt-0 grid-rows-[0fr] opacity-0",
-                              )}
-                            >
-                              <ul
-                                className={cn(
-                                  "min-h-0 space-y-2 overflow-hidden text-sm leading-relaxed",
-                                  isDark ? "text-neutral-400" : "text-neutral-600",
-                                )}
-                              >
-                                {group.items.map((item) => (
-                                  <li key={item} className="flex gap-2">
-                                    <span
-                                      className={cn(
-                                        "mt-2 h-1 w-1 shrink-0 rounded-full",
-                                        isDark ? "bg-brand-light" : "bg-brand",
-                                      )}
-                                    />
-                                    <span className="text-pretty">{item}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
                           </div>
-                        </div>
+                        </Reveal>
                       );
                     })}
                   </div>
@@ -372,20 +384,26 @@ export default function Services() {
         })}
       </div>
 
-      <section data-header-theme="dark" className="section-padding bg-neutral-950 text-white">
-        <Reveal
-          className="mx-auto flex max-w-7xl flex-col justify-between gap-8 md:flex-row md:items-center"
-          direction="rotate"
-        >
-          <div>
-            <p className="eyebrow text-brand-light">Procurement and standards</p>
-            <h2 className="mt-4 max-w-4xl text-[clamp(1.625rem,3.9vw,3.25rem)] font-black leading-[1.05] tracking-tight text-pretty">
-              Support for FIDIC, RPPA, JCT, NEC, traditional, D&amp;B, and EPC procurement models.
-            </h2>
+      <section data-header-theme="dark" className="relative isolate overflow-hidden bg-neutral-950 py-32 text-white">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(45%_45%_at_50%_50%,rgba(43,143,148,0.1),transparent)]" />
+        <Reveal className="mx-auto flex max-w-7xl flex-col items-center text-center px-4" direction="zoom">
+          <p className="eyebrow text-brand-light">Standards & Compliance</p>
+          <h2 className="mt-8 max-w-4xl text-[clamp(1.8rem,5vw,4rem)] font-black leading-[1.02] tracking-tighter text-pretty">
+            Aligning global standards with 
+            <span className="block text-brand-light">East African realities.</span>
+          </h2>
+          <p className="mt-8 max-w-2xl text-lg text-neutral-400">
+            Comprehensive support for FIDIC, RPPA, JCT, and NEC contract models 
+            across traditional, D&B, and EPC procurement frameworks.
+          </p>
+          <div className="mt-12 flex flex-wrap justify-center gap-4">
+            <Link to="/contact" className="btn-brand">
+              Request Service Advice
+            </Link>
+            <Link to="/about" className="btn-dark">
+              Learn Our Method
+            </Link>
           </div>
-          <Link to="/contact" className="btn-brand shrink-0">
-            Request service advice <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
         </Reveal>
       </section>
     </Layout>

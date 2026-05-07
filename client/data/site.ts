@@ -46,6 +46,7 @@ export const navigation = [
       { label: "Cost Management", href: "/services/quantity-surveying-cost-management" },
       { label: "Construction Management", href: "/services/construction-management" },
       { label: "Project Management", href: "/services/project-management" },
+      { label: "Technical Services", href: "/services/construction-technical-services" },
     ],
   },
   {
@@ -225,6 +226,47 @@ export const services = [
       {
         title: "Stakeholder Management & Project Close-Out",
         items: ["Client and stakeholder engagement", "Change management and claims resolution", "Final handover, commissioning, and project close-out"],
+      },
+    ],
+  },
+  {
+    number: "04",
+    slug: "construction-technical-services",
+    title: "Construction & Technical Services",
+    pageTitle: "End-to-end building solutions from concept to completion.",
+    pageIntro:
+      "At T&W QUANTUS, our Construction & Technical Services offering delivers end-to-end solutions for building projects from concept to completion. Acting as a single point of responsibility, we manage the full project life-cycle with precision, speed, and accountability. Our approach integrates skilled execution, technical expertise, and quality assurance to ensure seamless delivery of residential, commercial, and institutional developments.",
+    summary:
+      "Acting as a single point of responsibility, we manage the full project life-cycle with precision, speed, and accountability.",
+    highlights: [
+      "General Building Construction",
+      "Architectural Drawing",
+      "Civil & Structural Works Execution",
+      "Electrical & Mechanical Installations",
+      "Minor Works, Renovations, and Repairs",
+      "Construction Material Supply & Installation",
+    ],
+    detailGroups: [
+      {
+        title: "Building & Infrastructure",
+        items: [
+          "General Building Construction (residential, commercial, institutional)",
+          "Civil & Structural Works Execution",
+        ],
+      },
+      {
+        title: "Technical Services",
+        items: [
+          "Architectural Drawing",
+          "Electrical & Mechanical Installations (HVAC, plumbing, fire systems)",
+        ],
+      },
+      {
+        title: "Renovations & Materials",
+        items: [
+          "Minor Works, Renovations, and Repairs",
+          "Supply and Installation of Construction Materials (tiles, fixtures, finishes, piping, roofing, etc.)",
+        ],
       },
     ],
   },
