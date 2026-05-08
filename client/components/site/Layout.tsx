@@ -266,10 +266,9 @@ export function Layout({ children }: LayoutProps) {
         <div
           className={cn(
             "pointer-events-auto transition-all duration-500 ease-out",
-            "border-0 shadow-none ring-0 outline-none backdrop-blur-xl",
-            isHeaderOnDark ? "bg-white/85" : "bg-black/85",
-            // Home desktop: transparent strip so MENU floats like before (sm/md keep solid bar)
-            isHome && "lg:bg-transparent lg:border-transparent lg:shadow-none",
+            "border-0 shadow-none ring-0 outline-none",
+            !isHome && "backdrop-blur-xl",
+            isHome ? "bg-transparent shadow-none" : (isHeaderOnDark ? "bg-white/85" : "bg-black/85"),
           )}
           onMouseLeave={() => setActiveDropdown(null)}
         >
