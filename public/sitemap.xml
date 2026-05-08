@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+          http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- ═══════════════════════════════════════════
+       CORE PAGES
+       ═══════════════════════════════════════════ -->
+
+  <!-- Home -->
+  <url>
+    <loc>https://www.twquantus.com/</loc>
+    <lastmod>2026-05-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- About -->
+  <url>
+    <loc>https://www.twquantus.com/about</loc>
+    <lastmod>2026-05-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Services index -->
+  <url>
+    <loc>https://www.twquantus.com/services</loc>
+    <lastmod>2026-05-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Projects index -->
+  <url>
+    <loc>https://www.twquantus.com/projects</loc>
+    <lastmod>2026-05-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Perspectives index -->
+  <url>
+    <loc>https://www.twquantus.com/perspectives</loc>
+    <lastmod>2026-05-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Contact -->
+  <url>
+    <loc>https://www.twquantus.com/contact</loc>
+    <lastmod>2026-05-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════
+       SERVICE DETAIL PAGES
+       ═══════════════════════════════════════════ -->
+
+  <!-- Service 01: Quantity Surveying & Cost Management -->
+  <url>
+    <loc>https://www.twquantus.com/services/quantity-surveying-cost-management</loc>
+    <lastmod>2026-05-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Service 02: Construction Management Services -->
+  <url>
+    <loc>https://www.twquantus.com/services/construction-management</loc>
+    <lastmod>2026-05-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Service 03: Project Management Services -->
+  <url>
+    <loc>https://www.twquantus.com/services/project-management</loc>
+    <lastmod>2026-05-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Service 04: Construction & Technical Services -->
+  <url>
+    <loc>https://www.twquantus.com/services/construction-technical-services</loc>
+    <lastmod>2026-05-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════
+       PERSPECTIVES / BLOG DETAIL PAGES
+       ═══════════════════════════════════════════ -->
+
+  <!-- Perspective: Cost Certainty -->
+  <url>
+    <loc>https://www.twquantus.com/perspectives/cost-certainty</loc>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Perspective: Tender Documentation -->
+  <url>
+    <loc>https://www.twquantus.com/perspectives/tender-documentation</loc>
+    <lastmod>2026-04-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Perspective: Site Coordination -->
+  <url>
+    <loc>https://www.twquantus.com/perspectives/site-coordination</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>
