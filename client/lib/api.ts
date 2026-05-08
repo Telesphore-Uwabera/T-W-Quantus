@@ -60,6 +60,19 @@ export async function fetchIndustryNews(): Promise<{
   return res.json();
 }
 
+export async function fetchServiceNews(service?: string): Promise<{
+  articles: NewsArticle[];
+  configured: boolean;
+  cached?: boolean;
+  service?: string | null;
+}> {
+  const base = apiUrl("/api/news/services");
+  const url = service ? `${base}?service=${encodeURIComponent(service)}` : base;
+  const res = await fetch(url);
+  if (!res.ok) return { articles: [], configured: false, service: service ?? null };
+  return res.json();
+}
+
 const TOKEN_KEY = "twq_admin_token";
 
 export function getAdminToken(): string | null {

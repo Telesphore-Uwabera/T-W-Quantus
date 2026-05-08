@@ -5,14 +5,14 @@ import { motion } from "framer-motion";
 import { Layout } from "@/components/site/Layout";
 import { Reveal } from "@/components/site/Reveal";
 import { perspectives } from "@/data/site";
-import { fetchIndustryNews } from "@/lib/api";
+import { fetchServiceNews } from "@/lib/api";
 import type { NewsArticle } from "@shared/cms";
 import { cn } from "@/lib/utils";
 
 export default function Perspectives() {
   const { data: newsData } = useQuery({
-    queryKey: ["news", "public"],
-    queryFn: fetchIndustryNews,
+    queryKey: ["news", "services"],
+    queryFn: () => fetchServiceNews(),
     staleTime: 10 * 60 * 1000,
   });
   const newsArticles = newsData?.articles ?? [];

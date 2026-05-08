@@ -5,6 +5,99 @@ import { serializeProject } from "../lib/projectDoc";
 const NEWS_CACHE_MS = 15 * 60 * 1000;
 let newsCache: { at: number; articles: unknown[] } | null = null;
 
+type NewsArticle = {
+  title: string;
+  description: string;
+  url: string;
+  urlToImage?: string;
+  publishedAt: string;
+  source?: string;
+};
+
+type ServiceSlug =
+  | "quantity-surveying"
+  | "construction-management"
+  | "project-management"
+  | "construction-technical-services";
+
+const SERVICE_NEWS_KEYWORDS: Record<ServiceSlug, string[]> = {
+  "quantity-surveying": [
+    "quantity surveying",
+    "cost plan",
+    "cost planning",
+    "cost estimate",
+    "cost control",
+    "bill of quantities",
+    "boq",
+    "final account",
+    "variation",
+    "valuation",
+    "measurement",
+  ],
+  "construction-management": [
+    "construction management",
+    "site supervision",
+    "site coordination",
+    "quality assurance",
+    "quality control",
+    "hse",
+    "health and safety",
+    "safety",
+    "program",
+    "programme",
+    "schedule",
+    "milestone",
+  ],
+  "project-management": [
+    "project management",
+    "feasibility",
+    "stakeholder",
+    "procurement",
+    "tender",
+    "contract",
+    "risk management",
+    "commissioning",
+    "handover",
+  ],
+  "construction-technical-services": [
+    "construction",
+    "civil",
+    "structural",
+    "infrastructure",
+    "mep",
+    "mechanical",
+    "electrical",
+    "hvac",
+    "plumbing",
+    "fire system",
+    "renovation",
+    "repairs",
+    "fit-out",
+    "materials",
+  ],
+};
+
+const SERVICE_SLUGS = Object.keys(SERVICE_NEWS_KEYWORDS) as ServiceSlug[];
+
+function normalizeText(v: unknown): string {
+  if (!v || typeof v !== "string") return "";
+  return v.toLowerCase();
+}
+
+function matchesAny(text: string, needles: string[]): boolean {
+  if (!text) return false;
+  return needles.some((k) => text.includes(k.toLowerCase()));
+}
+
+function filterServiceNews(articles: NewsArticle[], service?: ServiceSlug): NewsArticle[] {
+  const baseNeedles = SERVICE_SLUGS.flatMap((s) => SERVICE_NEWS_KEYWORDS[s]);
+  const needles = service ? SERVICE_NEWS_KEYWORDS[service] : baseNeedles;
+  return articles.filter((a) => {
+    const hay = `${normalizeText(a.title)} ${normalizeText(a.description)} ${normalizeText(a.source)}`;
+    return matchesAny(hay, needles);
+  });
+}
+
 async function loadNews() {
   const key = process.env.NEWS_API_KEY;
   if (!key) {
@@ -41,7 +134,7 @@ async function loadNews() {
       source?: { name?: string };
     }>;
   };
-  const articles = (data.articles ?? []).map((a) => ({
+  const articles: NewsArticle[] = (data.articles ?? []).map((a) => ({
     title: a.title,
     description: a.description ?? "",
     url: a.url,
@@ -173,6 +266,36 @@ export function createPublicApiRouter() {
         error: e instanceof Error ? e.message : String(e),
         articles: [],
         configured: !!process.env.NEWS_API_KEY,
+      });
+    }
+  });
+
+  /**
+   * Service-related news only (used by Perspectives & News).
+   * Optional `?service=<slug>` further narrows the feed to a single service pillar.
+   */
+  r.get("/news/services", async (req, res) => {
+    try {
+      const serviceParam = typeof req.query.service === "string" ? req.query.service.trim() : "";
+      const service = (SERVICE_SLUGS.includes(serviceParam as ServiceSlug)
+        ? (serviceParam as ServiceSlug)
+        : undefined);
+
+      const result = await loadNews();
+      const articles = (result.articles as NewsArticle[] | undefined) ?? [];
+      const filtered = filterServiceNews(articles, service).slice(0, 12);
+
+      res.json({
+        ...result,
+        articles: filtered,
+        service: service ?? null,
+      });
+    } catch (e) {
+      res.status(502).json({
+        error: e instanceof Error ? e.message : String(e),
+        articles: [],
+        configured: !!process.env.NEWS_API_KEY,
+        service: null,
       });
     }
   });

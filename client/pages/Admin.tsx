@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Loader2, LogOut, Trash2 } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Loader2, LogOut, Trash2 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -20,19 +20,19 @@ import {
   adminListSubscriptions,
   adminLogin,
   clearAdminToken,
-  fetchIndustryNews,
   getAdminToken,
   setAdminToken,
 } from "@/lib/api";
-import type { ContactSubmission, NewsArticle, ProjectDoc, SubscriptionDoc } from "@shared/cms";
+import type { ContactSubmission, ProjectDoc, SubscriptionDoc } from "@shared/cms";
 import { projectGalleryUrls, PROJECT_SECTORS, isValidProjectSector } from "@shared/cms";
 
-type Tab = "projects" | "contacts" | "subscriptions" | "news";
+type Tab = "projects" | "contacts" | "subscriptions";
 
 export default function Admin() {
   const [token, setTokenState] = useState<string | null>(() => getAdminToken());
   const [email, setEmail] = useState("twquantus2025@gmail.com");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [tab, setTab] = useState<Tab>("projects");
 
   const loginMut = useMutation({
@@ -80,14 +80,24 @@ export default function Admin() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="admin-pass">Password</Label>
-              <Input
-                id="admin-pass"
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="border-white/20 bg-white/5 text-white"
-              />
+              <div className="relative">
+                <Input
+                  id="admin-pass"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="border-white/20 bg-white/5 pr-12 text-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/60 focus:ring-offset-2 focus:ring-offset-neutral-950"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             <Button type="submit" className="w-full bg-brand hover:bg-brand-light" disabled={loginMut.isPending}>
               {loginMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in"}
@@ -113,7 +123,6 @@ export default function Admin() {
               ["projects", "Projects"],
               ["contacts", "Contacts"],
               ["subscriptions", "Subscriptions"],
-              ["news", "News feed"],
             ] as const
           ).map(([id, label]) => (
             <button
@@ -148,7 +157,6 @@ export default function Admin() {
         {tab === "projects" && <ProjectsPanel />}
         {tab === "contacts" && <ContactsPanel />}
         {tab === "subscriptions" && <SubscriptionsPanel />}
-        {tab === "news" && <NewsPanel />}
       </main>
     </div>
   );
@@ -391,7 +399,7 @@ function ProjectsPanel() {
           </label>
         </div>
         <div className="space-y-2">
-          <Label>Images (multiple, stored as WebP on Cloudinary)</Label>
+          <Label>Images (multiple, converted to WebP on Cloudinary)</Label>
           <Input
             type="file"
             accept="image/*"
@@ -577,59 +585,6 @@ function SubscriptionsPanel() {
         </tbody>
       </table>
       {data.length === 0 && <p className="p-6 text-neutral-500">No subscribers yet.</p>}
-    </div>
-  );
-}
-
-function NewsPanel() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["admin", "news"],
-    queryFn: fetchIndustryNews,
-  });
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="h-10 w-10 animate-spin text-brand" />
-      </div>
-    );
-  }
-  if (error) {
-    return <p className="text-red-600">{(error as Error).message}</p>;
-  }
-
-  const articles = data?.articles ?? [];
-  if (!data?.configured) {
-    return (
-      <p className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
-        Set <code className="rounded bg-amber-100 px-1">NEWS_API_KEY</code> in <code className="rounded bg-amber-100 px-1">.env</code> (NewsAPI.org)
-        to load industry news.
-      </p>
-    );
-  }
-
-  return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      {(articles as NewsArticle[]).map((a, i) => (
-        <a
-          key={`${a.url}-${i}`}
-          href={a.url}
-          target="_blank"
-          rel="noreferrer"
-          className="flex gap-4 rounded-2xl border border-black/10 bg-white p-4 shadow-sm transition hover:border-brand/40"
-        >
-          {a.urlToImage ? (
-            <img src={a.urlToImage} alt="" className="h-24 w-24 shrink-0 rounded-lg object-cover" />
-          ) : (
-            <div className="h-24 w-24 shrink-0 rounded-lg bg-neutral-200" />
-          )}
-          <div className="min-w-0">
-            <div className="text-xs font-bold text-brand">{a.source}</div>
-            <div className="mt-1 font-black leading-snug">{a.title}</div>
-            <div className="mt-2 line-clamp-2 text-xs text-neutral-600">{a.description}</div>
-          </div>
-        </a>
-      ))}
     </div>
   );
 }
