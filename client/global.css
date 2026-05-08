@@ -399,8 +399,7 @@
     background:
       linear-gradient(135deg, rgba(5, 5, 5, 0.7), rgba(23, 102, 106, 0.2)),
       repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.18) 0 1px, transparent 2px 32px),
-      repeating-linear-gradient(90deg, rgba(43, 143, 148, 0.45) 0 48px, rgba(255, 255, 255, 0.28) 49px 51px, rgba(11, 61, 64, 0.55) 52px 96px),
-      linear-gradient(145deg, #0c353b, #9db9ba);
+      url("/images/splash/services-1.jpg");
   }
 
   .service-visual-2 {
@@ -408,8 +407,7 @@
       linear-gradient(135deg, rgba(0, 0, 0, 0.62), rgba(23, 102, 106, 0.2)),
       radial-gradient(circle at 70% 36%, rgba(255, 255, 255, 0.75), transparent 16%),
       linear-gradient(120deg, transparent 0 44%, rgba(255, 255, 255, 0.35) 45% 47%, transparent 48%),
-      repeating-linear-gradient(90deg, rgba(86, 130, 136, 0.44) 0 42px, rgba(13, 57, 62, 0.72) 43px 86px),
-      linear-gradient(145deg, #082c2e, #4f7477);
+      url("/images/splash/services-2.jpg");
   }
 
   .service-visual-3 {
@@ -417,7 +415,7 @@
       linear-gradient(135deg, rgba(0, 0, 0, 0.62), rgba(23, 102, 106, 0.22)),
       repeating-linear-gradient(35deg, transparent 0 30px, rgba(255, 255, 255, 0.2) 31px 33px),
       repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.14) 0 1px, transparent 2px 42px),
-      linear-gradient(145deg, #202d30, #697c7e 48%, #0b3d40);
+      url("/images/splash/services-3.jpg");
   }
 
   .service-visual-4 {
@@ -425,7 +423,7 @@
       linear-gradient(135deg, rgba(0, 0, 0, 0.66), rgba(23, 102, 106, 0.2)),
       radial-gradient(circle at 54% 42%, rgba(255, 250, 213, 0.72), transparent 14%),
       repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.28) 0 9px, rgba(11, 61, 64, 0.62) 10px 28px),
-      linear-gradient(145deg, #061c21, #17666a 52%, #0a292c);
+      url("/images/splash/services-4.jpg");
   }
 
   .project-sector-visual {
@@ -506,34 +504,30 @@
 
   .project-visual-1 {
     background:
-      linear-gradient(rgba(23, 102, 106, 0.08), rgba(0, 0, 0, 0.18)),
-      radial-gradient(ellipse at 42% 12%, rgba(255, 255, 255, 0.8), transparent 24%),
-      repeating-linear-gradient(95deg, rgba(87, 160, 177, 0.75) 0 42px, rgba(255, 255, 255, 0.42) 43px 45px, rgba(38, 95, 105, 0.75) 46px 88px),
-      linear-gradient(160deg, #7ec9dc, #1b6d78 44%, #163238);
+      linear-gradient(rgba(23, 102, 106, 0.12), rgba(0, 0, 0, 0.35)),
+      radial-gradient(ellipse at 42% 12%, rgba(255, 255, 255, 0.55), transparent 26%),
+      url("/images/splash/rwanda-1.jpg");
   }
 
   .project-visual-2 {
     background:
-      linear-gradient(rgba(23, 102, 106, 0.08), rgba(0, 0, 0, 0.24)),
-      radial-gradient(ellipse at 62% 35%, rgba(255, 255, 255, 0.85), transparent 22%),
-      repeating-linear-gradient(35deg, rgba(235, 244, 244, 0.82) 0 12px, rgba(11, 61, 64, 0.35) 13px 24px),
-      linear-gradient(140deg, #7cd5df, #17666a 48%, #082c2e);
+      linear-gradient(rgba(23, 102, 106, 0.12), rgba(0, 0, 0, 0.42)),
+      radial-gradient(ellipse at 62% 35%, rgba(255, 255, 255, 0.48), transparent 24%),
+      url("/images/splash/east-africa-1.jpg");
   }
 
   .project-visual-3 {
     background:
-      linear-gradient(rgba(23, 102, 106, 0.14), rgba(0, 0, 0, 0.3)),
-      repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.25) 0 2px, transparent 3px 32px),
-      repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.18) 0 2px, transparent 3px 34px),
-      linear-gradient(145deg, #b7c8c9, #55767b 48%, #173f43);
+      linear-gradient(rgba(23, 102, 106, 0.16), rgba(0, 0, 0, 0.48)),
+      repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.18) 0 2px, transparent 3px 36px),
+      url("/images/splash/africa-1.jpg");
   }
 
   .project-visual-4 {
     background:
-      linear-gradient(rgba(23, 102, 106, 0.1), rgba(0, 0, 0, 0.2)),
-      radial-gradient(ellipse at 50% 44%, rgba(255, 244, 204, 0.95), transparent 18%),
-      repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.45) 0 9px, rgba(11, 61, 64, 0.7) 10px 26px),
-      linear-gradient(160deg, #0a3440, #14616a 54%, #061c21);
+      linear-gradient(rgba(23, 102, 106, 0.14), rgba(0, 0, 0, 0.42)),
+      radial-gradient(ellipse at 50% 44%, rgba(255, 244, 204, 0.55), transparent 20%),
+      url("/images/splash/kigali-1.jpg");
   }
 
   .insight-visual-1 {
