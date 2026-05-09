@@ -183,28 +183,32 @@ export function Layout({ children }: LayoutProps) {
     };
   }, [isHome, location.pathname]);
 
-  /** Non–home (and home sm/md): solid bar — light section → black nav; dark section → white nav. */
+  /** Non–home (and home sm/md): solid bar — dark section → white nav; light section → black nav. */
   const solidBarMenuLabel = isHeaderOnDark
-    ? "text-neutral-950 drop-shadow-none"
-    : "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]";
-  /** Home lg+: no bar — float over content (same contrast rules as pre–solid bar). */
+    ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
+    : "text-neutral-950 drop-shadow-none";
+  /**
+   * Home hamburger/MENU label:
+   * – mobile (max-lg): matches the section's own contrast rule — dark bg → white text, light bg → black text.
+   * – desktop (lg+): floats over hero without a bar — always white when dark section, black when light section.
+   */
   const homeLgMenuLabel = isHeaderOnDark
-    ? "max-lg:text-neutral-950 max-lg:drop-shadow-none lg:text-white lg:drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
-    : "max-lg:text-white max-lg:drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)] lg:text-neutral-950 lg:drop-shadow-[0_2px_8px_rgba(255,255,255,0.75)]";
+    ? "max-lg:text-white max-lg:drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)] lg:text-white lg:drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
+    : "max-lg:text-neutral-950 max-lg:drop-shadow-none lg:text-neutral-950 lg:drop-shadow-[0_2px_8px_rgba(255,255,255,0.75)]";
   const menuHamburgerLabel = isHome ? homeLgMenuLabel : solidBarMenuLabel;
 
   const solidNavLinkClass = isHeaderOnDark
-    ? "text-neutral-950/90 transition hover:text-brand"
-    : "text-white/90 transition hover:text-brand-light";
+    ? "text-white/90 transition hover:text-brand-light"
+    : "text-neutral-950/90 transition hover:text-brand";
   const solidNavChromeClass = isHeaderOnDark
-    ? "text-neutral-950/80 transition hover:bg-neutral-950/10 hover:text-brand"
-    : "text-white/80 transition hover:bg-white/10 hover:text-brand-light";
+    ? "text-white/80 transition hover:bg-white/10 hover:text-brand-light"
+    : "text-neutral-950/80 transition hover:bg-neutral-950/10 hover:text-brand";
   const homeNavLinkClass = isHeaderOnDark
-    ? "max-lg:text-neutral-950/90 max-lg:transition max-lg:hover:text-brand lg:text-white/90 lg:transition lg:hover:text-brand-light"
-    : "max-lg:text-white/90 max-lg:transition max-lg:hover:text-brand-light lg:text-neutral-950/90 lg:transition lg:hover:text-brand";
+    ? "max-lg:text-white/90 max-lg:transition max-lg:hover:text-brand-light lg:text-white/90 lg:transition lg:hover:text-brand-light"
+    : "max-lg:text-neutral-950/90 max-lg:transition max-lg:hover:text-brand lg:text-neutral-950/90 lg:transition lg:hover:text-brand";
   const homeNavChromeClass = isHeaderOnDark
-    ? "max-lg:text-neutral-950/80 max-lg:transition max-lg:hover:bg-neutral-950/10 max-lg:hover:text-brand lg:text-white/80 lg:transition lg:hover:bg-white/10 lg:hover:text-brand-light"
-    : "max-lg:text-white/80 max-lg:transition max-lg:hover:bg-white/10 max-lg:hover:text-brand-light lg:text-neutral-950/80 lg:transition lg:hover:bg-neutral-950/10 lg:hover:text-brand";
+    ? "max-lg:text-white/80 max-lg:transition max-lg:hover:bg-white/10 max-lg:hover:text-brand-light lg:text-white/80 lg:transition lg:hover:bg-white/10 lg:hover:text-brand-light"
+    : "max-lg:text-neutral-950/80 max-lg:transition max-lg:hover:bg-neutral-950/10 max-lg:hover:text-brand lg:text-neutral-950/80 lg:transition lg:hover:bg-neutral-950/10 lg:hover:text-brand";
   const navLinkClass = isHome ? homeNavLinkClass : solidNavLinkClass;
   const navChromeIconClass = isHome ? homeNavChromeClass : solidNavChromeClass;
 
@@ -293,7 +297,7 @@ export function Layout({ children }: LayoutProps) {
                     showSlogan={false}
                     inverted={
                       showFullNav &&
-                      (isHome && isLgUp ? isHeaderOnDark : !isHeaderOnDark)
+                      isHeaderOnDark
                     }
                   />
                 </div>
