@@ -123,8 +123,8 @@ export default function Contact() {
                     }}
                   >
                     <div className="grid gap-8 md:grid-cols-2">
-                      <FormGroup label="Full Name" name="name" type="text" placeholder="Isaac Uwumuremyi" required />
-                      <FormGroup label="Email Address" name="email" type="email" placeholder="isaac@company.com" required />
+                      <FormGroup label="Full Name" name="name" type="text" placeholder="Enter your full name" required />
+                      <FormGroup label="Email Address" name="email" type="email" placeholder="example@email.com" required />
                     </div>
                     
                     <div className="grid gap-8 md:grid-cols-2">
