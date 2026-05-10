@@ -185,8 +185,8 @@ export function Layout({ children }: LayoutProps) {
 
   /** Non–home (and home sm/md): solid bar — dark section → white nav; light section → black nav. */
   const solidBarMenuLabel = isHeaderOnDark
-    ? "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
-    : "text-neutral-950 drop-shadow-none";
+    ? "text-neutral-950 drop-shadow-none"
+    : "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]";
   /**
    * Home hamburger/MENU label:
    * – mobile (max-lg): matches the section's own contrast rule — dark bg → white text, light bg → black text.
@@ -198,11 +198,11 @@ export function Layout({ children }: LayoutProps) {
   const menuHamburgerLabel = isHome ? homeLgMenuLabel : solidBarMenuLabel;
 
   const solidNavLinkClass = isHeaderOnDark
-    ? "text-white/90 transition hover:text-brand-light"
-    : "text-neutral-950/90 transition hover:text-brand";
+    ? "text-neutral-950/90 transition hover:text-brand"
+    : "text-white/90 transition hover:text-brand-light";
   const solidNavChromeClass = isHeaderOnDark
-    ? "text-white/80 transition hover:bg-white/10 hover:text-brand-light"
-    : "text-neutral-950/80 transition hover:bg-neutral-950/10 hover:text-brand";
+    ? "text-neutral-950/80 transition hover:bg-neutral-950/10 hover:text-brand"
+    : "text-white/80 transition hover:bg-white/10 hover:text-brand-light";
   const homeNavLinkClass = isHeaderOnDark
     ? "max-lg:text-white/90 max-lg:transition max-lg:hover:text-brand-light lg:text-white/90 lg:transition lg:hover:text-brand-light"
     : "max-lg:text-neutral-950/90 max-lg:transition max-lg:hover:text-brand lg:text-neutral-950/90 lg:transition lg:hover:text-brand";
@@ -272,7 +272,7 @@ export function Layout({ children }: LayoutProps) {
             "pointer-events-auto transition-all duration-500 ease-out",
             "border-0 shadow-none ring-0 outline-none",
             !isHome && "backdrop-blur-xl",
-            isHome ? "bg-transparent shadow-none" : (isHeaderOnDark ? "bg-white/85" : "bg-black/85"),
+            isHome ? "bg-transparent shadow-none" : (isHeaderOnDark ? "bg-white/85 shadow-lg" : "bg-black/85 shadow-lg"),
           )}
           onMouseLeave={() => setActiveDropdown(null)}
         >
@@ -296,8 +296,7 @@ export function Layout({ children }: LayoutProps) {
                     compact
                     showSlogan={false}
                     inverted={
-                      showFullNav &&
-                      isHeaderOnDark
+                      isHome ? isHeaderOnDark : !isHeaderOnDark
                     }
                   />
                 </div>

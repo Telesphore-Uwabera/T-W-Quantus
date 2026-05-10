@@ -4,7 +4,11 @@ import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Layout } from "@/components/site/Layout";
 import { Reveal } from "@/components/site/Reveal";
-import { company, services } from "@/data/site";
+import { company, navigation, perspectives, services } from "@/data/site";
+import { useQuery } from "@tanstack/react-query";
+import { fetchServiceNews } from "@/lib/api";
+import type { NewsArticle } from "@shared/cms";
+import { cn } from "@/lib/utils";
 
 const projectCards = [
   { title: "Residential Developments", location: "Rwanda", visual: "project-visual-1" },
@@ -13,82 +17,37 @@ const projectCards = [
   { title: "Renovations & Technical Works", location: "Kigali", visual: "project-visual-4" },
 ];
 
-const latestNews = [
-  {
-    title: "Cost certainty from feasibility to final account",
-    category: "Quantity Surveying",
-    publicationDate: "01 May 2026",
-    summary:
-      "How early estimates, BOQs, tender reviews, and final account controls protect project value.",
-    visual: "insight-visual-1",
-  },
-  {
-    title: "Managing construction delivery with clearer controls",
-    category: "Project Management",
-    publicationDate: "28 Apr 2026",
-    summary:
-      "A practical view of planning, procurement, site coordination, quality, and stakeholder alignment.",
-    visual: "insight-visual-2",
-  },
-  {
-    title: "Why early cost planning protects client portfolios",
-    category: "Cost Management",
-    publicationDate: "24 Apr 2026",
-    summary:
-      "A look at the decisions that reduce uncertainty before construction procurement begins.",
-    visual: "insight-visual-1",
-  },
-  {
-    title: "Turning site coordination into safer project delivery",
-    category: "Construction Management",
-    publicationDate: "21 Apr 2026",
-    summary:
-      "How daily supervision, HSE control, and trade coordination support reliable execution.",
-    visual: "insight-visual-2",
-  },
-  {
-    title: "The role of BOQs in transparent tendering",
-    category: "Tender Documentation",
-    publicationDate: "18 Apr 2026",
-    summary:
-      "Bills of Quantities help clients compare bids, define scope, and reduce procurement risk.",
-    visual: "insight-visual-1",
-  },
-  {
-    title: "Design coordination for stronger project outcomes",
-    category: "Design Management",
-    publicationDate: "15 Apr 2026",
-    summary:
-      "Why aligning consultants, stakeholders, and scope early improves delivery confidence.",
-    visual: "insight-visual-2",
-  },
-  {
-    title: "Sustainable construction decisions start at concept stage",
-    category: "Sustainability",
-    publicationDate: "11 Apr 2026",
-    summary:
-      "Responsible project planning can reduce waste, improve lifecycle value, and support communities.",
-    visual: "insight-visual-1",
-  },
-  {
-    title: "Technical services for renovation and minor works",
-    category: "Technical Services",
-    publicationDate: "08 Apr 2026",
-    summary:
-      "Renovation success depends on clear scope, material control, technical review, and close supervision.",
-    visual: "insight-visual-2",
-  },
-];
+// latestNews hardcoded array is replaced by dynamic fetching below in the component
 
 export default function Index() {
   const [activeService, setActiveService] = useState(0);
   const [activeNewsSlide, setActiveNewsSlide] = useState(0);
+
+  const { data: newsData } = useQuery({
+    queryKey: ["news", "services", "home"],
+    queryFn: () => fetchServiceNews(),
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const industryNews = (newsData?.articles || []).map((a: NewsArticle) => ({
+    title: a.title,
+    category: a.source || "Industry News",
+    publicationDate: a.publishedAt ? new Date(a.publishedAt).toLocaleDateString("en-GB", { day: '2-digit', month: 'short', year: 'numeric' }) : "Recent",
+    summary: a.description,
+    visual: "",
+    imageUrl: a.urlToImage,
+    href: a.url,
+    external: true
+  }));
+
+  const latestNews = industryNews.slice(0, 8);
   const newsSlideCount = Math.ceil(latestNews.length / 2);
   const activeNews = latestNews.slice(activeNewsSlide * 2, activeNewsSlide * 2 + 2);
+
   const goToPreviousNews = () =>
-    setActiveNewsSlide((slide) => (slide === 0 ? newsSlideCount - 1 : slide - 1));
+    setActiveNewsSlide((slide) => (slide === 0 ? Math.max(0, newsSlideCount - 1) : slide - 1));
   const goToNextNews = () =>
-    setActiveNewsSlide((slide) => (slide === newsSlideCount - 1 ? 0 : slide + 1));
+    setActiveNewsSlide((slide) => (slide === Math.max(0, newsSlideCount - 1) ? 0 : slide + 1));
 
   return (
     <Layout>
@@ -317,19 +276,49 @@ export default function Index() {
                     <div className="mb-6 text-sm font-bold text-neutral-500">
                       {news.publicationDate}
                     </div>
-                    <div className={`${news.visual} relative min-h-[250px] overflow-hidden rounded-3xl sm:min-h-[320px] lg:min-h-[370px] lg:rounded-none`}>
-                      <Link to="/services" className="absolute bottom-6 right-6 grid h-14 w-14 place-items-center rounded-full bg-brand text-white transition hover:bg-brand-light">
-                        <ArrowRight className="h-5 w-5" />
+                    {news.external ? (
+                      <a href={news.href} target="_blank" rel="noreferrer" className="group/news">
+                        <div className={cn(
+                          "relative min-h-[250px] overflow-hidden rounded-3xl sm:min-h-[320px] lg:min-h-[370px] lg:rounded-none transition-transform duration-500 group-hover/news:scale-[1.02]",
+                          news.visual
+                        )}
+                        style={news.imageUrl ? { backgroundImage: `url(${news.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+                        >
+                          <div className="absolute bottom-6 right-6 grid h-14 w-14 place-items-center rounded-full bg-brand text-white transition hover:bg-brand-light">
+                            <ArrowRight className="h-5 w-5" />
+                          </div>
+                        </div>
+                        <div className="mt-9 flex items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-brand">
+                          <CalendarDays className="h-4 w-4" />
+                          {news.category}
+                        </div>
+                        <h3 className="mt-4 text-2xl font-black leading-tight text-neutral-950 group-hover/news:text-brand transition-colors">
+                          {news.title}
+                        </h3>
+                        <p className="mt-5 leading-7 text-neutral-600">{news.summary}</p>
+                      </a>
+                    ) : (
+                      <Link to={news.href} className="group/news">
+                        <div className={cn(
+                          "relative min-h-[250px] overflow-hidden rounded-3xl sm:min-h-[320px] lg:min-h-[370px] lg:rounded-none transition-transform duration-500 group-hover/news:scale-[1.02]",
+                          news.visual
+                        )}
+                        style={news.imageUrl ? { backgroundImage: `url(${news.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+                        >
+                          <div className="absolute bottom-6 right-6 grid h-14 w-14 place-items-center rounded-full bg-brand text-white transition hover:bg-brand-light">
+                            <ArrowRight className="h-5 w-5" />
+                          </div>
+                        </div>
+                        <div className="mt-9 flex items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-brand">
+                          <CalendarDays className="h-4 w-4" />
+                          {news.category}
+                        </div>
+                        <h3 className="mt-4 text-2xl font-black leading-tight text-neutral-950 group-hover/news:text-brand transition-colors">
+                          {news.title}
+                        </h3>
+                        <p className="mt-5 leading-7 text-neutral-600">{news.summary}</p>
                       </Link>
-                    </div>
-                    <div className="mt-9 flex items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-brand">
-                      <CalendarDays className="h-4 w-4" />
-                      {news.category}
-                    </div>
-                    <h3 className="mt-4 text-2xl font-black leading-tight text-neutral-950">
-                      {news.title}
-                    </h3>
-                    <p className="mt-5 leading-7 text-neutral-600">{news.summary}</p>
+                    )}
                   </article>
                 ))}
               </motion.div>

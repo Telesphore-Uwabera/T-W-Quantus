@@ -45,25 +45,27 @@ export default function Contact() {
 
       <section className="relative z-10 -mt-20 bg-neutral-50/50 pb-24 lg:pb-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-          <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:gap-20">
+          <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
             {/* Contact Information Sidebar */}
-            <div className="lg:sticky lg:top-32">
-              <Reveal direction="left" className="p-4">
-                <div className="overflow-hidden rounded-[3rem] bg-neutral-950 p-8 text-white shadow-2xl lg:p-12">
-                   <div className="flex items-center gap-4">
-                      <span className="h-px w-8 bg-brand" />
-                      <span className="text-[0.6rem] font-black uppercase tracking-[0.3em] text-brand-light">Kigali Headquarters</span>
-                   </div>
-                   
-                   <h2 className="mt-8 text-4xl font-black tracking-tight">Direct reach.</h2>
-                   <p className="mt-6 text-neutral-400 text-lg leading-relaxed">
-                     Our reputation is built on transparency. Use the details below for a direct line to our project directors.
-                   </p>
-                   
-                   <div className="mt-12 space-y-10">
-                     <ContactItem icon={<MapPin />} label="Global Office" value={company.registeredAddress} />
-                     <ContactItem icon={<Phone />} label="Priority Line" value={company.phone} href={company.phoneHref} />
-                     <ContactItem icon={<Mail />} label="Project Enquiries" value={company.email} href={company.emailHref} />
+            <div className="lg:sticky lg:top-32 h-full">
+              <Reveal direction="left" className="h-full p-4">
+                <div className="flex h-full flex-col overflow-hidden rounded-[3rem] bg-neutral-950 p-8 text-white shadow-2xl lg:p-12">
+                   <div className="flex-1">
+                      <div className="flex items-center gap-4">
+                         <span className="h-px w-8 bg-brand" />
+                         <span className="text-[0.6rem] font-black uppercase tracking-[0.3em] text-brand-light">Kigali Headquarters</span>
+                      </div>
+                      
+                      <h2 className="mt-8 text-4xl font-black tracking-tight">Direct reach.</h2>
+                      <p className="mt-6 text-neutral-400 text-lg leading-relaxed">
+                        Our reputation is built on transparency. Use the details below for a direct line to our project directors.
+                      </p>
+                      
+                      <div className="mt-12 space-y-10">
+                        <ContactItem icon={<MapPin />} label="Global Office" value={company.registeredAddress} />
+                        <ContactItem icon={<Phone />} label="Priority Line" value={company.phone} href={company.phoneHref} />
+                        <ContactItem icon={<Mail />} label="Project Enquiries" value={company.email} href={company.emailHref} />
+                      </div>
                    </div>
                    
                    <div className="mt-16 pt-10 border-t border-white/5 flex items-center justify-between">
@@ -78,9 +80,9 @@ export default function Contact() {
             </div>
 
             {/* Premium Consultation Form */}
-            <div className="relative">
-              <Reveal delay={0.1} direction="right" className="p-4">
-                <div className="rounded-[3rem] border border-black/5 bg-white p-8 shadow-2xl shadow-black/5 lg:p-16">
+            <div className="relative h-full">
+              <Reveal delay={0.1} direction="right" className="h-full p-4">
+                <div className="h-full rounded-[3rem] border border-black/5 bg-white p-8 shadow-2xl shadow-black/5 lg:p-16">
                   <div className="flex items-center gap-4 mb-10">
                     <MessageSquare className="h-6 w-6 text-brand" />
                     <h3 className="text-xs font-black uppercase tracking-[0.3em] text-neutral-400">Consultation Request</h3>
