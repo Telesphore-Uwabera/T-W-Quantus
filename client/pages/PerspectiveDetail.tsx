@@ -4,11 +4,31 @@ import { Layout } from "@/components/site/Layout";
 import { Reveal } from "@/components/site/Reveal";
 import { perspectives } from "@/data/site";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { fetchPerspectiveBySlug } from "@/lib/api";
+import type { PerspectiveDoc } from "@shared/cms";
 
 export default function PerspectiveDetail() {
-  const { slug } = useParams();
-  const index = perspectives.findIndex((item) => item.slug === slug);
-  const perspective = perspectives[index];
+  const { slug } = useParams<{ slug: string }>();
+  
+  const { data: dynamicPerspective, isLoading } = useQuery({
+    queryKey: ["perspective", slug],
+    queryFn: () => (slug ? fetchPerspectiveBySlug(slug) : Promise.resolve(null)),
+    enabled: !!slug,
+  });
+
+  const staticPerspective = perspectives.find((item) => item.slug === slug);
+  const perspective = dynamicPerspective || staticPerspective;
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex min-h-[70vh] items-center justify-center bg-neutral-950 text-white">
+          <Clock className="h-10 w-10 animate-spin text-brand" />
+        </div>
+      </Layout>
+    );
+  }
 
   if (!perspective) {
     return (
@@ -26,12 +46,21 @@ export default function PerspectiveDetail() {
     );
   }
 
+  const isDynamic = "_id" in perspective;
+  const imageUrl = isDynamic ? (perspective as PerspectiveDoc).imageUrl : null;
+  const visualClass = !isDynamic ? (perspective as any).visual : null;
+  const introText = isDynamic ? perspective.summary : (perspective as any).intro;
+
   return (
     <Layout>
       {/* Immersive Article Hero */}
       <section data-header-theme="dark" className="relative isolate min-h-[70vh] overflow-hidden bg-neutral-950 pt-32 text-white">
         <div className="absolute inset-0 -z-10">
-          <div className={cn("service-detail-visual absolute inset-0 scale-105 opacity-30 blur-sm", perspective.visual)} />
+          {imageUrl ? (
+             <img src={imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover scale-105 opacity-30 blur-sm" />
+          ) : (
+             <div className={cn("service-detail-visual absolute inset-0 scale-105 opacity-30 blur-sm", visualClass)} />
+          )}
           <div className="absolute inset-0 bg-gradient-to-b from-neutral-950 via-neutral-950/60 to-neutral-950" />
         </div>
         
@@ -52,12 +81,12 @@ export default function PerspectiveDetail() {
                        <span>5 MIN READ</span>
                     </div>
                  </div>
-                 <h1 className="mt-8 text-[clamp(2.5rem,7vw,5.5rem)] font-black leading-[0.95] tracking-tighter text-white">
-                   {perspective.title}
-                 </h1>
-                 <p className="mt-10 text-xl md:text-2xl leading-relaxed text-neutral-300 max-w-3xl antialiased">
-                   {perspective.intro}
-                 </p>
+                  <h1 className="mt-8 text-[clamp(2.5rem,7vw,5.5rem)] font-black leading-[0.95] tracking-tighter text-white">
+                    {perspective.title}
+                  </h1>
+                  <p className="mt-10 text-xl md:text-2xl leading-relaxed text-neutral-300 max-w-3xl antialiased">
+                    {introText}
+                  </p>
                  
                  <div className="mt-12 flex items-center justify-between border-t border-white/10 pt-10">
                     <div className="flex items-center gap-4">
@@ -80,8 +109,16 @@ export default function PerspectiveDetail() {
       {/* Article Content */}
       <section data-header-theme="light" className="bg-white py-24 lg:py-40">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 md:px-8">
-           <div className="grid gap-20">
-              {perspective.sections.map((section, idx) => (
+            <div className="grid gap-20">
+              {isDynamic && (perspective as PerspectiveDoc).content && (
+                <Reveal direction="up">
+                  <article className="prose prose-neutral prose-lg max-w-none prose-headings:font-black prose-headings:tracking-tighter prose-p:text-neutral-600 prose-p:leading-[1.8] antialiased">
+                    <div dangerouslySetInnerHTML={{ __html: (perspective as PerspectiveDoc).content || "" }} />
+                  </article>
+                </Reveal>
+              )}
+
+              {!isDynamic && (perspective as any).sections?.map((section: any, idx: number) => (
                 <Reveal key={section.title} delay={idx * 0.1} direction="up">
                    <article className="grid gap-12 lg:grid-cols-[0.35fr_1fr] lg:gap-20">
                       <div className="lg:sticky lg:top-32 h-fit">
@@ -96,7 +133,7 @@ export default function PerspectiveDetail() {
                    </article>
                 </Reveal>
               ))}
-           </div>
+            </div>
            
            <div className="mt-32 pt-20 border-t border-black/5">
               <Reveal direction="zoom" className="flex flex-col items-center text-center max-w-3xl mx-auto">

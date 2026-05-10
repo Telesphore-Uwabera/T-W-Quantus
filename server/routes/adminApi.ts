@@ -7,7 +7,7 @@ import { requireAdmin } from "../middleware/adminAuth";
 import { slugify } from "../lib/slug";
 import { uploadProjectImageToCloudinary } from "../lib/cloudinaryUpload";
 import { getAdminEmail, getAdminJwtSecret, getAdminPassword } from "../config/adminAuthConfig";
-import { galleryFromDoc, serializeProject } from "../lib/projectDoc";
+import { galleryFromDoc, serializeProject, serializePerspective } from "../lib/projectDoc";
 import { isValidProjectSector } from "../../shared/cms";
 
 const projectUpload = multer({
@@ -274,6 +274,146 @@ export function createAdminApiRouter() {
           createdAt: doc.createdAt instanceof Date ? doc.createdAt.toISOString() : doc.createdAt,
         })),
       );
+    } catch (e) {
+      res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+    }
+  });
+
+  // --- Perspectives ---
+  r.get("/perspectives", async (_req, res) => {
+    try {
+      const db = await getDb();
+      const list = await db.collection("perspectives").find({}).sort({ sortOrder: 1, createdAt: -1 }).toArray();
+      res.json(list.map((doc) => serializePerspective(doc)).filter(Boolean));
+    } catch (e) {
+      res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+    }
+  });
+
+  r.post(
+    "/perspectives",
+    projectUpload.fields([
+      { name: "images", maxCount: 1 },
+      { name: "image", maxCount: 1 },
+    ]),
+    async (req, res) => {
+      try {
+        const title = req.body?.title;
+        const summary = req.body?.summary;
+        const category = req.body?.category || "Insight";
+        if (!title || !summary) {
+          res.status(400).json({ error: "title and summary are required" });
+          return;
+        }
+        const slug = (req.body?.slug && String(req.body.slug)) || slugify(String(title));
+        const content = req.body?.content != null ? String(req.body.content).trim() : "";
+        const date = req.body?.date != null ? String(req.body.date).trim() : new Date().toLocaleDateString("en-GB", { day: '2-digit', month: 'short', year: 'numeric' });
+        const published = parseBool(req.body?.published);
+        const sortOrder = Number(req.body?.sortOrder) || 0;
+        
+        const imageFiles = collectProjectImageFiles(req.files as Record<string, Express.Multer.File[]> | undefined);
+        let imageUrl = "";
+        if (imageFiles.length) {
+          imageUrl = await uploadProjectImageToCloudinary(imageFiles[0].buffer, imageFiles[0].mimetype, "tw-quantus/perspectives");
+        } else if (req.body?.imageUrl) {
+          imageUrl = String(req.body.imageUrl).trim();
+        }
+
+        const db = await getDb();
+        const exists = await db.collection("perspectives").findOne({ slug });
+        if (exists) {
+          res.status(409).json({ error: "Slug already exists" });
+          return;
+        }
+        const now = new Date();
+        const doc = {
+          title: String(title).trim(),
+          slug,
+          summary: String(summary).trim(),
+          category,
+          content,
+          date,
+          imageUrl,
+          published,
+          sortOrder,
+          createdAt: now,
+          updatedAt: now,
+        };
+        const ins = await db.collection("perspectives").insertOne(doc);
+        const inserted = await db.collection("perspectives").findOne({ _id: ins.insertedId });
+        res.json(serializePerspective(inserted));
+      } catch (e) {
+        res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+      }
+    },
+  );
+
+  r.patch(
+    "/perspectives/:id",
+    projectUpload.fields([
+      { name: "images", maxCount: 1 },
+      { name: "image", maxCount: 1 },
+    ]),
+    async (req, res) => {
+      try {
+        const { id } = req.params;
+        if (!ObjectId.isValid(id)) {
+          res.status(400).json({ error: "Invalid id" });
+          return;
+        }
+        const db = await getDb();
+        const existing = await db.collection("perspectives").findOne({ _id: new ObjectId(id) });
+        if (!existing) {
+          res.status(404).json({ error: "Not found" });
+          return;
+        }
+        const updates: Record<string, unknown> = { updatedAt: new Date() };
+        if (req.body?.title != null) updates.title = String(req.body.title).trim();
+        if (req.body?.summary != null) updates.summary = String(req.body.summary).trim();
+        if (req.body?.category != null) updates.category = String(req.body.category).trim();
+        if (req.body?.content != null) updates.content = String(req.body.content).trim();
+        if (req.body?.date != null) updates.date = String(req.body.date).trim();
+        if (req.body?.published != null) updates.published = parseBool(req.body.published);
+        if (req.body?.sortOrder != null) updates.sortOrder = Number(req.body.sortOrder) || 0;
+        
+        if (req.body?.slug != null) {
+          const newSlug = String(req.body.slug);
+          if (newSlug !== existing.slug) {
+            const clash = await db.collection("perspectives").findOne({ slug: newSlug });
+            if (clash) {
+              res.status(409).json({ error: "Slug already in use" });
+              return;
+            }
+            updates.slug = newSlug;
+          }
+        }
+
+        const newFiles = collectProjectImageFiles(req.files as Record<string, Express.Multer.File[]> | undefined);
+        if (newFiles.length) {
+          updates.imageUrl = await uploadProjectImageToCloudinary(newFiles[0].buffer, newFiles[0].mimetype, "tw-quantus/perspectives");
+        } else if (req.body?.imageUrl != null) {
+          updates.imageUrl = String(req.body.imageUrl).trim();
+        }
+
+        await db.collection("perspectives").updateOne({ _id: new ObjectId(id) }, { $set: updates });
+        const next = await db.collection("perspectives").findOne({ _id: new ObjectId(id) });
+        res.json(serializePerspective(next));
+      } catch (e) {
+        res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+      }
+    },
+  );
+
+  r.delete("/perspectives/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      if (!ObjectId.isValid(id)) {
+        res.status(400).json({ error: "Invalid id" });
+        return;
+      }
+      const db = await getDb();
+      await db.collection("perspectives").deleteOne({ _id: new ObjectId(id) });
+      res.json({ ok: true });
     } catch (e) {
       res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
     }

@@ -26,7 +26,7 @@ import {
 import type { ContactSubmission, ProjectDoc, SubscriptionDoc } from "@shared/cms";
 import { projectGalleryUrls, PROJECT_SECTORS, isValidProjectSector } from "@shared/cms";
 
-type Tab = "projects" | "contacts" | "subscriptions";
+type Tab = "projects" | "contacts" | "subscriptions" | "perspectives";
 
 export default function Admin() {
   const [token, setTokenState] = useState<string | null>(() => getAdminToken());
@@ -123,6 +123,7 @@ export default function Admin() {
               ["projects", "Projects"],
               ["contacts", "Contacts"],
               ["subscriptions", "Subscriptions"],
+              ["perspectives", "Perspectives"],
             ] as const
           ).map(([id, label]) => (
             <button
@@ -157,6 +158,7 @@ export default function Admin() {
         {tab === "projects" && <ProjectsPanel />}
         {tab === "contacts" && <ContactsPanel />}
         {tab === "subscriptions" && <SubscriptionsPanel />}
+        {tab === "perspectives" && <PerspectivesPanel />}
       </main>
     </div>
   );
@@ -585,6 +587,257 @@ function SubscriptionsPanel() {
         </tbody>
       </table>
       {data.length === 0 && <p className="p-6 text-neutral-500">No subscribers yet.</p>}
+    </div>
+  );
+}
+function PerspectivesPanel() {
+  const qc = useQueryClient();
+  const { data = [], isLoading, error } = useQuery({ queryKey: ["admin", "perspectives"], queryFn: adminListPerspectives });
+
+  const [title, setTitle] = useState("");
+  const [summary, setSummary] = useState("");
+  const [content, setContent] = useState("");
+  const [category, setCategory] = useState("Insight");
+  const [slug, setSlug] = useState("");
+  const [date, setDate] = useState("");
+  const [sortOrder, setSortOrder] = useState("0");
+  const [published, setPublished] = useState(true);
+  const [imageUrl, setImageUrl] = useState("");
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const resetForm = useCallback(() => {
+    setTitle("");
+    setSummary("");
+    setContent("");
+    setCategory("Insight");
+    setSlug("");
+    setDate("");
+    setSortOrder("0");
+    setPublished(true);
+    setImageUrl("");
+    setPendingFile(null);
+    setEditingId(null);
+  }, []);
+
+  const createMut = useMutation({
+    mutationFn: async () => {
+      const fd = new FormData();
+      fd.append("title", title);
+      fd.append("summary", summary);
+      fd.append("content", content);
+      fd.append("category", category);
+      if (date) fd.append("date", date);
+      if (slug.trim()) fd.append("slug", slug.trim());
+      fd.append("sortOrder", sortOrder);
+      fd.append("published", published ? "true" : "false");
+      if (pendingFile) fd.append("images", pendingFile);
+      const res = await adminFetch("/api/admin/perspectives", { method: "POST", body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(typeof data.error === "string" ? data.error : "Save failed");
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "perspectives"] });
+      qc.invalidateQueries({ queryKey: ["perspectives", "public"] });
+      resetForm();
+      toast.success("Perspective saved");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const patchMut = useMutation({
+    mutationFn: async () => {
+      if (!editingId) throw new Error("No perspective selected");
+      const fd = new FormData();
+      fd.append("title", title);
+      fd.append("summary", summary);
+      fd.append("content", content);
+      fd.append("category", category);
+      if (date) fd.append("date", date);
+      fd.append("slug", slug.trim());
+      fd.append("sortOrder", sortOrder);
+      fd.append("published", published ? "true" : "false");
+      if (pendingFile) fd.append("images", pendingFile);
+      else if (imageUrl) fd.append("imageUrl", imageUrl);
+      
+      const res = await adminFetch(`/api/admin/perspectives/${editingId}`, { method: "PATCH", body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(typeof data.error === "string" ? data.error : "Update failed");
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "perspectives"] });
+      qc.invalidateQueries({ queryKey: ["perspectives", "public"] });
+      resetForm();
+      toast.success("Perspective updated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await adminFetch(`/api/admin/perspectives/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(typeof data.error === "string" ? data.error : "Delete failed");
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "perspectives"] });
+      qc.invalidateQueries({ queryKey: ["perspectives", "public"] });
+      resetForm();
+      toast.success("Perspective removed");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const loadForEdit = (p: PerspectiveDoc) => {
+    setEditingId(p._id);
+    setTitle(p.title);
+    setSummary(p.summary);
+    setContent(p.content ?? "");
+    setCategory(p.category);
+    setSlug(p.slug);
+    setDate(p.date);
+    setSortOrder(String(p.sortOrder ?? 0));
+    setPublished(!!p.published);
+    setImageUrl(p.imageUrl ?? "");
+    setPendingFile(null);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="h-10 w-10 animate-spin text-brand" />
+      </div>
+    );
+  }
+  if (error) {
+    return <p className="text-red-600">{(error as Error).message}</p>;
+  }
+
+  return (
+    <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr]">
+      <form
+        className="space-y-4 rounded-2xl border border-black/10 bg-white p-6 shadow-sm"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (editingId) patchMut.mutate();
+          else createMut.mutate();
+        }}
+      >
+        <h2 className="text-xl font-black">{editingId ? "Edit perspective" : "Add perspective"}</h2>
+        <div className="space-y-2">
+          <Label>Title</Label>
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} required />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+           <div className="space-y-2">
+             <Label>Category</Label>
+             <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Insight, Case Study..." />
+           </div>
+           <div className="space-y-2">
+             <Label>Display Date (optional)</Label>
+             <Input value={date} onChange={(e) => setDate(e.target.value)} placeholder="10 May 2026" />
+           </div>
+        </div>
+        <div className="space-y-2">
+          <Label>Summary</Label>
+          <textarea
+            className="min-h-24 w-full rounded-md border border-black/15 bg-white px-3 py-2 text-sm"
+            value={summary}
+            onChange={(e) => setSummary(e.target.value)}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Full Content (optional)</Label>
+          <textarea
+            className="min-h-48 w-full rounded-md border border-black/15 bg-white px-3 py-2 text-sm"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Markdown or HTML content for the detail page"
+          />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Slug (optional)</Label>
+            <Input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from title" />
+          </div>
+          <div className="space-y-2">
+            <Label>Sort order</Label>
+            <Input type="number" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} />
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+            <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} id="p-published" />
+            <Label htmlFor="p-published">Published</Label>
+        </div>
+        <div className="space-y-2">
+          <Label>Image (converted to WebP on Cloudinary)</Label>
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) setPendingFile(f);
+            }}
+          />
+          {imageUrl && !pendingFile && (
+            <div className="mt-2 relative h-32 w-full overflow-hidden rounded-lg border border-black/10">
+                <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+            </div>
+          )}
+          {pendingFile && (
+             <p className="text-xs font-bold text-brand mt-1">New file selected: {pendingFile.name}</p>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button type="submit" className="bg-brand hover:bg-brand-light" disabled={createMut.isPending || patchMut.isPending}>
+            {(createMut.isPending || patchMut.isPending) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {editingId ? "Update" : "Create"}
+          </Button>
+          {editingId && (
+            <Button type="button" variant="outline" onClick={resetForm}>
+              Cancel edit
+            </Button>
+          )}
+        </div>
+      </form>
+
+      <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+        <h2 className="mb-4 text-xl font-black">All perspectives</h2>
+        <ul className="space-y-3">
+          {(data as PerspectiveDoc[]).map((p) => (
+            <li
+              key={p._id}
+              className="flex flex-col gap-2 rounded-xl border border-black/10 p-4 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div className="min-w-0">
+                <div className="font-black">{p.title}</div>
+                <div className="text-xs text-neutral-500">
+                  {p.category} · {p.published ? "live" : "draft"}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" size="sm" variant="outline" asChild>
+                  <Link to={`/perspectives/${encodeURIComponent(p.slug)}`} target="_blank" rel="noreferrer">
+                    View
+                  </Link>
+                </Button>
+                <Button type="button" size="sm" variant="secondary" onClick={() => loadForEdit(p)}>
+                  Edit
+                </Button>
+                <Button type="button" size="sm" variant="destructive" onClick={() => deleteMut.mutate(p._id)}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </li>
+          ))}
+          {data.length === 0 && <li className="text-sm text-neutral-500">No perspectives yet.</li>}
+        </ul>
+      </div>
     </div>
   );
 }

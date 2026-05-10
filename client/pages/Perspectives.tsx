@@ -5,9 +5,9 @@ import { motion } from "framer-motion";
 import { Layout } from "@/components/site/Layout";
 import { Reveal } from "@/components/site/Reveal";
 import { perspectives } from "@/data/site";
-import { fetchServiceNews } from "@/lib/api";
-import type { NewsArticle } from "@shared/cms";
+import type { NewsArticle, PerspectiveDoc } from "@shared/cms";
 import { cn } from "@/lib/utils";
+import { fetchPublishedPerspectives, fetchServiceNews } from "@/lib/api";
 
 export default function Perspectives() {
   const { data: newsData } = useQuery({
@@ -15,6 +15,15 @@ export default function Perspectives() {
     queryFn: () => fetchServiceNews(),
     staleTime: 10 * 60 * 1000,
   });
+
+  const { data: dynamicPerspectives = [] } = useQuery({
+    queryKey: ["perspectives", "public"],
+    queryFn: fetchPublishedPerspectives,
+  });
+
+  // Combine static and dynamic perspectives
+  const allPerspectives = [...perspectives, ...dynamicPerspectives];
+
   const newsArticles = newsData?.articles ?? [];
   const newsOn = newsData?.configured && newsArticles.length > 0;
 
@@ -46,50 +55,69 @@ export default function Perspectives() {
       <section data-header-theme="light" className="relative z-10 -mt-20 pb-24 lg:pb-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
           <div className="grid gap-12">
-            {perspectives.map((item, index) => (
-              <Reveal key={item.slug} delay={index * 0.1} direction="up">
-                <Link
-                  to={`/perspectives/${item.slug}`}
-                  className="group relative grid overflow-hidden rounded-[3rem] border border-black/5 bg-white shadow-2xl transition-all duration-700 hover:-translate-y-2 hover:shadow-brand/5 lg:grid-cols-[1.1fr_0.9fr]"
-                >
-                  <div className="p-8 md:p-16 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center gap-6">
-                         <span className="text-[0.65rem] font-black uppercase tracking-[0.3em] text-brand">{item.category}</span>
-                         <div className="flex items-center gap-2 text-[0.65rem] font-bold text-neutral-400">
-                           <Clock className="h-3 w-3" />
-                           <span>5 min read</span>
+            {allPerspectives.map((item, index) => {
+              const isDynamic = "_id" in item;
+              const slug = item.slug;
+              const title = item.title;
+              const summary = item.summary;
+              const category = item.category;
+              const date = item.date;
+              const imageUrl = isDynamic ? (item as PerspectiveDoc).imageUrl : null;
+              const visualClass = !isDynamic ? (item as any).visual : null;
+
+              return (
+                <Reveal key={slug} delay={index * 0.1} direction="up">
+                  <Link
+                    to={`/perspectives/${slug}`}
+                    className="group relative grid overflow-hidden rounded-[3rem] border border-black/5 bg-white shadow-2xl transition-all duration-700 hover:-translate-y-2 hover:shadow-brand/5 lg:grid-cols-[1.1fr_0.9fr]"
+                  >
+                    <div className="p-8 md:p-16 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-6">
+                           <span className="text-[0.65rem] font-black uppercase tracking-[0.3em] text-brand">{category}</span>
+                           <div className="flex items-center gap-2 text-[0.65rem] font-bold text-neutral-400">
+                             <Clock className="h-3 w-3" />
+                             <span>5 min read</span>
+                           </div>
+                        </div>
+                        <h2 className="mt-8 text-[clamp(1.75rem,4vw,3.5rem)] font-black leading-[1.05] tracking-tight text-neutral-950 text-pretty group-hover:text-brand transition-colors">
+                          {title}
+                        </h2>
+                        <p className="mt-8 text-lg leading-relaxed text-neutral-600 antialiased">
+                          {summary}
+                        </p>
+                      </div>
+                      
+                      <div className="mt-12 flex items-center justify-between">
+                         <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-full bg-brand/10 flex items-center justify-center text-brand font-black text-xs">TQ</div>
+                            <div className="text-xs">
+                               <div className="font-black text-neutral-950">T&W Editorial</div>
+                               <div className="text-neutral-400 mt-0.5">{date}</div>
+                            </div>
+                         </div>
+                         <div className="flex items-center gap-2">
+                            <button className="p-2 text-neutral-300 hover:text-brand transition-colors"><Bookmark className="h-4 w-4" /></button>
+                            <button className="p-2 text-neutral-300 hover:text-brand transition-colors"><Share2 className="h-4 w-4" /></button>
                          </div>
                       </div>
-                      <h2 className="mt-8 text-[clamp(1.75rem,4vw,3.5rem)] font-black leading-[1.05] tracking-tight text-neutral-950 text-pretty group-hover:text-brand transition-colors">
-                        {item.title}
-                      </h2>
-                      <p className="mt-8 text-lg leading-relaxed text-neutral-600 antialiased">
-                        {item.summary}
-                      </p>
                     </div>
-                    
-                    <div className="mt-12 flex items-center justify-between">
-                       <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-full bg-brand/10 flex items-center justify-center text-brand font-black text-xs">TQ</div>
-                          <div className="text-xs">
-                             <div className="font-black text-neutral-950">T&W Editorial</div>
-                             <div className="text-neutral-400 mt-0.5">{item.date}</div>
-                          </div>
-                       </div>
-                       <div className="flex items-center gap-2">
-                          <button className="p-2 text-neutral-300 hover:text-brand transition-colors"><Bookmark className="h-4 w-4" /></button>
-                          <button className="p-2 text-neutral-300 hover:text-brand transition-colors"><Share2 className="h-4 w-4" /></button>
-                       </div>
+                    <div className="relative min-h-[350px] lg:min-h-full overflow-hidden bg-neutral-100">
+                      {imageUrl ? (
+                        <img 
+                          src={imageUrl} 
+                          alt={title}
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-[3s] group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className={cn("service-detail-visual absolute inset-0 transition-transform duration-[3s] group-hover:scale-110", visualClass)} />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-l from-black/20 to-transparent" />
                     </div>
-                  </div>
-                  <div className="relative min-h-[350px] lg:min-h-full overflow-hidden">
-                    <div className={cn("service-detail-visual absolute inset-0 transition-transform duration-[3s] group-hover:scale-110", item.visual)} />
-                    <div className="absolute inset-0 bg-gradient-to-l from-black/20 to-transparent" />
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
+                  </Link>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -145,17 +173,7 @@ export default function Perspectives() {
               ))}
             </div>
             
-            <div className="mt-20 text-center">
-               <a 
-                href="https://news.google.com/search?q=construction+quantity+surveying" 
-                target="_blank" 
-                rel="noreferrer"
-                className="group inline-flex items-center gap-3 text-sm font-black uppercase tracking-widest text-white hover:text-brand-light transition-colors"
-               >
-                 Explore Full Industry Feed
-                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-               </a>
-            </div>
+            <div className="mt-20" />
           </div>
         </section>
       )}

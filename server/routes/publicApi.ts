@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getDb } from "../db/mongo";
-import { serializeProject } from "../lib/projectDoc";
+import { serializeProject, serializePerspective } from "../lib/projectDoc";
 
 const NEWS_CACHE_MS = 15 * 60 * 1000;
 let newsCache: { at: number; articles: unknown[] } | null = null;
@@ -199,6 +199,42 @@ export function createPublicApiRouter() {
         res.status(503).json({ error: "Database not configured" });
         return;
       }
+      res.status(500).json({ error: msg });
+    }
+  });
+
+  r.get("/perspectives", async (_req, res) => {
+    try {
+      const db = await getDb();
+      const list = await db
+        .collection("perspectives")
+        .find({ published: true })
+        .sort({ sortOrder: 1, createdAt: -1 })
+        .toArray();
+      res.json(list.map((doc) => serializePerspective(doc)).filter(Boolean));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      res.status(500).json({ error: msg });
+    }
+  });
+
+  r.get("/perspectives/:slug", async (req, res) => {
+    try {
+      const slug = String(req.params.slug ?? "").trim();
+      if (!slug) {
+        res.status(400).json({ error: "Invalid slug" });
+        return;
+      }
+      const db = await getDb();
+      const doc = await db.collection("perspectives").findOne({ slug, published: true });
+      const out = serializePerspective(doc);
+      if (!out) {
+        res.status(404).json({ error: "Not found" });
+        return;
+      }
+      res.json(out);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
       res.status(500).json({ error: msg });
     }
   });

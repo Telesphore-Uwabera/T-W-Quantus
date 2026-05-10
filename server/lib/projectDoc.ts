@@ -35,3 +35,24 @@ export function serializeProject(doc: Document | null | undefined): ProjectDoc |
     updatedAt: doc.updatedAt instanceof Date ? doc.updatedAt.toISOString() : String(d.updatedAt ?? ""),
   };
 }
+
+import type { PerspectiveDoc } from "../../shared/cms";
+
+export function serializePerspective(doc: Document | null | undefined): PerspectiveDoc | null {
+  if (!doc?._id) return null;
+  const d = doc as Record<string, unknown>;
+  return {
+    _id: String(doc._id),
+    title: String(d.title ?? ""),
+    slug: String(d.slug ?? ""),
+    summary: String(d.summary ?? ""),
+    content: d.content != null && String(d.content).trim() ? String(d.content).trim() : undefined,
+    category: String(d.category ?? ""),
+    date: String(d.date ?? ""),
+    imageUrl: d.imageUrl != null ? String(d.imageUrl) : undefined,
+    published: !!d.published,
+    sortOrder: Number(d.sortOrder) || 0,
+    createdAt: doc.createdAt instanceof Date ? doc.createdAt.toISOString() : String(d.createdAt ?? ""),
+    updatedAt: doc.updatedAt instanceof Date ? doc.updatedAt.toISOString() : String(d.updatedAt ?? ""),
+  };
+}

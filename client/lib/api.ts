@@ -1,4 +1,4 @@
-import type { ContactSubmission, NewsArticle, ProjectDoc, SubscriptionDoc } from "@shared/cms";
+import type { ContactSubmission, NewsArticle, ProjectDoc, SubscriptionDoc, PerspectiveDoc } from "@shared/cms";
 
 /** Netlify (or any static host): set to Render API origin, e.g. https://t-w-quantus.onrender.com — no trailing slash. */
 const API_BASE = (import.meta.env.VITE_PUBLIC_API_URL ?? "").replace(/\/$/, "");
@@ -47,6 +47,20 @@ export async function fetchProjectBySlug(slug: string): Promise<ProjectDoc | nul
   const res = await fetch(apiUrl(`/api/projects/${s}`));
   if (res.status === 404) return null;
   if (!res.ok) return null;
+  return res.json();
+}
+
+export async function fetchPerspectiveBySlug(slug: string): Promise<PerspectiveDoc | null> {
+  const s = encodeURIComponent(slug);
+  const res = await fetch(apiUrl(`/api/perspectives/${s}`));
+  if (res.status === 404) return null;
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export async function fetchPublishedPerspectives(): Promise<PerspectiveDoc[]> {
+  const res = await fetch(apiUrl("/api/perspectives"));
+  if (!res.ok) return [];
   return res.json();
 }
 
@@ -120,5 +134,11 @@ export async function adminListContacts(): Promise<ContactSubmission[]> {
 export async function adminListSubscriptions(): Promise<SubscriptionDoc[]> {
   const res = await adminFetch("/api/admin/subscriptions");
   if (!res.ok) throw new Error("Failed to load subscriptions");
+  return res.json();
+}
+
+export async function adminListPerspectives(): Promise<PerspectiveDoc[]> {
+  const res = await adminFetch("/api/admin/perspectives");
+  if (!res.ok) throw new Error("Failed to load perspectives");
   return res.json();
 }

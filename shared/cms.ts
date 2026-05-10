@@ -71,3 +71,18 @@ export type NewsArticle = {
   publishedAt: string;
   source?: string;
 };
+
+export type PerspectiveDoc = {
+  _id: string;
+  title: string;
+  slug: string;
+  summary: string;
+  content?: string;
+  category: string;
+  date: string;
+  imageUrl?: string;
+  published: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+};
