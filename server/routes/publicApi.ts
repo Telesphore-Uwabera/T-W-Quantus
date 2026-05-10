@@ -74,6 +74,12 @@ const SERVICE_NEWS_KEYWORDS: Record<ServiceSlug, string[]> = {
     "repairs",
     "fit-out",
     "materials",
+    "building",
+    "architecture",
+    "engineering",
+    "urban development",
+    "real estate",
+    "housing",
   ],
 };
 
@@ -107,17 +113,19 @@ async function loadNews() {
     return { articles: newsCache.articles, configured: true as const, cached: true as const };
   }
   const q = [
-    "construction management",
+    "construction industry",
     "quantity surveying",
     "civil engineering",
-    "building construction",
-    "infrastructure Africa",
+    "infrastructure project",
+    "building development Africa",
+    "real estate Rwanda",
+    "construction management",
   ].join(" OR ");
   const url = new URL("https://newsapi.org/v2/everything");
   url.searchParams.set("q", q);
   url.searchParams.set("language", "en");
   url.searchParams.set("sortBy", "publishedAt");
-  url.searchParams.set("pageSize", "12");
+  url.searchParams.set("pageSize", "40");
   url.searchParams.set("apiKey", key);
   const res = await fetch(url.toString());
   if (!res.ok) {
@@ -134,14 +142,16 @@ async function loadNews() {
       source?: { name?: string };
     }>;
   };
-  const articles: NewsArticle[] = (data.articles ?? []).map((a) => ({
-    title: a.title,
-    description: a.description ?? "",
-    url: a.url,
-    urlToImage: a.urlToImage,
-    publishedAt: a.publishedAt,
-    source: a.source?.name,
-  }));
+  const articles: NewsArticle[] = (data.articles ?? [])
+    .filter(a => a.urlToImage && a.urlToImage.startsWith('http')) // Only articles with images
+    .map((a) => ({
+      title: a.title,
+      description: a.description ?? "",
+      url: a.url,
+      urlToImage: a.urlToImage,
+      publishedAt: a.publishedAt,
+      source: a.source?.name,
+    }));
   newsCache = { at: Date.now(), articles };
   return { articles, configured: true as const };
 }
