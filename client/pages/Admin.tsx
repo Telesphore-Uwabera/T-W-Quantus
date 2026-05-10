@@ -18,12 +18,13 @@ import {
   adminListContacts,
   adminListProjects,
   adminListSubscriptions,
+  adminListPerspectives,
   adminLogin,
   clearAdminToken,
   getAdminToken,
   setAdminToken,
 } from "@/lib/api";
-import type { ContactSubmission, ProjectDoc, SubscriptionDoc } from "@shared/cms";
+import type { ContactSubmission, ProjectDoc, SubscriptionDoc, PerspectiveDoc } from "@shared/cms";
 import { projectGalleryUrls, PROJECT_SECTORS, isValidProjectSector } from "@shared/cms";
 
 type Tab = "projects" | "contacts" | "subscriptions" | "perspectives";
