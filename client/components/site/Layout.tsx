@@ -117,7 +117,9 @@ export function Layout({ children }: LayoutProps) {
   const [activeMobileDropdown, setActiveMobileDropdown] = useState<string | null>("About Us");
   const [footerInView, setFooterInView] = useState(false);
   /** Matches Tailwind `lg` — logo dismissal when leaving home hero applies only at this width and up. */
-  const [isLgUp, setIsLgUp] = useState(false);
+  const [isLgUp, setIsLgUp] = useState(() => 
+    typeof window !== "undefined" ? window.matchMedia("(min-width: 1024px)").matches : false
+  );
   const footerRef = useRef<HTMLElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -189,12 +191,12 @@ export function Layout({ children }: LayoutProps) {
     : "text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]";
   /**
    * Home hamburger/MENU label:
-   * – mobile (max-lg): matches the section's own contrast rule — dark bg → white text, light bg → black text.
+   * – mobile (max-lg): matches the solid bar contrast rule (like other pages).
    * – desktop (lg+): floats over hero without a bar — always white when dark section, black when light section.
    */
   const homeLgMenuLabel = isHeaderOnDark
-    ? "max-lg:text-white max-lg:drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)] lg:text-white lg:drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
-    : "max-lg:text-neutral-950 max-lg:drop-shadow-none lg:text-neutral-950 lg:drop-shadow-[0_2px_8px_rgba(255,255,255,0.75)]";
+    ? "max-lg:text-neutral-950 max-lg:drop-shadow-none lg:text-white lg:drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
+    : "max-lg:text-white max-lg:drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)] lg:text-neutral-950 lg:drop-shadow-[0_2px_8px_rgba(255,255,255,0.75)]";
   const menuHamburgerLabel = isHome ? homeLgMenuLabel : solidBarMenuLabel;
 
   const solidNavLinkClass = isHeaderOnDark
@@ -271,8 +273,12 @@ export function Layout({ children }: LayoutProps) {
           className={cn(
             "pointer-events-auto transition-all duration-500 ease-out",
             "border-0 shadow-none ring-0 outline-none",
-            !isHome && "backdrop-blur-xl",
-            isHome ? "bg-transparent shadow-none" : (isHeaderOnDark ? "bg-white/85 shadow-lg" : "bg-black/85 shadow-lg"),
+            !isHome ? "backdrop-blur-xl" : "max-lg:backdrop-blur-xl",
+            isHome 
+              ? (isHeaderOnDark 
+                  ? "max-lg:bg-white/85 max-lg:shadow-lg lg:bg-transparent lg:shadow-none" 
+                  : "max-lg:bg-black/85 max-lg:shadow-lg lg:bg-transparent lg:shadow-none")
+              : (isHeaderOnDark ? "bg-white/85 shadow-lg" : "bg-black/85 shadow-lg"),
           )}
           onMouseLeave={() => setActiveDropdown(null)}
         >
@@ -296,7 +302,7 @@ export function Layout({ children }: LayoutProps) {
                     compact
                     showSlogan={false}
                     inverted={
-                      isHome ? isHeaderOnDark : !isHeaderOnDark
+                      isHome ? (isLgUp ? isHeaderOnDark : !isHeaderOnDark) : !isHeaderOnDark
                     }
                   />
                 </div>
