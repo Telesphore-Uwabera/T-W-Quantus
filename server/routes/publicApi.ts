@@ -2,7 +2,7 @@ import { Router } from "express";
 import { getDb } from "../db/mongo";
 import { serializeProject, serializePerspective } from "../lib/projectDoc";
 
-const NEWS_CACHE_MS = 15 * 60 * 1000;
+const NEWS_CACHE_MS = 5 * 60 * 1000;
 let newsCache: { at: number; articles: unknown[] } | null = null;
 
 type NewsArticle = {
@@ -125,7 +125,7 @@ async function loadNews() {
   url.searchParams.set("q", q);
   url.searchParams.set("language", "en");
   url.searchParams.set("sortBy", "publishedAt");
-  url.searchParams.set("pageSize", "40");
+  url.searchParams.set("pageSize", "100");
   url.searchParams.set("apiKey", key);
   const res = await fetch(url.toString());
   if (!res.ok) {

@@ -26,14 +26,14 @@ export default function About() {
     offset: ["start start", "end end"]
   });
 
-  const [activeSection, setActiveSection] = useState(ABOUT_NAV[0].id);
+  const [activeSection, setActiveSection] = useState<(typeof ABOUT_NAV)[number]["id"]>(ABOUT_NAV[0].id);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
+            setActiveSection(entry.target.id as (typeof ABOUT_NAV)[number]["id"]);
           }
         });
       },
@@ -66,8 +66,8 @@ export default function About() {
             </Reveal>
             <Reveal direction="clip" delay={0.2}>
               <h1 className="mt-8 text-[clamp(2.5rem,8vw,6.5rem)] font-black leading-[0.88] tracking-tighter text-white text-pretty">
-                Engineering <br />
-                <span className="text-brand-light">Cost Certainty.</span>
+                Construction <br />
+                <span className="text-brand-light">Cost certainty.</span>
               </h1>
             </Reveal>
             <Reveal direction="up" delay={0.3}>
