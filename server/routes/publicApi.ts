@@ -160,6 +160,7 @@ export function createPublicApiRouter() {
   const r = Router();
 
   r.get("/projects", async (_req, res) => {
+    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
     try {
       const db = await getDb();
       const list = await db
@@ -179,6 +180,7 @@ export function createPublicApiRouter() {
   });
 
   r.get("/projects/:slug", async (req, res) => {
+    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
     try {
       const slug = String(req.params.slug ?? "").trim();
       if (!slug) {
@@ -204,6 +206,7 @@ export function createPublicApiRouter() {
   });
 
   r.get("/perspectives", async (_req, res) => {
+    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
     try {
       const db = await getDb();
       const list = await db
@@ -219,6 +222,7 @@ export function createPublicApiRouter() {
   });
 
   r.get("/perspectives/:slug", async (req, res) => {
+    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
     try {
       const slug = String(req.params.slug ?? "").trim();
       if (!slug) {
