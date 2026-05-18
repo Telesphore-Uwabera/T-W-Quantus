@@ -355,10 +355,11 @@
 
   .page-hero-about {
     background:
-      linear-gradient(115deg, rgba(0, 0, 0, 0.76), rgba(11, 61, 64, 0.18)),
-      radial-gradient(circle at 78% 28%, rgba(43, 143, 148, 0.42), transparent 22%),
-      repeating-linear-gradient(120deg, transparent 0 38px, rgba(255, 255, 255, 0.11) 39px 41px, transparent 42px 82px),
-      linear-gradient(135deg, #151515, #26393b 48%, #071719);
+      linear-gradient(115deg, rgba(0, 0, 0, 0.72), rgba(11, 61, 64, 0.22)),
+      radial-gradient(circle at 78% 28%, rgba(43, 143, 148, 0.32), transparent 22%),
+      url("/images/about-us.webp");
+    background-size: cover;
+    background-position: center;
   }
 
   .page-hero-services {
@@ -399,7 +400,7 @@
     background:
       linear-gradient(135deg, rgba(5, 5, 5, 0.7), rgba(23, 102, 106, 0.2)),
       repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.18) 0 1px, transparent 2px 32px),
-      url("/images/splash/services-1.jpg");
+      url("/images/quantity-surveying.webp");
   }
 
   .service-visual-2 {
@@ -407,7 +408,7 @@
       linear-gradient(135deg, rgba(0, 0, 0, 0.62), rgba(23, 102, 106, 0.2)),
       radial-gradient(circle at 70% 36%, rgba(255, 255, 255, 0.75), transparent 16%),
       linear-gradient(120deg, transparent 0 44%, rgba(255, 255, 255, 0.35) 45% 47%, transparent 48%),
-      url("/images/splash/services-2.jpg");
+      url("/images/construction-management.webp");
   }
 
   .service-visual-3 {
@@ -415,7 +416,7 @@
       linear-gradient(135deg, rgba(0, 0, 0, 0.62), rgba(23, 102, 106, 0.22)),
       repeating-linear-gradient(35deg, transparent 0 30px, rgba(255, 255, 255, 0.2) 31px 33px),
       repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.14) 0 1px, transparent 2px 42px),
-      url("/images/splash/services-3.jpg");
+      url("/images/construction-project-management.webp");
   }
 
   .service-visual-4 {
@@ -423,7 +424,7 @@
       linear-gradient(135deg, rgba(0, 0, 0, 0.66), rgba(23, 102, 106, 0.2)),
       radial-gradient(circle at 54% 42%, rgba(255, 250, 213, 0.72), transparent 14%),
       repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.28) 0 9px, rgba(11, 61, 64, 0.62) 10px 28px),
-      url("/images/splash/services-4.jpg");
+      url("/images/construction-technical-service.webp");
   }
 
   .project-sector-visual {

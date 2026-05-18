@@ -17,6 +17,14 @@ const projectCards = [
   { title: "Renovations & Technical Works", location: "Kigali", visual: "project-visual-4" },
 ];
 
+/** Maps service index (0-based) → its WebP image in /images/ */
+const serviceImages = [
+  "/images/quantity-surveying.webp",
+  "/images/construction-management.webp",
+  "/images/construction-project-management.webp",
+  "/images/construction-technical-service.webp",
+];
+
 // latestNews hardcoded array is replaced by dynamic fetching below in the component
 
 export default function Index() {
@@ -114,7 +122,22 @@ export default function Index() {
 
             <div className="mt-10 grid gap-8 sm:mt-12 lg:mt-16 lg:grid-cols-[0.82fr_1.05fr] lg:items-start lg:gap-14">
               <Reveal direction="left">
-                <div className="facade-card min-h-[240px] overflow-hidden rounded-3xl shadow-2xl shadow-black/10 sm:min-h-[320px] lg:min-h-[360px] lg:rounded-none" />
+                <div className="relative min-h-[240px] overflow-hidden rounded-3xl shadow-2xl shadow-black/10 sm:min-h-[320px] lg:min-h-[360px] lg:rounded-none">
+                  <AnimatePresence mode="wait">
+                    <motion.img
+                      key={activeService}
+                      src={serviceImages[activeService]}
+                      alt={services[activeService].title}
+                      className="absolute inset-0 h-full w-full object-cover"
+                      initial={{ opacity: 0, scale: 1.06, filter: "blur(8px)" }}
+                      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                      exit={{ opacity: 0, scale: 0.97, filter: "blur(8px)" }}
+                      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  </AnimatePresence>
+                  {/* subtle dark gradient at the bottom for label legibility */}
+                  <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
+                </div>
               </Reveal>
 
               <Reveal delay={0.1} direction="right">

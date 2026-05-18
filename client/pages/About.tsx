@@ -116,7 +116,11 @@ export default function About() {
             <div className="grid gap-20 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <Reveal direction="left" className="relative">
                 <div className="aspect-[3/4] overflow-hidden rounded-[3rem] shadow-2xl">
-                  <div className="service-detail-visual service-visual-1 absolute inset-0 transition-transform duration-[5s] hover:scale-110" />
+                  <img
+                    src="/images/about-us.webp"
+                    alt="T&W Quantus — Precision at our core"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-[5s] hover:scale-110"
+                  />
                 </div>
                 <div className="absolute -bottom-10 -right-10 hidden h-64 w-64 rounded-full border-[20px] border-neutral-100 lg:block" />
               </Reveal>
@@ -248,7 +252,11 @@ export default function About() {
                    
                    <Reveal direction="scale" className="relative">
                       <div className="aspect-square rounded-[3rem] overflow-hidden">
-                        <div className="service-detail-visual service-visual-4 absolute inset-0 scale-110" />
+                        <img
+                           src="/images/quantity-measurement.webp"
+                           alt="Quantity measurement"
+                           className="absolute inset-0 h-full w-full object-cover scale-110"
+                         />
                       </div>
                    </Reveal>
                 </div>

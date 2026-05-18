@@ -8,6 +8,12 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchPerspectiveBySlug } from "@/lib/api";
 import type { PerspectiveDoc } from "@shared/cms";
 
+const staticImages: Record<string, string> = {
+  "service-visual-1": "/images/quantity-surveying.webp",
+  "service-visual-2": "/images/construction-management.webp",
+  "service-visual-3": "/images/site-coordination.webp",
+};
+
 export default function PerspectiveDetail() {
   const { slug } = useParams<{ slug: string }>();
   
@@ -56,11 +62,11 @@ export default function PerspectiveDetail() {
       {/* Immersive Article Hero */}
       <section data-header-theme="dark" className="relative isolate min-h-[70vh] overflow-hidden bg-neutral-950 pt-32 text-white">
         <div className="absolute inset-0 -z-10">
-          {imageUrl ? (
-             <img src={imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover scale-105 opacity-30 blur-sm" />
-          ) : (
-             <div className={cn("service-detail-visual absolute inset-0 scale-105 opacity-30 blur-sm", visualClass)} />
-          )}
+          <img 
+            src={imageUrl || staticImages[visualClass] || "/images/quantity-surveying.webp"} 
+            alt="" 
+            className="absolute inset-0 h-full w-full object-cover scale-105 opacity-30 blur-sm" 
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-neutral-950 via-neutral-950/60 to-neutral-950" />
         </div>
         

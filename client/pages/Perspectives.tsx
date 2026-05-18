@@ -9,6 +9,12 @@ import type { NewsArticle, PerspectiveDoc } from "@shared/cms";
 import { cn } from "@/lib/utils";
 import { fetchPublishedPerspectives, fetchServiceNews } from "@/lib/api";
 
+const staticImages: Record<string, string> = {
+  "service-visual-1": "/images/quantity-surveying.webp",
+  "service-visual-2": "/images/construction-management.webp",
+  "service-visual-3": "/images/site-coordination.webp",
+};
+
 export default function Perspectives() {
   const { data: newsData } = useQuery({
     queryKey: ["news", "services"],
@@ -103,15 +109,11 @@ export default function Perspectives() {
                       </div>
                     </div>
                     <div className="relative min-h-[350px] lg:min-h-full overflow-hidden bg-neutral-100">
-                      {imageUrl ? (
-                        <img 
-                          src={imageUrl} 
-                          alt={title}
-                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-[3s] group-hover:scale-110"
-                        />
-                      ) : (
-                        <div className={cn("service-detail-visual absolute inset-0 transition-transform duration-[3s] group-hover:scale-110", visualClass)} />
-                      )}
+                      <img 
+                        src={imageUrl || staticImages[visualClass] || "/images/quantity-surveying.webp"} 
+                        alt={title}
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[3s] group-hover:scale-110"
+                      />
                       <div className="absolute inset-0 bg-gradient-to-l from-black/20 to-transparent" />
                     </div>
                   </Link>
