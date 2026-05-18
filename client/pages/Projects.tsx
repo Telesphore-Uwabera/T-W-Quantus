@@ -144,8 +144,8 @@ export default function Projects() {
           <Reveal direction="down">
             <span className="text-[0.65rem] font-black uppercase tracking-[0.4em] text-brand-light">Portfolio</span>
             <h1 className="mt-8 text-[clamp(2.5rem,8vw,5.5rem)] font-black leading-[0.9] tracking-tighter text-white">
-              Built assets. <br />
-              <span className="text-brand-light">Delivered trust.</span>
+              Building Excellence, <br />
+              <span className="text-brand-light">Delivering Trust</span>
             </h1>
             <p className="mt-10 max-w-2xl text-lg font-medium leading-relaxed text-neutral-400 sm:text-2xl">
               From multi-unit residential developments to complex institutional infrastructure, 
