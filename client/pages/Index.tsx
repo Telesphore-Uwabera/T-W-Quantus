@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, CalendarDays, MapPin, Minus, Play, Plus } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, Loader2, MapPin, Minus, Play, Plus } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
@@ -31,7 +31,7 @@ export default function Index() {
   const [activeService, setActiveService] = useState(0);
   const [activeNewsSlide, setActiveNewsSlide] = useState(0);
 
-  const { data: newsData } = useQuery({
+  const { data: newsData, isLoading } = useQuery({
     queryKey: ["news", "services", "home"],
     queryFn: () => fetchServiceNews(),
     staleTime: 10 * 60 * 1000,
@@ -286,65 +286,78 @@ export default function Index() {
               </div>
             </div>
             <AnimatePresence mode="wait">
-              <motion.div
-                key={activeNewsSlide}
-                className="grid gap-10 md:grid-cols-2"
-                initial={{ opacity: 0, x: 36, filter: "blur(10px)" }}
-                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, x: -36, filter: "blur(10px)" }}
-                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              >
-                {activeNews.map((news) => (
-                  <article key={news.title}>
-                    <div className="mb-6 text-sm font-bold text-neutral-500">
-                      {news.publicationDate}
-                    </div>
-                    {news.external ? (
-                      <a href={news.href} target="_blank" rel="noreferrer" className="group/news">
-                        <div className={cn(
-                          "relative min-h-[250px] overflow-hidden rounded-3xl sm:min-h-[320px] lg:min-h-[370px] lg:rounded-none transition-transform duration-500 group-hover/news:scale-[1.02]",
-                          news.visual
-                        )}
-                        style={news.imageUrl ? { backgroundImage: `url(${news.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
-                        >
-                          <div className="absolute bottom-6 right-6 grid h-14 w-14 place-items-center rounded-full bg-brand text-white transition hover:bg-brand-light">
-                            <ArrowRight className="h-5 w-5" />
+              {isLoading ? (
+                <motion.div
+                  key="loading"
+                  className="flex flex-col items-center justify-center py-24 text-neutral-500 gap-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <Loader2 className="h-8 w-8 animate-spin text-brand" />
+                  <span className="text-[0.65rem] font-black uppercase tracking-[0.25em] text-neutral-400">Loading latest news...</span>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key={activeNewsSlide}
+                  className="grid gap-10 md:grid-cols-2"
+                  initial={{ opacity: 0, x: 36, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, x: -36, filter: "blur(10px)" }}
+                  transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {activeNews.map((news) => (
+                    <article key={news.title}>
+                      <div className="mb-6 text-sm font-bold text-neutral-500">
+                        {news.publicationDate}
+                      </div>
+                      {news.external ? (
+                        <a href={news.href} target="_blank" rel="noreferrer" className="group/news">
+                          <div className={cn(
+                            "relative min-h-[250px] overflow-hidden rounded-3xl sm:min-h-[320px] lg:min-h-[370px] lg:rounded-none transition-transform duration-500 group-hover/news:scale-[1.02]",
+                            news.visual
+                          )}
+                          style={news.imageUrl ? { backgroundImage: `url(${news.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+                          >
+                            <div className="absolute bottom-6 right-6 grid h-14 w-14 place-items-center rounded-full bg-brand text-white transition hover:bg-brand-light">
+                              <ArrowRight className="h-5 w-5" />
+                            </div>
                           </div>
-                        </div>
-                        <div className="mt-9 flex items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-brand">
-                          <CalendarDays className="h-4 w-4" />
-                          {news.category}
-                        </div>
-                        <h3 className="mt-4 text-2xl font-black leading-tight text-neutral-950 group-hover/news:text-brand transition-colors">
-                          {news.title}
-                        </h3>
-                        <p className="mt-5 leading-7 text-neutral-600">{news.summary}</p>
-                      </a>
-                    ) : (
-                      <Link to={news.href} className="group/news">
-                        <div className={cn(
-                          "relative min-h-[250px] overflow-hidden rounded-3xl sm:min-h-[320px] lg:min-h-[370px] lg:rounded-none transition-transform duration-500 group-hover/news:scale-[1.02]",
-                          news.visual
-                        )}
-                        style={news.imageUrl ? { backgroundImage: `url(${news.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
-                        >
-                          <div className="absolute bottom-6 right-6 grid h-14 w-14 place-items-center rounded-full bg-brand text-white transition hover:bg-brand-light">
-                            <ArrowRight className="h-5 w-5" />
+                          <div className="mt-9 flex items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-brand">
+                            <CalendarDays className="h-4 w-4" />
+                            {news.category}
                           </div>
-                        </div>
-                        <div className="mt-9 flex items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-brand">
-                          <CalendarDays className="h-4 w-4" />
-                          {news.category}
-                        </div>
-                        <h3 className="mt-4 text-2xl font-black leading-tight text-neutral-950 group-hover/news:text-brand transition-colors">
-                          {news.title}
-                        </h3>
-                        <p className="mt-5 leading-7 text-neutral-600">{news.summary}</p>
-                      </Link>
-                    )}
-                  </article>
-                ))}
-              </motion.div>
+                          <h3 className="mt-4 text-2xl font-black leading-tight text-neutral-950 group-hover/news:text-brand transition-colors">
+                            {news.title}
+                          </h3>
+                          <p className="mt-5 leading-7 text-neutral-600">{news.summary}</p>
+                        </a>
+                      ) : (
+                        <Link to={news.href} className="group/news">
+                          <div className={cn(
+                            "relative min-h-[250px] overflow-hidden rounded-3xl sm:min-h-[320px] lg:min-h-[370px] lg:rounded-none transition-transform duration-500 group-hover/news:scale-[1.02]",
+                            news.visual
+                          )}
+                          style={news.imageUrl ? { backgroundImage: `url(${news.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+                          >
+                            <div className="absolute bottom-6 right-6 grid h-14 w-14 place-items-center rounded-full bg-brand text-white transition hover:bg-brand-light">
+                              <ArrowRight className="h-5 w-5" />
+                            </div>
+                          </div>
+                          <div className="mt-9 flex items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-brand">
+                            <CalendarDays className="h-4 w-4" />
+                            {news.category}
+                          </div>
+                          <h3 className="mt-4 text-2xl font-black leading-tight text-neutral-950 group-hover/news:text-brand transition-colors">
+                            {news.title}
+                          </h3>
+                          <p className="mt-5 leading-7 text-neutral-600">{news.summary}</p>
+                        </Link>
+                      )}
+                    </article>
+                  ))}
+                </motion.div>
+              )}
             </AnimatePresence>
           </div>
         </div>

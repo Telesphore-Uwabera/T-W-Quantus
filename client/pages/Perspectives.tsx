@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, CalendarDays, ExternalLink, Bookmark, Share2, Clock } from "lucide-react";
+import { ArrowRight, CalendarDays, ExternalLink, Bookmark, Share2, Clock, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Layout } from "@/components/site/Layout";
@@ -16,7 +16,7 @@ const staticImages: Record<string, string> = {
 };
 
 export default function Perspectives() {
-  const { data: newsData } = useQuery({
+  const { data: newsData, isLoading: isNewsLoading } = useQuery({
     queryKey: ["news", "services"],
     queryFn: () => fetchServiceNews(),
     staleTime: 10 * 60 * 1000,
@@ -31,7 +31,7 @@ export default function Perspectives() {
   const allPerspectives = [...perspectives, ...dynamicPerspectives];
 
   const newsArticles = newsData?.articles ?? [];
-  const newsOn = newsData?.configured && newsArticles.length > 0;
+  const newsOn = newsData?.configured || isNewsLoading;
 
   return (
     <Layout>
@@ -135,45 +135,52 @@ export default function Perspectives() {
                <h2 className="mt-6 text-5xl font-black tracking-tighter text-white">Global Industry <span className="text-neutral-500 italic font-serif lowercase">Pulse.</span></h2>
             </Reveal>
 
-            <div className="grid gap-8 md:grid-cols-2">
-              {(newsArticles as NewsArticle[]).slice(0, 4).map((article, index) => (
-                <Reveal key={`${article.url}-${index}`} delay={index * 0.1} direction="up">
-                  <a
-                    href={article.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group relative flex h-full flex-col overflow-hidden rounded-[2.5rem] border border-white/5 bg-white/[0.02] transition-all duration-500 hover:bg-white/[0.04] hover:border-brand/30"
-                  >
-                    {article.urlToImage && (
-                      <div className="relative aspect-[16/9] overflow-hidden">
-                        <img 
-                          src={article.urlToImage} 
-                          alt={article.title}
-                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/60 to-transparent" />
+             {isNewsLoading ? (
+               <div className="flex flex-col items-center justify-center py-24 text-neutral-500 gap-4">
+                 <Loader2 className="h-8 w-8 animate-spin text-brand-light" />
+                 <span className="text-[0.65rem] font-black uppercase tracking-[0.25em] text-neutral-400">Fetching latest market intelligence...</span>
+               </div>
+             ) : (
+              <div className="grid gap-8 md:grid-cols-2">
+                {(newsArticles as NewsArticle[]).slice(0, 4).map((article, index) => (
+                  <Reveal key={`${article.url}-${index}`} delay={index * 0.1} direction="up">
+                    <a
+                      href={article.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group relative flex h-full flex-col overflow-hidden rounded-[2.5rem] border border-white/5 bg-white/[0.02] transition-all duration-500 hover:bg-white/[0.04] hover:border-brand/30"
+                    >
+                      {article.urlToImage && (
+                        <div className="relative aspect-[16/9] overflow-hidden">
+                          <img 
+                            src={article.urlToImage} 
+                            alt={article.title}
+                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/60 to-transparent" />
+                        </div>
+                      )}
+                      <div className="flex flex-1 flex-col p-8">
+                        <div className="flex items-center justify-between">
+                           <span className="text-[0.6rem] font-black uppercase tracking-widest text-brand-light/60">{article.source || "Industry News"}</span>
+                           <ExternalLink className="h-4 w-4 text-neutral-600 transition-colors group-hover:text-brand-light" />
+                        </div>
+                        <h3 className="mt-6 text-xl font-black leading-tight text-white group-hover:text-brand-light transition-colors">
+                          {article.title}
+                        </h3>
+                        <p className="mt-4 flex-1 line-clamp-2 text-sm text-neutral-400 antialiased">
+                          {article.description}
+                        </p>
+                        <div className="mt-8 flex items-center gap-3 text-[0.6rem] font-bold uppercase tracking-widest text-neutral-600">
+                           <CalendarDays className="h-3 w-3" />
+                           {article.publishedAt ? new Date(article.publishedAt).toLocaleDateString("en-GB", { day: '2-digit', month: 'short', year: 'numeric' }) : "Recent"}
+                        </div>
                       </div>
-                    )}
-                    <div className="flex flex-1 flex-col p-8">
-                      <div className="flex items-center justify-between">
-                         <span className="text-[0.6rem] font-black uppercase tracking-widest text-brand-light/60">{article.source || "Industry News"}</span>
-                         <ExternalLink className="h-4 w-4 text-neutral-600 transition-colors group-hover:text-brand-light" />
-                      </div>
-                      <h3 className="mt-6 text-xl font-black leading-tight text-white group-hover:text-brand-light transition-colors">
-                        {article.title}
-                      </h3>
-                      <p className="mt-4 flex-1 line-clamp-2 text-sm text-neutral-400 antialiased">
-                        {article.description}
-                      </p>
-                      <div className="mt-8 flex items-center gap-3 text-[0.6rem] font-bold uppercase tracking-widest text-neutral-600">
-                         <CalendarDays className="h-3 w-3" />
-                         {article.publishedAt ? new Date(article.publishedAt).toLocaleDateString("en-GB", { day: '2-digit', month: 'short', year: 'numeric' }) : "Recent"}
-                      </div>
-                    </div>
-                  </a>
-                </Reveal>
-              ))}
-            </div>
+                    </a>
+                  </Reveal>
+                ))}
+              </div>
+             )}
             
             <div className="mt-20" />
           </div>
