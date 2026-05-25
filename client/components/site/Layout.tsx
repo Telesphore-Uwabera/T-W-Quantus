@@ -25,6 +25,7 @@ import { company, navigation, services } from "@/data/site";
 import { submitNewsletter, fetchPublishedPerspectives } from "@/lib/api";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 
 type LayoutProps = {
   children: ReactNode;
