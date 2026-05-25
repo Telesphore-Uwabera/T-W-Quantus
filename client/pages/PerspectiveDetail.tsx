@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPerspectiveBySlug } from "@/lib/api";
 import type { PerspectiveDoc } from "@shared/cms";
+import { AutoSlideBackground } from "@/components/site/AutoSlideBackground";
 
 const staticImages: Record<string, string> = {
   "service-visual-1": "/images/quantity-surveying.webp",
@@ -51,22 +52,14 @@ export default function PerspectiveDetail() {
   }
 
   const isDynamic = "_id" in perspective;
-  const imageUrl = isDynamic ? (perspective as PerspectiveDoc).imageUrl : null;
-  const visualClass = !isDynamic ? (perspective as any).visual : null;
+  const imageUrls = perspective.imageUrls && perspective.imageUrls.length > 0
+    ? perspective.imageUrls
+    : (perspective.imageUrl ? [perspective.imageUrl] : ["/images/quantity-surveying.webp"]);
   const introText = isDynamic ? perspective.summary : (perspective as any).intro;
 
   return (
     <Layout>
-      {/* Immersive Article Hero */}
-      <section data-header-theme="dark" className="relative isolate min-h-[70vh] overflow-hidden bg-neutral-950 pt-32 text-white">
-        <div className="absolute inset-0 -z-10">
-          <img 
-            src={imageUrl || staticImages[visualClass] || "/images/quantity-surveying.webp"} 
-            alt="" 
-            className="absolute inset-0 h-full w-full object-cover scale-105 opacity-30 blur-sm" 
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-neutral-950 via-neutral-950/60 to-neutral-950" />
-        </div>
+      <section data-header-theme="dark" className="relative isolate overflow-hidden bg-neutral-950 pt-32 text-white">
         
         <div className="relative mx-auto max-w-5xl px-4 py-20 sm:px-6 md:px-8">
            <Reveal direction="down">
@@ -88,7 +81,17 @@ export default function PerspectiveDetail() {
                   <h1 className="mt-8 text-[clamp(2.5rem,7vw,5.5rem)] font-black leading-[0.95] tracking-tighter text-white">
                     {perspective.title}
                   </h1>
-                  <p className="mt-10 text-xl md:text-2xl leading-relaxed text-neutral-300 max-w-3xl antialiased">
+
+                  {/* Inline Image Carousel */}
+                  <div className="mt-12 relative w-full h-[300px] sm:h-[450px] lg:h-[550px] rounded-3xl overflow-hidden shadow-2xl bg-neutral-900 border border-white/5">
+                    <AutoSlideBackground 
+                      images={imageUrls} 
+                      showControls={true} 
+                      className="absolute inset-0"
+                    />
+                  </div>
+
+                  <p className="mt-12 text-xl md:text-2xl leading-relaxed text-neutral-300 max-w-3xl antialiased">
                     {introText}
                   </p>
                  

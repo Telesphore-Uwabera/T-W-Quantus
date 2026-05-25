@@ -109,6 +109,7 @@ export default function Index() {
       summary: p.summary,
       visual: "",
       imageUrl: p.imageUrl,
+      imageUrls: p.imageUrls && p.imageUrls.length > 0 ? p.imageUrls : (p.imageUrl ? [p.imageUrl] : ["/images/quantity-surveying.webp"]),
       href: `/perspectives/${p.slug}`,
       external: false
     };
@@ -124,6 +125,7 @@ export default function Index() {
       summary: a.description,
       visual: "",
       imageUrl: a.urlToImage,
+      imageUrls: a.urlToImage ? [a.urlToImage] : ["/images/quantity-surveying.webp"],
       href: a.url,
       external: true
     };
@@ -406,9 +408,13 @@ export default function Index() {
                             "relative min-h-[250px] overflow-hidden rounded-3xl sm:min-h-[320px] lg:min-h-[370px] lg:rounded-none transition-transform duration-500 group-hover/news:scale-[1.02]",
                             news.visual
                           )}
-                          style={news.imageUrl ? { backgroundImage: `url(${news.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                           >
-                            <div className="absolute bottom-6 right-6 grid h-14 w-14 place-items-center rounded-full bg-brand text-white transition hover:bg-brand-light">
+                            <AutoSlideBackground 
+                              images={news.imageUrls} 
+                              visualClass={news.visual} 
+                              className="absolute inset-0"
+                            />
+                            <div className="absolute bottom-6 right-6 grid h-14 w-14 place-items-center rounded-full bg-brand text-white transition hover:bg-brand-light z-10">
                               <ArrowRight className="h-5 w-5" />
                             </div>
                           </div>
@@ -427,9 +433,13 @@ export default function Index() {
                             "relative min-h-[250px] overflow-hidden rounded-3xl sm:min-h-[320px] lg:min-h-[370px] lg:rounded-none transition-transform duration-500 group-hover/news:scale-[1.02]",
                             news.visual
                           )}
-                          style={news.imageUrl ? { backgroundImage: `url(${news.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                           >
-                            <div className="absolute bottom-6 right-6 grid h-14 w-14 place-items-center rounded-full bg-brand text-white transition hover:bg-brand-light">
+                            <AutoSlideBackground 
+                              images={news.imageUrls} 
+                              visualClass={news.visual} 
+                              className="absolute inset-0"
+                            />
+                            <div className="absolute bottom-6 right-6 grid h-14 w-14 place-items-center rounded-full bg-brand text-white transition hover:bg-brand-light z-10">
                               <ArrowRight className="h-5 w-5" />
                             </div>
                           </div>
