@@ -23,9 +23,12 @@ function collectProjectImageFiles(files: Record<string, Express.Multer.File[]> |
 }
 
 async function uploadGalleryFiles(files: Express.Multer.File[]): Promise<string[]> {
-  return Promise.all(
-    files.map((f) => uploadProjectImageToCloudinary(f.buffer, f.mimetype, "tw-quantus/projects")),
-  );
+  const urls: string[] = [];
+  for (const f of files) {
+    const url = await uploadProjectImageToCloudinary(f.buffer, f.mimetype, "tw-quantus/projects");
+    urls.push(url);
+  }
+  return urls;
 }
 
 function parseBool(v: unknown): boolean {

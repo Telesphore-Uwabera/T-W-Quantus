@@ -27,6 +27,10 @@ export function serializeProject(doc: Document | null | undefined): ProjectDoc |
     year: d.year != null && String(d.year).trim() ? String(d.year).trim() : undefined,
     projectDate:
       d.projectDate != null && String(d.projectDate).trim() ? String(d.projectDate).trim().slice(0, 10) : undefined,
+    startDate:
+      d.startDate != null && String(d.startDate).trim() ? String(d.startDate).trim().slice(0, 10) : undefined,
+    endDate:
+      d.endDate != null && String(d.endDate).trim() ? String(d.endDate).trim().slice(0, 10) : undefined,
     imageUrls: g.length ? g : undefined,
     imageUrl: g[0],
     published: !!d.published,
