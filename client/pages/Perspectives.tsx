@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Layout } from "@/components/site/Layout";
 import { Reveal } from "@/components/site/Reveal";
-import { perspectives } from "@/data/site";
+import { company, navigation, services } from "@/data/site";
 import type { NewsArticle, PerspectiveDoc } from "@shared/cms";
 import { cn } from "@/lib/utils";
 import { fetchPublishedPerspectives, fetchServiceNews } from "@/lib/api";
@@ -27,8 +27,8 @@ export default function Perspectives() {
     queryFn: fetchPublishedPerspectives,
   });
 
-  // Combine static and dynamic perspectives
-  const allPerspectives = [...perspectives, ...dynamicPerspectives];
+  // Use dynamic perspectives directly
+  const allPerspectives = [...dynamicPerspectives];
 
   const newsArticles = newsData?.articles ?? [];
   const newsOn = newsData?.configured || isNewsLoading;

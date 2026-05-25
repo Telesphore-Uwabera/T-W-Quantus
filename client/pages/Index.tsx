@@ -4,10 +4,10 @@ import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Layout } from "@/components/site/Layout";
 import { Reveal } from "@/components/site/Reveal";
-import { company, navigation, perspectives, services } from "@/data/site";
+import { company, navigation, services } from "@/data/site";
 import { useQuery } from "@tanstack/react-query";
-import { fetchServiceNews, fetchPublishedProjects } from "@/lib/api";
-import { projectGalleryUrls, type NewsArticle, type ProjectDoc } from "@shared/cms";
+import { fetchServiceNews, fetchPublishedProjects, fetchPublishedPerspectives } from "@/lib/api";
+import { projectGalleryUrls, type NewsArticle, type ProjectDoc, type PerspectiveDoc } from "@shared/cms";
 import { cn } from "@/lib/utils";
 import { AutoSlideBackground } from "@/components/site/AutoSlideBackground";
 
@@ -84,25 +84,54 @@ export default function Index() {
     });
   }, [projects]);
 
-  const { data: newsData, isLoading } = useQuery({
+  const { data: newsData, isLoading: isNewsLoading } = useQuery({
     queryKey: ["news", "services", "home"],
     queryFn: () => fetchServiceNews(),
     staleTime: 10 * 60 * 1000,
   });
 
-  const industryNews = (newsData?.articles || []).map((a: NewsArticle) => ({
-    title: a.title,
-    category: a.source || "Industry News",
-    publicationDate: a.publishedAt ? new Date(a.publishedAt).toLocaleDateString("en-GB", { day: '2-digit', month: 'short', year: 'numeric' }) : "Recent",
-    summary: a.description,
-    visual: "",
-    imageUrl: a.urlToImage,
-    href: a.url,
-    external: true
-  }));
+  const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading } = useQuery({
+    queryKey: ["perspectives", "public"],
+    queryFn: fetchPublishedPerspectives,
+  });
 
-  const latestNews = industryNews.slice(0, 8);
-  const newsSlideCount = Math.ceil(latestNews.length / 2);
+  const isLoading = isNewsLoading || isPerspectivesLoading;
+
+  const perspectivesItems = dynamicPerspectives.map((p: PerspectiveDoc) => {
+    const pDate = new Date(p.date);
+    const validDate = !isNaN(pDate.getTime()) ? pDate : new Date(p.createdAt);
+    
+    return {
+      title: p.title,
+      category: p.category || "Perspective",
+      publicationDate: p.date || new Date(p.createdAt).toLocaleDateString("en-GB", { day: '2-digit', month: 'short', year: 'numeric' }),
+      sortDate: validDate.getTime(),
+      summary: p.summary,
+      visual: "",
+      imageUrl: p.imageUrl,
+      href: `/perspectives/${p.slug}`,
+      external: false
+    };
+  });
+
+  const industryNews = (newsData?.articles || []).map((a: NewsArticle) => {
+    const pDate = a.publishedAt ? new Date(a.publishedAt) : new Date();
+    return {
+      title: a.title,
+      category: a.source || "Industry News",
+      publicationDate: a.publishedAt ? pDate.toLocaleDateString("en-GB", { day: '2-digit', month: 'short', year: 'numeric' }) : "Recent",
+      sortDate: pDate.getTime(),
+      summary: a.description,
+      visual: "",
+      imageUrl: a.urlToImage,
+      href: a.url,
+      external: true
+    };
+  });
+
+  const combinedNews = [...perspectivesItems, ...industryNews].sort((a, b) => b.sortDate - a.sortDate);
+  const latestNews = combinedNews.slice(0, 8);
+  const newsSlideCount = Math.max(1, Math.ceil(latestNews.length / 2));
   const activeNews = latestNews.slice(activeNewsSlide * 2, activeNewsSlide * 2 + 2);
 
   const goToPreviousNews = () =>
