@@ -25,7 +25,10 @@ export function uploadBufferToCloudinary(buffer: Buffer, folder: string): Promis
       { folder, resource_type: "auto" },
       (error, result) => {
         if (error || !result?.secure_url) {
-          reject(error ?? new Error("Cloudinary upload failed"));
+          const msg = error
+            ? (typeof error === "string" ? error : (error.message || JSON.stringify(error)))
+            : "Cloudinary upload failed";
+          reject(new Error(msg));
           return;
         }
         resolve(result.secure_url);
@@ -52,7 +55,10 @@ export async function uploadProjectImageToCloudinary(
       },
       (error, result) => {
         if (error || !result?.secure_url) {
-          reject(error ?? new Error("Cloudinary upload failed"));
+          const msg = error
+            ? (typeof error === "string" ? error : (error.message || JSON.stringify(error)))
+            : "Cloudinary upload failed";
+          reject(new Error(msg));
           return;
         }
         resolve(result.secure_url);

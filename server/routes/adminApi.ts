@@ -32,6 +32,21 @@ function parseBool(v: unknown): boolean {
   return v === true || v === "true" || v === "1";
 }
 
+function getErrorMessage(e: unknown): string {
+  if (e instanceof Error) return e.message;
+  if (e && typeof e === "object") {
+    if ("message" in e && typeof (e as any).message === "string") {
+      return (e as any).message;
+    }
+    try {
+      return JSON.stringify(e);
+    } catch {
+      // fallback
+    }
+  }
+  return String(e);
+}
+
 export function createAdminApiRouter() {
   const r = Router();
 
@@ -56,7 +71,7 @@ export function createAdminApiRouter() {
       const list = await db.collection("projects").find({}).sort({ sortOrder: 1, createdAt: -1 }).toArray();
       res.json(list.map((doc) => serializeProject(doc)).filter(Boolean));
     } catch (e) {
-      res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+      res.status(500).json({ error: getErrorMessage(e) });
     }
   });
 
@@ -128,8 +143,7 @@ export function createAdminApiRouter() {
         }
         res.json(out);
       } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
-        res.status(500).json({ error: msg });
+        res.status(500).json({ error: getErrorMessage(e) });
       }
     },
   );
@@ -223,7 +237,7 @@ export function createAdminApiRouter() {
         }
         res.json(out);
       } catch (e) {
-        res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+        res.status(500).json({ error: getErrorMessage(e) });
       }
     },
   );
@@ -243,7 +257,7 @@ export function createAdminApiRouter() {
       }
       res.json({ ok: true });
     } catch (e) {
-      res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+      res.status(500).json({ error: getErrorMessage(e) });
     }
   });
 
@@ -259,7 +273,7 @@ export function createAdminApiRouter() {
         })),
       );
     } catch (e) {
-      res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+      res.status(500).json({ error: getErrorMessage(e) });
     }
   });
 
@@ -275,7 +289,7 @@ export function createAdminApiRouter() {
         })),
       );
     } catch (e) {
-      res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+      res.status(500).json({ error: getErrorMessage(e) });
     }
   });
 
@@ -286,7 +300,7 @@ export function createAdminApiRouter() {
       const list = await db.collection("perspectives").find({}).sort({ sortOrder: 1, createdAt: -1 }).toArray();
       res.json(list.map((doc) => serializePerspective(doc)).filter(Boolean));
     } catch (e) {
-      res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+      res.status(500).json({ error: getErrorMessage(e) });
     }
   });
 
@@ -343,7 +357,7 @@ export function createAdminApiRouter() {
         const inserted = await db.collection("perspectives").findOne({ _id: ins.insertedId });
         res.json(serializePerspective(inserted));
       } catch (e) {
-        res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+        res.status(500).json({ error: getErrorMessage(e) });
       }
     },
   );
@@ -399,7 +413,7 @@ export function createAdminApiRouter() {
         const next = await db.collection("perspectives").findOne({ _id: new ObjectId(id) });
         res.json(serializePerspective(next));
       } catch (e) {
-        res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+        res.status(500).json({ error: getErrorMessage(e) });
       }
     },
   );
@@ -415,7 +429,7 @@ export function createAdminApiRouter() {
       await db.collection("perspectives").deleteOne({ _id: new ObjectId(id) });
       res.json({ ok: true });
     } catch (e) {
-      res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+      res.status(500).json({ error: getErrorMessage(e) });
     }
   });
 
