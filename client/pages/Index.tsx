@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchServiceNews, fetchPublishedProjects } from "@/lib/api";
 import { projectGalleryUrls, type NewsArticle, type ProjectDoc } from "@shared/cms";
 import { cn } from "@/lib/utils";
+import { AutoSlideBackground } from "@/components/site/AutoSlideBackground";
 
 const projectCards = [
   { title: "Residential Developments", location: "Rwanda", visual: "project-visual-1" },
@@ -71,13 +72,13 @@ export default function Index() {
         .sort((a, b) => (b.startDate || b.createdAt).localeCompare(a.startDate || a.createdAt));
       
       const latestProject = matchingProjects[0];
-      const cover = latestProject ? projectGalleryUrls(latestProject)[0] : "";
+      const images = latestProject ? projectGalleryUrls(latestProject) : [];
       
       return {
         title: m.title,
         location: latestProject?.location || m.defaultLocation,
         visual: m.visual,
-        cover,
+        images,
         slug: latestProject?.slug || "",
       };
     });
@@ -271,12 +272,11 @@ export default function Index() {
               to={toLink}
               className={`group project-card project-card-item ${project.visual} relative min-h-[320px] overflow-hidden p-6 text-white sm:min-h-[380px] sm:p-8 lg:min-h-[440px]`}
             >
-              <div 
-                className={`project-card-bg ${project.visual}`}
-                style={project.cover ? {
-                  backgroundImage: `linear-gradient(rgba(23, 102, 106, 0.12), rgba(0, 0, 0, 0.35)), radial-gradient(ellipse at 42% 12%, rgba(255, 255, 255, 0.55), transparent 26%), url(${project.cover})`
-                } : undefined}
+              <AutoSlideBackground 
+                images={project.images} 
+                visualClass={`project-card-bg ${project.visual}`} 
               />
+              <div className="absolute inset-0 bg-[linear-gradient(rgba(23,102,106,0.12),rgba(0,0,0,0.35)),radial-gradient(ellipse_at_42%_12%,rgba(255,255,255,0.55),transparent_26%)] mix-blend-overlay pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent transition duration-700 group-hover:from-brand-dark/85" />
               <div className="relative flex h-full flex-col justify-end">
                 <h3 className="max-w-xs text-xl font-black transition duration-700 group-hover:translate-y-[-4px] group-hover:text-2xl">

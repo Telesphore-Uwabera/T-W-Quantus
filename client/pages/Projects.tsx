@@ -16,6 +16,7 @@ import { company, projectTypes } from "@/data/site";
 import { fetchPublishedProjects } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { isValidProjectSector, PROJECT_SECTORS, projectGalleryUrls, type ProjectDoc } from "@shared/cms";
+import { AutoSlideBackground } from "@/components/site/AutoSlideBackground";
 
 const FILTER_ALL = "__all__";
 
@@ -303,15 +304,15 @@ function FilterGroup({ label, value, onChange, options, labels }: { label: strin
 }
 
 function ProjectGridCard({ project, index }: { project: ProjectDoc, index: number }) {
-  const cover = projectGalleryUrls(project)[0];
+  const images = projectGalleryUrls(project);
   const visualClass = `project-visual-${(index % 4) + 1}`;
   
   return (
     <Link to={`/projects/${encodeURIComponent(project.slug)}`} className="group block">
       <div className="relative aspect-[4/3] overflow-hidden rounded-[2.5rem] bg-neutral-100 transition-all duration-700 group-hover:shadow-2xl group-hover:shadow-black/10">
-        <div 
-          className={cn("absolute inset-0 bg-cover bg-center transition-transform duration-[2s] group-hover:scale-110", !cover && visualClass)}
-          style={cover ? { backgroundImage: `url(${cover})` } : undefined}
+        <AutoSlideBackground 
+          images={images}
+          visualClass={visualClass}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
         <div className="absolute bottom-8 left-8 right-8 translate-y-4 opacity-0 transition-all duration-700 group-hover:translate-y-0 group-hover:opacity-100">
@@ -335,7 +336,7 @@ function ProjectGridCard({ project, index }: { project: ProjectDoc, index: numbe
 }
 
 function ProjectMarqueeCard({ project, index }: { project: ProjectDoc, index: number }) {
-  const cover = projectGalleryUrls(project)[0];
+  const images = projectGalleryUrls(project);
   const visualClass = `project-visual-${(index % 4) + 1}`;
   
   return (
@@ -343,9 +344,9 @@ function ProjectMarqueeCard({ project, index }: { project: ProjectDoc, index: nu
       to={`/projects/${encodeURIComponent(project.slug)}`} 
       className="group project-card-item relative min-h-[440px] w-[340px] shrink-0 overflow-hidden p-8 text-white lg:min-h-[500px]"
     >
-      <div 
-        className={cn("absolute inset-0 bg-cover bg-center transition-transform duration-[2s] group-hover:scale-110", !cover && visualClass)}
-        style={cover ? { backgroundImage: `url(${cover})` } : undefined}
+      <AutoSlideBackground 
+        images={images}
+        visualClass={visualClass}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition duration-700 group-hover:from-brand/90" />
       <div className="relative flex h-full flex-col justify-end">
