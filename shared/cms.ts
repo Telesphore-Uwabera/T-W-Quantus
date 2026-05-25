@@ -80,6 +80,7 @@ export type PerspectiveDoc = {
   content?: string;
   category: string;
   date: string;
+  imageUrls?: string[];
   imageUrl?: string;
   published: boolean;
   sortOrder: number;

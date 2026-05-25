@@ -8,6 +8,7 @@ import { company, navigation, services } from "@/data/site";
 import type { NewsArticle, PerspectiveDoc } from "@shared/cms";
 import { cn } from "@/lib/utils";
 import { fetchPublishedPerspectives, fetchServiceNews } from "@/lib/api";
+import { AutoSlideBackground } from "@/components/site/AutoSlideBackground";
 
 const staticImages: Record<string, string> = {
   "service-visual-1": "/images/quantity-surveying.webp",
@@ -27,8 +28,8 @@ export default function Perspectives() {
     queryFn: fetchPublishedPerspectives,
   });
 
-  // Use dynamic perspectives directly
-  const allPerspectives = [...dynamicPerspectives];
+  // Use dynamic perspectives directly, limited to the latest 4
+  const allPerspectives = [...dynamicPerspectives].slice(0, 4);
 
   const newsArticles = newsData?.articles ?? [];
   const newsOn = newsData?.configured || isNewsLoading;
@@ -69,15 +70,24 @@ export default function Perspectives() {
               const category = item.category;
               const date = item.date;
               const imageUrl = isDynamic ? (item as PerspectiveDoc).imageUrl : null;
-              const visualClass = !isDynamic ? (item as any).visual : null;
+              const imageUrls = isDynamic && (item as PerspectiveDoc).imageUrls?.length 
+                ? (item as PerspectiveDoc).imageUrls 
+                : [imageUrl || staticImages[visualClass] || "/images/quantity-surveying.webp"].filter(Boolean) as string[];
 
               return (
                 <Reveal key={slug} delay={index * 0.1} direction="up">
                   <Link
                     to={`/perspectives/${slug}`}
-                    className="group relative grid overflow-hidden rounded-[3rem] border border-black/5 bg-white shadow-2xl transition-all duration-700 hover:-translate-y-2 hover:shadow-brand/5 lg:grid-cols-[1.1fr_0.9fr]"
+                    className="group relative flex flex-col overflow-hidden rounded-[3rem] border border-black/5 bg-white shadow-2xl transition-all duration-700 hover:-translate-y-2 hover:shadow-brand/5"
                   >
-                    <div className="p-8 md:p-16 flex flex-col justify-between">
+                    <div className="relative h-[250px] sm:h-[350px] lg:h-[450px] w-full overflow-hidden bg-neutral-100 shrink-0">
+                      <AutoSlideBackground 
+                        images={imageUrls}
+                        className="transition-transform duration-[3s] group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                    </div>
+                    <div className="p-8 md:p-12 flex flex-col flex-1 justify-between">
                       <div>
                         <div className="flex items-center gap-6">
                            <span className="text-[0.65rem] font-black uppercase tracking-[0.3em] text-brand">{category}</span>
@@ -86,15 +96,15 @@ export default function Perspectives() {
                              <span>5 min read</span>
                            </div>
                         </div>
-                        <h2 className="mt-8 text-[clamp(1.75rem,4vw,3.5rem)] font-black leading-[1.05] tracking-tight text-neutral-950 text-pretty group-hover:text-brand transition-colors">
+                        <h2 className="mt-6 text-[clamp(1.75rem,4vw,3.5rem)] font-black leading-[1.05] tracking-tight text-neutral-950 text-pretty group-hover:text-brand transition-colors">
                           {title}
                         </h2>
-                        <p className="mt-8 text-lg leading-relaxed text-neutral-600 antialiased">
+                        <p className="mt-6 text-lg leading-relaxed text-neutral-600 antialiased">
                           {summary}
                         </p>
                       </div>
                       
-                      <div className="mt-12 flex items-center justify-between">
+                      <div className="mt-10 flex items-center justify-between border-t border-neutral-100 pt-8">
                          <div className="flex items-center gap-4">
                             <div className="h-10 w-10 rounded-full bg-brand/10 flex items-center justify-center text-brand font-black text-xs">TQ</div>
                             <div className="text-xs">
@@ -107,14 +117,6 @@ export default function Perspectives() {
                             <button className="p-2 text-neutral-300 hover:text-brand transition-colors"><Share2 className="h-4 w-4" /></button>
                          </div>
                       </div>
-                    </div>
-                    <div className="relative min-h-[350px] lg:min-h-full overflow-hidden bg-neutral-100">
-                      <img 
-                        src={imageUrl || staticImages[visualClass] || "/images/quantity-surveying.webp"} 
-                        alt={title}
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[3s] group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-l from-black/20 to-transparent" />
                     </div>
                   </Link>
                 </Reveal>

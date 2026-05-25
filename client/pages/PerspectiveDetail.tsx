@@ -2,7 +2,6 @@ import { ArrowLeft, ArrowRight, CalendarDays, Share2, Bookmark, Clock, User } fr
 import { Link, useParams } from "react-router-dom";
 import { Layout } from "@/components/site/Layout";
 import { Reveal } from "@/components/site/Reveal";
-import { perspectives } from "@/data/site";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPerspectiveBySlug } from "@/lib/api";
@@ -23,8 +22,7 @@ export default function PerspectiveDetail() {
     enabled: !!slug,
   });
 
-  const staticPerspective = perspectives.find((item) => item.slug === slug);
-  const perspective = dynamicPerspective || staticPerspective;
+  const perspective = dynamicPerspective;
 
   if (isLoading) {
     return (

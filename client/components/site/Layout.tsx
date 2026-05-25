@@ -21,8 +21,8 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
-import { company, navigation, perspectives, services } from "@/data/site";
-import { submitNewsletter } from "@/lib/api";
+import { company, navigation, services } from "@/data/site";
+import { submitNewsletter, fetchPublishedPerspectives } from "@/lib/api";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 
@@ -107,6 +107,11 @@ const baseSearchItems: SearchItem[] = [
 ];
 
 export function Layout({ children }: LayoutProps) {
+  const { data: dynamicPerspectives = [] } = useQuery({
+    queryKey: ["perspectives", "public"],
+    queryFn: fetchPublishedPerspectives,
+  });
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -229,7 +234,7 @@ export function Layout({ children }: LayoutProps) {
       description: service.pageIntro,
       href: `/services/${service.slug}`,
     })),
-    ...perspectives.map((item) => ({
+    ...dynamicPerspectives.map((item) => ({
       title: item.title,
       category: item.category,
       description: item.summary,

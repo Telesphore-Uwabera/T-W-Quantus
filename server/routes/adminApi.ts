@@ -22,10 +22,10 @@ function collectProjectImageFiles(files: Record<string, Express.Multer.File[]> |
   return [...multi, ...legacy];
 }
 
-async function uploadGalleryFiles(files: Express.Multer.File[]): Promise<string[]> {
+async function uploadGalleryFiles(files: Express.Multer.File[], folder = "tw-quantus/projects"): Promise<string[]> {
   const urls: string[] = [];
   for (const f of files) {
-    const url = await uploadProjectImageToCloudinary(f.buffer, f.mimetype, "tw-quantus/projects");
+    const url = await uploadProjectImageToCloudinary(f.buffer, f.mimetype, folder);
     urls.push(url);
   }
   return urls;
@@ -361,7 +361,7 @@ export function createAdminApiRouter() {
   r.post(
     "/perspectives",
     projectUpload.fields([
-      { name: "images", maxCount: 1 },
+      { name: "images", maxCount: 24 },
       { name: "image", maxCount: 1 },
     ]),
     async (req, res) => {
@@ -376,14 +376,14 @@ export function createAdminApiRouter() {
         const sortOrder = Number(req.body?.sortOrder) || 0;
         
         const imageFiles = collectProjectImageFiles(req.files as Record<string, Express.Multer.File[]> | undefined);
-        let imageUrl = "";
-        if (imageFiles.length) {
-          imageUrl = await uploadProjectImageToCloudinary(imageFiles[0].buffer, imageFiles[0].mimetype, "tw-quantus/perspectives");
-        } else if (req.body?.imageUrl) {
-          imageUrl = String(req.body.imageUrl).trim();
+        let imageUrls = await uploadGalleryFiles(imageFiles, "tw-quantus/perspectives");
+        if (imageUrls.length === 0 && req.body?.imageUrl) {
+          const u = String(req.body.imageUrl).trim();
+          if (u) imageUrls = [u];
         }
+        const imageUrl = imageUrls[0] ?? "";
 
-        if (!title || !summary || !category || !content || !date || !imageUrl) {
+        if (!title || !summary || !category || !content || !date || (!imageUrl && imageUrls.length === 0)) {
           res.status(400).json({ error: "title, summary, category, content, date, and image are required" });
           return;
         }
@@ -402,6 +402,7 @@ export function createAdminApiRouter() {
           category,
           content,
           date,
+          imageUrls,
           imageUrl,
           published,
           sortOrder,
@@ -420,7 +421,7 @@ export function createAdminApiRouter() {
   r.patch(
     "/perspectives/:id",
     projectUpload.fields([
-      { name: "images", maxCount: 1 },
+      { name: "images", maxCount: 24 },
       { name: "image", maxCount: 1 },
     ]),
     async (req, res) => {
@@ -493,15 +494,33 @@ export function createAdminApiRouter() {
         }
 
         const newFiles = collectProjectImageFiles(req.files as Record<string, Express.Multer.File[]> | undefined);
-        if (newFiles.length) {
-          updates.imageUrl = await uploadProjectImageToCloudinary(newFiles[0].buffer, newFiles[0].mimetype, "tw-quantus/perspectives");
-        } else if (req.body?.imageUrl != null) {
-          const iu = String(req.body.imageUrl).trim();
-          if (!iu) {
-            res.status(400).json({ error: "image cannot be empty" });
-            return;
+        const hasExistingKey =
+          req.body != null && Object.prototype.hasOwnProperty.call(req.body, "existingImageUrls");
+
+        if (hasExistingKey) {
+          let nextUrls: string[] = [];
+          try {
+            const parsed = JSON.parse(String(req.body.existingImageUrls ?? "[]"));
+            if (Array.isArray(parsed)) nextUrls = parsed.map(String).filter(Boolean);
+          } catch {
+            nextUrls = [...galleryFromDoc(existing as Record<string, unknown>)];
           }
-          updates.imageUrl = iu;
+          if (newFiles.length) {
+            const uploaded = await uploadGalleryFiles(newFiles, "tw-quantus/perspectives");
+            nextUrls = [...nextUrls, ...uploaded];
+          }
+          updates.imageUrls = nextUrls;
+          updates.imageUrl = nextUrls[0] ?? "";
+        } else if (newFiles.length) {
+          const uploaded = await uploadGalleryFiles(newFiles, "tw-quantus/perspectives");
+          const base = galleryFromDoc(existing as Record<string, unknown>);
+          const merged = [...base, ...uploaded];
+          updates.imageUrls = merged;
+          updates.imageUrl = merged[0] ?? "";
+        } else if (req.body?.imageUrl != null) {
+          const u = String(req.body.imageUrl).trim();
+          updates.imageUrl = u;
+          updates.imageUrls = u ? [u] : [];
         }
 
         await db.collection("perspectives").updateOne({ _id: new ObjectId(id) }, { $set: updates });

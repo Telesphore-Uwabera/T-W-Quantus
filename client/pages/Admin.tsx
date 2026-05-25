@@ -615,8 +615,8 @@ function PerspectivesPanel() {
   const [date, setDate] = useState("");
   const [sortOrder, setSortOrder] = useState("0");
   const [published, setPublished] = useState(true);
-  const [imageUrl, setImageUrl] = useState("");
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [galleryUrls, setGalleryUrls] = useState<string[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const resetForm = useCallback(() => {
@@ -628,8 +628,8 @@ function PerspectivesPanel() {
     setDate("");
     setSortOrder("0");
     setPublished(true);
-    setImageUrl("");
-    setPendingFile(null);
+    setGalleryUrls([]);
+    setPendingFiles([]);
     setEditingId(null);
   }, []);
 
@@ -644,7 +644,9 @@ function PerspectivesPanel() {
       if (slug.trim()) fd.append("slug", slug.trim());
       fd.append("sortOrder", sortOrder);
       fd.append("published", published ? "true" : "false");
-      if (pendingFile) fd.append("images", pendingFile);
+      for (const f of pendingFiles) {
+        fd.append("images", f);
+      }
       const res = await adminFetch("/api/admin/perspectives", { method: "POST", body: fd });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(typeof data.error === "string" ? data.error : "Save failed");
@@ -671,8 +673,10 @@ function PerspectivesPanel() {
       fd.append("slug", slug.trim());
       fd.append("sortOrder", sortOrder);
       fd.append("published", published ? "true" : "false");
-      if (pendingFile) fd.append("images", pendingFile);
-      else if (imageUrl) fd.append("imageUrl", imageUrl);
+      fd.append("existingImageUrls", JSON.stringify(galleryUrls));
+      for (const f of pendingFiles) {
+        fd.append("images", f);
+      }
       
       const res = await adminFetch(`/api/admin/perspectives/${editingId}`, { method: "PATCH", body: fd });
       const data = await res.json().catch(() => ({}));
@@ -715,8 +719,13 @@ function PerspectivesPanel() {
     setDate(p.date);
     setSortOrder(String(p.sortOrder ?? 0));
     setPublished(!!p.published);
-    setImageUrl(p.imageUrl ?? "");
-    setPendingFile(null);
+    
+    // gallery fallback logic
+    const g = Array.isArray(p.imageUrls) ? p.imageUrls : [];
+    if (g.length === 0 && p.imageUrl) g.push(p.imageUrl);
+    setGalleryUrls(g.filter(Boolean));
+    
+    setPendingFiles([]);
   };
 
   if (isLoading) {
@@ -789,23 +798,60 @@ function PerspectivesPanel() {
             <Label htmlFor="p-published">Published</Label>
         </div>
         <div className="space-y-2">
-          <Label>Image (converted to WebP on Cloudinary)</Label>
+          <Label>Images (multiple, converted to WebP on Cloudinary)</Label>
           <Input
             type="file"
             accept="image/*"
+            multiple
             onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) setPendingFile(f);
+              const next = e.target.files ? Array.from(e.target.files) : [];
+              setPendingFiles((prev) => [...prev, ...next]);
+              e.target.value = "";
             }}
-            required={!editingId && !imageUrl}
           />
-          {imageUrl && !pendingFile && (
-            <div className="mt-2 relative h-32 w-full overflow-hidden rounded-lg border border-black/10">
-                <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+          {galleryUrls.length > 0 && (
+            <div className="mt-2 space-y-2">
+              <p className="text-xs font-bold text-neutral-500">Saved in gallery (remove to delete from perspective)</p>
+              <ul className="flex flex-wrap gap-2">
+                {galleryUrls.map((url) => (
+                  <li key={url} className="relative h-16 w-24 overflow-hidden rounded-lg border border-black/10">
+                    <img src={url} alt="" className="h-full w-full object-cover" />
+                    <button
+                      type="button"
+                      className="absolute right-0.5 top-0.5 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-black text-white"
+                      onClick={() => setGalleryUrls((prev) => prev.filter((u) => u !== url))}
+                    >
+                      ×
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
-          {pendingFile && (
-             <p className="text-xs font-bold text-brand mt-1">New file selected: {pendingFile.name}</p>
+          {pendingFiles.length > 0 && (
+            <div className="mt-2">
+              <p className="text-xs font-bold text-neutral-500">New files (upload on save)</p>
+              <ul className="mt-1 flex flex-wrap gap-2 text-xs">
+                {pendingFiles.map((f, i) => (
+                  <li
+                    key={`${f.name}-${i}`}
+                    className="flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-1"
+                  >
+                    {f.name}
+                    <button
+                      type="button"
+                      className="font-black text-red-600"
+                      onClick={() => setPendingFiles((prev) => prev.filter((_, j) => j !== i))}
+                    >
+                      ×
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <button type="button" className="mt-2 text-xs font-bold text-brand underline" onClick={() => setPendingFiles([])}>
+                Clear new files
+              </button>
+            </div>
           )}
         </div>
         <div className="flex flex-wrap gap-2">
