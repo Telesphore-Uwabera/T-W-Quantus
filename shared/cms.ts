@@ -24,8 +24,6 @@ export type ProjectDoc = {
   location?: string;
   clientName?: string;
   year?: string;
-  /** Admin-set calendar date (YYYY-MM-DD), e.g. completion or feature date */
-  projectDate?: string;
   startDate?: string;
   endDate?: string;
   /** Gallery (preferred); order is display order */

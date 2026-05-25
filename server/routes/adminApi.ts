@@ -102,14 +102,18 @@ export function createAdminApiRouter() {
         const location = req.body?.location != null ? String(req.body.location).trim() : "";
         const clientName = req.body?.clientName != null ? String(req.body.clientName).trim() : "";
         const year = req.body?.year != null ? String(req.body.year).trim() : "";
-        const projectDate =
-          req.body?.projectDate != null ? String(req.body.projectDate).trim().slice(0, 10) : "";
         const startDate =
           req.body?.startDate != null ? String(req.body.startDate).trim().slice(0, 10) : "";
         const endDate =
           req.body?.endDate != null ? String(req.body.endDate).trim().slice(0, 10) : "";
         const published = parseBool(req.body?.published);
         const sortOrder = Number(req.body?.sortOrder) || 0;
+
+        if (!description || !location || !clientName || !year || !startDate || !endDate) {
+          res.status(400).json({ error: "description, location, clientName, year, startDate, and endDate are required" });
+          return;
+        }
+
         const imageFiles = collectProjectImageFiles(req.files as Record<string, Express.Multer.File[]> | undefined);
         let imageUrls = await uploadGalleryFiles(imageFiles);
         if (imageUrls.length === 0 && req.body?.imageUrl) {
@@ -129,13 +133,12 @@ export function createAdminApiRouter() {
           slug,
           summary: String(summary).trim(),
           sector,
-          ...(description ? { description } : {}),
-          ...(location ? { location } : {}),
-          ...(clientName ? { clientName } : {}),
-          ...(year ? { year } : {}),
-          ...(projectDate ? { projectDate } : {}),
-          ...(startDate ? { startDate } : {}),
-          ...(endDate ? { endDate } : {}),
+          description,
+          location,
+          clientName,
+          year,
+          startDate,
+          endDate,
           imageUrls,
           imageUrl,
           published,
@@ -187,16 +190,54 @@ export function createAdminApiRouter() {
           }
           updates.sector = s;
         }
-        if (req.body?.description != null) updates.description = String(req.body.description).trim();
-        if (req.body?.location != null) updates.location = String(req.body.location).trim();
-        if (req.body?.clientName != null) updates.clientName = String(req.body.clientName).trim();
-        if (req.body?.year != null) updates.year = String(req.body.year).trim();
-        if (req.body?.projectDate != null)
-          updates.projectDate = String(req.body.projectDate).trim().slice(0, 10);
-        if (req.body?.startDate != null)
-          updates.startDate = String(req.body.startDate).trim().slice(0, 10);
-        if (req.body?.endDate != null)
-          updates.endDate = String(req.body.endDate).trim().slice(0, 10);
+        if (req.body?.description != null) {
+          const d = String(req.body.description).trim();
+          if (!d) {
+            res.status(400).json({ error: "description cannot be empty" });
+            return;
+          }
+          updates.description = d;
+        }
+        if (req.body?.location != null) {
+          const l = String(req.body.location).trim();
+          if (!l) {
+            res.status(400).json({ error: "location cannot be empty" });
+            return;
+          }
+          updates.location = l;
+        }
+        if (req.body?.clientName != null) {
+          const c = String(req.body.clientName).trim();
+          if (!c) {
+            res.status(400).json({ error: "clientName cannot be empty" });
+            return;
+          }
+          updates.clientName = c;
+        }
+        if (req.body?.year != null) {
+          const y = String(req.body.year).trim();
+          if (!y) {
+            res.status(400).json({ error: "year cannot be empty" });
+            return;
+          }
+          updates.year = y;
+        }
+        if (req.body?.startDate != null) {
+          const sd = String(req.body.startDate).trim().slice(0, 10);
+          if (!sd) {
+            res.status(400).json({ error: "startDate cannot be empty" });
+            return;
+          }
+          updates.startDate = sd;
+        }
+        if (req.body?.endDate != null) {
+          const ed = String(req.body.endDate).trim().slice(0, 10);
+          if (!ed) {
+            res.status(400).json({ error: "endDate cannot be empty" });
+            return;
+          }
+          updates.endDate = ed;
+        }
         if (req.body?.published != null) updates.published = parseBool(req.body.published);
         if (req.body?.sortOrder != null) updates.sortOrder = Number(req.body.sortOrder) || 0;
         if (req.body?.slug != null) {
@@ -325,16 +366,12 @@ export function createAdminApiRouter() {
     ]),
     async (req, res) => {
       try {
-        const title = req.body?.title;
-        const summary = req.body?.summary;
-        const category = req.body?.category || "Insight";
-        if (!title || !summary) {
-          res.status(400).json({ error: "title and summary are required" });
-          return;
-        }
+        const title = req.body?.title != null ? String(req.body.title).trim() : "";
+        const summary = req.body?.summary != null ? String(req.body.summary).trim() : "";
+        const category = req.body?.category != null ? String(req.body.category).trim() : "";
         const slug = (req.body?.slug && String(req.body.slug)) || slugify(String(title));
         const content = req.body?.content != null ? String(req.body.content).trim() : "";
-        const date = req.body?.date != null ? String(req.body.date).trim() : new Date().toLocaleDateString("en-GB", { day: '2-digit', month: 'short', year: 'numeric' });
+        const date = req.body?.date != null ? String(req.body.date).trim() : "";
         const published = parseBool(req.body?.published);
         const sortOrder = Number(req.body?.sortOrder) || 0;
         
@@ -346,6 +383,11 @@ export function createAdminApiRouter() {
           imageUrl = String(req.body.imageUrl).trim();
         }
 
+        if (!title || !summary || !category || !content || !date || !imageUrl) {
+          res.status(400).json({ error: "title, summary, category, content, date, and image are required" });
+          return;
+        }
+
         const db = await getDb();
         const exists = await db.collection("perspectives").findOne({ slug });
         if (exists) {
@@ -354,9 +396,9 @@ export function createAdminApiRouter() {
         }
         const now = new Date();
         const doc = {
-          title: String(title).trim(),
+          title,
           slug,
-          summary: String(summary).trim(),
+          summary,
           category,
           content,
           date,
@@ -395,11 +437,46 @@ export function createAdminApiRouter() {
           return;
         }
         const updates: Record<string, unknown> = { updatedAt: new Date() };
-        if (req.body?.title != null) updates.title = String(req.body.title).trim();
-        if (req.body?.summary != null) updates.summary = String(req.body.summary).trim();
-        if (req.body?.category != null) updates.category = String(req.body.category).trim();
-        if (req.body?.content != null) updates.content = String(req.body.content).trim();
-        if (req.body?.date != null) updates.date = String(req.body.date).trim();
+        if (req.body?.title != null) {
+          const t = String(req.body.title).trim();
+          if (!t) {
+            res.status(400).json({ error: "title cannot be empty" });
+            return;
+          }
+          updates.title = t;
+        }
+        if (req.body?.summary != null) {
+          const s = String(req.body.summary).trim();
+          if (!s) {
+            res.status(400).json({ error: "summary cannot be empty" });
+            return;
+          }
+          updates.summary = s;
+        }
+        if (req.body?.category != null) {
+          const c = String(req.body.category).trim();
+          if (!c) {
+            res.status(400).json({ error: "category cannot be empty" });
+            return;
+          }
+          updates.category = c;
+        }
+        if (req.body?.content != null) {
+          const co = String(req.body.content).trim();
+          if (!co) {
+            res.status(400).json({ error: "content cannot be empty" });
+            return;
+          }
+          updates.content = co;
+        }
+        if (req.body?.date != null) {
+          const d = String(req.body.date).trim();
+          if (!d) {
+            res.status(400).json({ error: "date cannot be empty" });
+            return;
+          }
+          updates.date = d;
+        }
         if (req.body?.published != null) updates.published = parseBool(req.body.published);
         if (req.body?.sortOrder != null) updates.sortOrder = Number(req.body.sortOrder) || 0;
         
@@ -419,7 +496,12 @@ export function createAdminApiRouter() {
         if (newFiles.length) {
           updates.imageUrl = await uploadProjectImageToCloudinary(newFiles[0].buffer, newFiles[0].mimetype, "tw-quantus/perspectives");
         } else if (req.body?.imageUrl != null) {
-          updates.imageUrl = String(req.body.imageUrl).trim();
+          const iu = String(req.body.imageUrl).trim();
+          if (!iu) {
+            res.status(400).json({ error: "image cannot be empty" });
+            return;
+          }
+          updates.imageUrl = iu;
         }
 
         await db.collection("perspectives").updateOne({ _id: new ObjectId(id) }, { $set: updates });

@@ -28,7 +28,7 @@ const SORT_OPTIONS = [
 function projectYear(p: ProjectDoc): string {
   const y = p.year?.trim();
   if (y) return y;
-  const d = p.projectDate?.trim();
+  const d = p.startDate?.trim();
   if (d && d.length >= 4) return d.slice(0, 4);
   return p.createdAt?.slice(0, 4) ?? "";
 }
@@ -81,10 +81,10 @@ function usePortfolioFilters(projects: ProjectDoc[]) {
 
     list = [...list].sort((a, b) => {
       if (sort === "newest") {
-        return (b.projectDate || b.createdAt).localeCompare(a.projectDate || a.createdAt);
+        return (b.startDate || b.createdAt).localeCompare(a.startDate || a.createdAt);
       }
       if (sort === "oldest") {
-        return (a.projectDate || a.createdAt).localeCompare(b.projectDate || b.createdAt);
+        return (a.startDate || a.createdAt).localeCompare(b.startDate || b.createdAt);
       }
       return a.title.localeCompare(b.title);
     });

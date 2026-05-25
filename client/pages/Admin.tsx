@@ -184,7 +184,6 @@ function ProjectsPanel() {
   const [location, setLocation] = useState("");
   const [clientName, setClientName] = useState("");
   const [year, setYear] = useState("");
-  const [projectDate, setProjectDate] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [slug, setSlug] = useState("");
@@ -203,7 +202,6 @@ function ProjectsPanel() {
     setLocation("");
     setClientName("");
     setYear("");
-    setProjectDate("");
     setStartDate("");
     setEndDate("");
     setSlug("");
@@ -224,7 +222,6 @@ function ProjectsPanel() {
       fd.append("location", location);
       fd.append("clientName", clientName);
       fd.append("year", year);
-      fd.append("projectDate", projectDate);
       fd.append("startDate", startDate);
       fd.append("endDate", endDate);
       if (slug.trim()) fd.append("slug", slug.trim());
@@ -258,7 +255,6 @@ function ProjectsPanel() {
       fd.append("location", location);
       fd.append("clientName", clientName);
       fd.append("year", year);
-      fd.append("projectDate", projectDate);
       fd.append("startDate", startDate);
       fd.append("endDate", endDate);
       fd.append("slug", slug.trim());
@@ -308,7 +304,6 @@ function ProjectsPanel() {
     setLocation(p.location ?? "");
     setClientName(p.clientName ?? "");
     setYear(p.year ?? "");
-    setProjectDate(p.projectDate ?? "");
     setStartDate(p.startDate ?? "");
     setEndDate(p.endDate ?? "");
     setSlug(p.slug);
@@ -369,47 +364,44 @@ function ProjectsPanel() {
           />
         </div>
         <div className="space-y-2">
-          <Label>Detail description (optional)</Label>
+          <Label>Detail description</Label>
           <textarea
             className="min-h-32 w-full rounded-md border border-black/15 bg-white px-3 py-2 text-sm"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Longer case study text shown on the project page"
+            required
           />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label>Location (optional)</Label>
-            <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Kigali, Rwanda" />
+            <Label>Location</Label>
+            <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Kigali, Rwanda" required />
           </div>
           <div className="space-y-2">
-            <Label>Client (optional)</Label>
-            <Input value={clientName} onChange={(e) => setClientName(e.target.value)} />
+            <Label>Client</Label>
+            <Input value={clientName} onChange={(e) => setClientName(e.target.value)} required />
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label>Year (optional)</Label>
-            <Input value={year} onChange={(e) => setYear(e.target.value)} placeholder="2025" />
+            <Label>Year</Label>
+            <Input value={year} onChange={(e) => setYear(e.target.value)} placeholder="2025" required />
           </div>
           <div className="space-y-2">
-            <Label>Project date (optional)</Label>
-            <Input type="date" value={projectDate} onChange={(e) => setProjectDate(e.target.value)} />
+            <Label>Project start date</Label>
+            <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label>Project start date (optional)</Label>
-            <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+            <Label>Project end date</Label>
+            <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
           </div>
           <div className="space-y-2">
-            <Label>Project end date (optional)</Label>
-            <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+            <Label>Slug</Label>
+            <Input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from title" />
           </div>
-        </div>
-        <div className="space-y-2">
-          <Label>Slug (optional)</Label>
-          <Input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from title" />
         </div>
         <div className="flex flex-wrap gap-4">
           <div className="space-y-2">
@@ -756,11 +748,11 @@ function PerspectivesPanel() {
         <div className="grid gap-4 sm:grid-cols-2">
            <div className="space-y-2">
              <Label>Category</Label>
-             <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Insight, Case Study..." />
+             <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Insight, Case Study..." required />
            </div>
            <div className="space-y-2">
-             <Label>Display Date (optional)</Label>
-             <Input value={date} onChange={(e) => setDate(e.target.value)} placeholder="10 May 2026" />
+             <Label>Display Date</Label>
+             <Input value={date} onChange={(e) => setDate(e.target.value)} placeholder="10 May 2026" required />
            </div>
         </div>
         <div className="space-y-2">
@@ -773,17 +765,18 @@ function PerspectivesPanel() {
           />
         </div>
         <div className="space-y-2">
-          <Label>Full Content (optional)</Label>
+          <Label>Full Content</Label>
           <textarea
             className="min-h-48 w-full rounded-md border border-black/15 bg-white px-3 py-2 text-sm"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Markdown or HTML content for the detail page"
+            required
           />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label>Slug (optional)</Label>
+            <Label>Slug</Label>
             <Input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from title" />
           </div>
           <div className="space-y-2">
@@ -804,6 +797,7 @@ function PerspectivesPanel() {
               const f = e.target.files?.[0];
               if (f) setPendingFile(f);
             }}
+            required={!editingId && !imageUrl}
           />
           {imageUrl && !pendingFile && (
             <div className="mt-2 relative h-32 w-full overflow-hidden rounded-lg border border-black/10">

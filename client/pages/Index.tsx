@@ -68,7 +68,7 @@ export default function Index() {
     return mappings.map((m) => {
       const matchingProjects = projects
         .filter((p) => p.published && m.match(p))
-        .sort((a, b) => (b.projectDate || b.createdAt).localeCompare(a.projectDate || a.createdAt));
+        .sort((a, b) => (b.startDate || b.createdAt).localeCompare(a.startDate || a.createdAt));
       
       const latestProject = matchingProjects[0];
       const cover = latestProject ? projectGalleryUrls(latestProject)[0] : "";

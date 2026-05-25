@@ -65,7 +65,6 @@ export default function ProjectDetail() {
     project.clientName ? { icon: User, label: "Client", value: project.clientName } : null,
     project.startDate ? { icon: Calendar, label: "Project start date", value: formatYmdLong(project.startDate) } : null,
     project.endDate ? { icon: Calendar, label: "Project end date", value: formatYmdLong(project.endDate) } : null,
-    project.projectDate ? { icon: Calendar, label: "Project date", value: formatYmdLong(project.projectDate) } : null,
     project.year ? { icon: Calendar, label: "Year", value: project.year } : null,
   ].filter(Boolean) as { icon: typeof MapPin; label: string; value: string }[];
 

@@ -25,8 +25,6 @@ export function serializeProject(doc: Document | null | undefined): ProjectDoc |
     location: d.location != null && String(d.location).trim() ? String(d.location).trim() : undefined,
     clientName: d.clientName != null && String(d.clientName).trim() ? String(d.clientName).trim() : undefined,
     year: d.year != null && String(d.year).trim() ? String(d.year).trim() : undefined,
-    projectDate:
-      d.projectDate != null && String(d.projectDate).trim() ? String(d.projectDate).trim().slice(0, 10) : undefined,
     startDate:
       d.startDate != null && String(d.startDate).trim() ? String(d.startDate).trim().slice(0, 10) : undefined,
     endDate:
