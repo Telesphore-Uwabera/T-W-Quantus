@@ -101,6 +101,10 @@ export function createAdminApiRouter() {
         const year = req.body?.year != null ? String(req.body.year).trim() : "";
         const projectDate =
           req.body?.projectDate != null ? String(req.body.projectDate).trim().slice(0, 10) : "";
+        const startDate =
+          req.body?.startDate != null ? String(req.body.startDate).trim().slice(0, 10) : "";
+        const endDate =
+          req.body?.endDate != null ? String(req.body.endDate).trim().slice(0, 10) : "";
         const published = parseBool(req.body?.published);
         const sortOrder = Number(req.body?.sortOrder) || 0;
         const imageFiles = collectProjectImageFiles(req.files as Record<string, Express.Multer.File[]> | undefined);
@@ -127,6 +131,8 @@ export function createAdminApiRouter() {
           ...(clientName ? { clientName } : {}),
           ...(year ? { year } : {}),
           ...(projectDate ? { projectDate } : {}),
+          ...(startDate ? { startDate } : {}),
+          ...(endDate ? { endDate } : {}),
           imageUrls,
           imageUrl,
           published,
@@ -184,6 +190,10 @@ export function createAdminApiRouter() {
         if (req.body?.year != null) updates.year = String(req.body.year).trim();
         if (req.body?.projectDate != null)
           updates.projectDate = String(req.body.projectDate).trim().slice(0, 10);
+        if (req.body?.startDate != null)
+          updates.startDate = String(req.body.startDate).trim().slice(0, 10);
+        if (req.body?.endDate != null)
+          updates.endDate = String(req.body.endDate).trim().slice(0, 10);
         if (req.body?.published != null) updates.published = parseBool(req.body.published);
         if (req.body?.sortOrder != null) updates.sortOrder = Number(req.body.sortOrder) || 0;
         if (req.body?.slug != null) {

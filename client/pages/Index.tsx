@@ -1,13 +1,13 @@
 import { ArrowLeft, ArrowRight, CalendarDays, Loader2, MapPin, Minus, Play, Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Layout } from "@/components/site/Layout";
 import { Reveal } from "@/components/site/Reveal";
 import { company, navigation, perspectives, services } from "@/data/site";
 import { useQuery } from "@tanstack/react-query";
-import { fetchServiceNews } from "@/lib/api";
-import type { NewsArticle } from "@shared/cms";
+import { fetchServiceNews, fetchPublishedProjects } from "@/lib/api";
+import { projectGalleryUrls, type NewsArticle, type ProjectDoc } from "@shared/cms";
 import { cn } from "@/lib/utils";
 
 const projectCards = [
@@ -30,6 +30,58 @@ const serviceImages = [
 export default function Index() {
   const [activeService, setActiveService] = useState(0);
   const [activeNewsSlide, setActiveNewsSlide] = useState(0);
+
+  const { data: projects = [] } = useQuery<ProjectDoc[]>({
+    queryKey: ["projects", "published", "home"],
+    queryFn: fetchPublishedProjects,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const dynamicProjectCards = useMemo(() => {
+    const mappings = [
+      {
+        title: "Residential Developments",
+        match: (p: ProjectDoc) => p.sector === "Residential buildings" || p.sector === "Multi-unit developments",
+        defaultLocation: "Rwanda",
+        visual: "project-visual-1"
+      },
+      {
+        title: "Commercial Spaces",
+        match: (p: ProjectDoc) => p.sector === "Commercial spaces",
+        defaultLocation: "East Africa",
+        visual: "project-visual-2"
+      },
+      {
+        title: "Institutional Infrastructure",
+        match: (p: ProjectDoc) => p.sector === "Institutional infrastructure",
+        defaultLocation: "Regional",
+        visual: "project-visual-3"
+      },
+      {
+        title: "Renovations & Technical Works",
+        match: (p: ProjectDoc) => p.sector === "Renovations and repairs" || p.sector === "Civil and structural works",
+        defaultLocation: "Kigali",
+        visual: "project-visual-4"
+      }
+    ];
+
+    return mappings.map((m) => {
+      const matchingProjects = projects
+        .filter((p) => p.published && m.match(p))
+        .sort((a, b) => (b.projectDate || b.createdAt).localeCompare(a.projectDate || a.createdAt));
+      
+      const latestProject = matchingProjects[0];
+      const cover = latestProject ? projectGalleryUrls(latestProject)[0] : "";
+      
+      return {
+        title: m.title,
+        location: latestProject?.location || m.defaultLocation,
+        visual: m.visual,
+        cover,
+        slug: latestProject?.slug || "",
+      };
+    });
+  }, [projects]);
 
   const { data: newsData, isLoading } = useQuery({
     queryKey: ["news", "services", "home"],
@@ -211,28 +263,36 @@ export default function Index() {
       </section>
 
       <section id="projects" data-header-theme="dark" className="project-strip grid bg-neutral-950 md:grid-cols-2 lg:flex">
-        {projectCards.map((project, index) => (
-          <Link
-            key={project.title}
-            to="/projects"
-            className={`group project-card project-card-item ${project.visual} relative min-h-[320px] overflow-hidden p-6 text-white sm:min-h-[380px] sm:p-8 lg:min-h-[440px]`}
-          >
-            <div className={`project-card-bg ${project.visual}`} />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent transition duration-700 group-hover:from-brand-dark/85" />
-            <div className="relative flex h-full flex-col justify-end">
-              <h3 className="max-w-xs text-xl font-black transition duration-700 group-hover:translate-y-[-4px] group-hover:text-2xl">
-                {project.title}
-              </h3>
-              <p className="mt-4 flex items-center gap-2 text-sm font-bold">
-                <MapPin className="h-4 w-4 text-brand-light" />
-                {project.location}
-              </p>
-            </div>
-            <div className="absolute bottom-8 right-8 grid h-12 w-12 place-items-center rounded-full bg-brand opacity-0 transition duration-500 group-hover:opacity-100">
-              <ArrowRight className="h-5 w-5" />
-            </div>
-          </Link>
-        ))}
+        {dynamicProjectCards.map((project, index) => {
+          const toLink = project.slug ? `/projects/${encodeURIComponent(project.slug)}` : "/projects";
+          return (
+            <Link
+              key={project.title}
+              to={toLink}
+              className={`group project-card project-card-item ${project.visual} relative min-h-[320px] overflow-hidden p-6 text-white sm:min-h-[380px] sm:p-8 lg:min-h-[440px]`}
+            >
+              <div 
+                className={`project-card-bg ${project.visual}`}
+                style={project.cover ? {
+                  backgroundImage: `linear-gradient(rgba(23, 102, 106, 0.12), rgba(0, 0, 0, 0.35)), radial-gradient(ellipse at 42% 12%, rgba(255, 255, 255, 0.55), transparent 26%), url(${project.cover})`
+                } : undefined}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent transition duration-700 group-hover:from-brand-dark/85" />
+              <div className="relative flex h-full flex-col justify-end">
+                <h3 className="max-w-xs text-xl font-black transition duration-700 group-hover:translate-y-[-4px] group-hover:text-2xl">
+                  {project.title}
+                </h3>
+                <p className="mt-4 flex items-center gap-2 text-sm font-bold">
+                  <MapPin className="h-4 w-4 text-brand-light" />
+                  {project.location}
+                </p>
+              </div>
+              <div className="absolute bottom-8 right-8 grid h-12 w-12 place-items-center rounded-full bg-brand opacity-0 transition duration-500 group-hover:opacity-100">
+                <ArrowRight className="h-5 w-5" />
+              </div>
+            </Link>
+          );
+        })}
       </section>
 
       <section id="perspectives" data-header-theme="light" className="relative overflow-hidden bg-white px-4 py-14 sm:px-6 md:px-8 md:py-24 lg:py-28">

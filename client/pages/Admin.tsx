@@ -185,6 +185,8 @@ function ProjectsPanel() {
   const [clientName, setClientName] = useState("");
   const [year, setYear] = useState("");
   const [projectDate, setProjectDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [slug, setSlug] = useState("");
   const [sortOrder, setSortOrder] = useState("0");
   const [published, setPublished] = useState(true);
@@ -202,6 +204,8 @@ function ProjectsPanel() {
     setClientName("");
     setYear("");
     setProjectDate("");
+    setStartDate("");
+    setEndDate("");
     setSlug("");
     setSortOrder("0");
     setPublished(true);
@@ -221,6 +225,8 @@ function ProjectsPanel() {
       fd.append("clientName", clientName);
       fd.append("year", year);
       fd.append("projectDate", projectDate);
+      fd.append("startDate", startDate);
+      fd.append("endDate", endDate);
       if (slug.trim()) fd.append("slug", slug.trim());
       fd.append("sortOrder", sortOrder);
       fd.append("published", published ? "true" : "false");
@@ -253,6 +259,8 @@ function ProjectsPanel() {
       fd.append("clientName", clientName);
       fd.append("year", year);
       fd.append("projectDate", projectDate);
+      fd.append("startDate", startDate);
+      fd.append("endDate", endDate);
       fd.append("slug", slug.trim());
       fd.append("sortOrder", sortOrder);
       fd.append("published", published ? "true" : "false");
@@ -301,6 +309,8 @@ function ProjectsPanel() {
     setClientName(p.clientName ?? "");
     setYear(p.year ?? "");
     setProjectDate(p.projectDate ?? "");
+    setStartDate(p.startDate ?? "");
+    setEndDate(p.endDate ?? "");
     setSlug(p.slug);
     setSortOrder(String(p.sortOrder ?? 0));
     setPublished(!!p.published);
@@ -385,6 +395,16 @@ function ProjectsPanel() {
           <div className="space-y-2">
             <Label>Project date (optional)</Label>
             <Input type="date" value={projectDate} onChange={(e) => setProjectDate(e.target.value)} />
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Project start date (optional)</Label>
+            <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label>Project end date (optional)</Label>
+            <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
           </div>
         </div>
         <div className="space-y-2">
