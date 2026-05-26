@@ -8,6 +8,12 @@ function apiUrl(path: string): string {
   return API_BASE ? `${API_BASE}${p}` : p;
 }
 
+/** Ensures the returned promise takes at least `ms` milliseconds — keeps loading states visible. */
+async function minDelay<T>(promise: Promise<T>, ms = 700): Promise<T> {
+  const [result] = await Promise.all([promise, new Promise(r => setTimeout(r, ms))]);
+  return result;
+}
+
 export async function submitContact(payload: {
   name: string;
   email: string;
@@ -37,9 +43,9 @@ export async function submitNewsletter(email: string): Promise<{ ok: boolean; du
 }
 
 export async function fetchPublishedProjects(): Promise<ProjectDoc[]> {
-  const res = await fetch(apiUrl("/api/projects"));
-  if (!res.ok) return [];
-  return res.json();
+  return minDelay(
+    fetch(apiUrl("/api/projects")).then(res => (res.ok ? res.json() : [])),
+  );
 }
 
 export async function fetchProjectBySlug(slug: string): Promise<ProjectDoc | null> {
@@ -59,9 +65,9 @@ export async function fetchPerspectiveBySlug(slug: string): Promise<PerspectiveD
 }
 
 export async function fetchPublishedPerspectives(): Promise<PerspectiveDoc[]> {
-  const res = await fetch(apiUrl("/api/perspectives"));
-  if (!res.ok) return [];
-  return res.json();
+  return minDelay(
+    fetch(apiUrl("/api/perspectives")).then(res => (res.ok ? res.json() : [])),
+  );
 }
 
 export async function fetchIndustryNews(): Promise<{
@@ -82,9 +88,11 @@ export async function fetchServiceNews(service?: string): Promise<{
 }> {
   const base = apiUrl("/api/news/services");
   const url = service ? `${base}?service=${encodeURIComponent(service)}` : base;
-  const res = await fetch(url);
-  if (!res.ok) return { articles: [], configured: false, service: service ?? null };
-  return res.json();
+  return minDelay(
+    fetch(url).then(res =>
+      res.ok ? res.json() : { articles: [], configured: false, service: service ?? null },
+    ),
+  );
 }
 
 const TOKEN_KEY = "twq_admin_token";

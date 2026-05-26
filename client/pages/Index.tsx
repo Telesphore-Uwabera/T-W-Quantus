@@ -28,7 +28,7 @@ export default function Index() {
   const { data: projects = [], isLoading: isProjectsLoading } = useQuery<ProjectDoc[]>({
     queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   });
 
   // Latest 4 projects for the home page
@@ -50,12 +50,13 @@ export default function Index() {
   const { data: newsData, isLoading: isNewsLoading } = useQuery({
     queryKey: ["news", "services", "home"],
     queryFn: () => fetchServiceNews(),
-    staleTime: 10 * 60 * 1000,
+    staleTime: 0,
   });
 
   const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading } = useQuery({
     queryKey: ["perspectives", "public"],
     queryFn: fetchPublishedPerspectives,
+    staleTime: 0,
   });
 
   const isLoading = isNewsLoading || isPerspectivesLoading;
