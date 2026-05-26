@@ -155,13 +155,12 @@ export default function Perspectives() {
                       className="group relative flex h-full flex-col overflow-hidden rounded-[2.5rem] border border-white/5 bg-white/[0.02] transition-all duration-500 hover:bg-white/[0.04] hover:border-brand/30"
                     >
                       {article.urlToImage && (
-                        <div className="relative aspect-[16/9] overflow-hidden">
-                          <img 
-                            src={article.urlToImage} 
-                            alt={article.title}
-                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        <div className="relative aspect-[16/9] overflow-hidden shrink-0">
+                          <AutoSlideBackground 
+                            images={[article.urlToImage]}
+                            className="transition-transform duration-[3s] group-hover:scale-105"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/60 to-transparent" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/60 to-transparent pointer-events-none" />
                         </div>
                       )}
                       <div className="flex flex-1 flex-col p-8">
