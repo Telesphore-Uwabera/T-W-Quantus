@@ -28,9 +28,22 @@ export default function Perspectives() {
     queryFn: fetchPublishedPerspectives,
   });
 
-  // Filter out upcoming perspectives, and limit to the latest 4 completed ones
-  const allPerspectives = dynamicPerspectives
-    .filter((p) => p.category?.toLowerCase() !== "upcoming")
+  // Include upcoming perspectives, sorting them to the top (matching home page priority), and limit to 4
+  const allPerspectives = [...dynamicPerspectives]
+    .sort((a, b) => {
+      const aUpcoming = a.category?.toLowerCase() === "upcoming";
+      const bUpcoming = b.category?.toLowerCase() === "upcoming";
+
+      if (aUpcoming && !bUpcoming) return -1;
+      if (!aUpcoming && bUpcoming) return 1;
+
+      const aDate = new Date(a.date);
+      const bDate = new Date(b.date);
+      const aValidDate = !isNaN(aDate.getTime()) ? aDate : new Date(a.createdAt);
+      const bValidDate = !isNaN(bDate.getTime()) ? bDate : new Date(b.createdAt);
+
+      return bValidDate.getTime() - aValidDate.getTime();
+    })
     .slice(0, 4);
 
   const newsArticles = newsData?.articles ?? [];
