@@ -268,7 +268,7 @@ export default function Index() {
         </div>
       </section>
 
-      <section id="projects" data-header-theme="dark" className="project-strip grid bg-neutral-950 md:grid-cols-2 lg:grid-cols-4">
+      <section id="projects" data-header-theme="dark" className="project-strip grid bg-neutral-950 md:grid-cols-2 lg:flex">
         {latestProjects.map((project, index) => {
           const toLink = project.slug ? `/projects/${encodeURIComponent(project.slug)}` : "/projects";
           return (
