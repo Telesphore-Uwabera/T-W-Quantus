@@ -28,8 +28,10 @@ export default function Perspectives() {
     queryFn: fetchPublishedPerspectives,
   });
 
-  // Use dynamic perspectives directly, limited to the latest 4
-  const allPerspectives = [...dynamicPerspectives].slice(0, 4);
+  // Filter out upcoming perspectives, and limit to the latest 4 completed ones
+  const allPerspectives = dynamicPerspectives
+    .filter((p) => p.category?.toLowerCase() !== "upcoming")
+    .slice(0, 4);
 
   const newsArticles = newsData?.articles ?? [];
   const newsOn = newsData?.configured || isNewsLoading;

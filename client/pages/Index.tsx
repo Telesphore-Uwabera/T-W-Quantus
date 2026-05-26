@@ -131,7 +131,18 @@ export default function Index() {
     };
   });
 
-  const combinedNews = [...perspectivesItems, ...industryNews].sort((a, b) => b.sortDate - a.sortDate);
+  const combinedNews = [...perspectivesItems, ...industryNews].sort((a, b) => {
+    const aUpcoming = !a.external && a.category?.toLowerCase() === "upcoming";
+    const bUpcoming = !b.external && b.category?.toLowerCase() === "upcoming";
+
+    if (aUpcoming && !bUpcoming) return -1;
+    if (!aUpcoming && bUpcoming) return 1;
+
+    if (!a.external && b.external) return -1;
+    if (a.external && !b.external) return 1;
+
+    return b.sortDate - a.sortDate;
+  });
   const latestNews = combinedNews.slice(0, 8);
   const newsSlideCount = Math.max(1, Math.ceil(latestNews.length / 2));
   const activeNews = latestNews.slice(activeNewsSlide * 2, activeNewsSlide * 2 + 2);
