@@ -131,6 +131,11 @@ export default function Projects() {
   } = usePortfolioFilters(cmsProjects);
 
   const [viewMode, setViewMode] = useState<"grid" | "marquee">("grid");
+  const [showAll, setShowAll] = useState(false);
+
+  const INITIAL_COUNT = 6;
+  const visibleProjects = showAll ? filtered : filtered.slice(0, INITIAL_COUNT);
+  const hasMore = filtered.length > INITIAL_COUNT;
 
   return (
     <Layout>
@@ -228,9 +233,9 @@ export default function Projects() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="grid gap-12 md:grid-cols-2 lg:grid-cols-3"
+                  className="grid gap-12 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
                 >
-                  {filtered.map((p, i) => (
+                  {visibleProjects.map((p, i) => (
                     <ProjectGridCard key={p._id} project={p} index={i} />
                   ))}
                 </motion.div>
@@ -255,6 +260,19 @@ export default function Projects() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* View More / View Less */}
+            {hasMore && viewMode === "grid" && (
+              <div className="mt-16 flex justify-center">
+                <button
+                  onClick={() => setShowAll((prev) => !prev)}
+                  className="group inline-flex items-center gap-3 rounded-full border-2 border-brand px-10 py-4 text-sm font-black uppercase tracking-widest text-brand transition-all duration-300 hover:bg-brand hover:text-white"
+                >
+                  {showAll ? "View Less" : "View More"}
+                  <ArrowRight className={cn("h-4 w-4 transition-transform duration-300", showAll ? "rotate-[-90deg]" : "rotate-90")} />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

@@ -7,16 +7,9 @@ import { Reveal } from "@/components/site/Reveal";
 import { company, navigation, services } from "@/data/site";
 import { useQuery } from "@tanstack/react-query";
 import { fetchServiceNews, fetchPublishedProjects, fetchPublishedPerspectives } from "@/lib/api";
-import { projectGalleryUrls, type NewsArticle, type ProjectDoc, type PerspectiveDoc } from "@shared/cms";
+import { projectGalleryUrls, type NewsArticle, type PerspectiveDoc } from "@shared/cms";
 import { cn } from "@/lib/utils";
 import { AutoSlideBackground } from "@/components/site/AutoSlideBackground";
-
-const projectCards = [
-  { title: "Residential Developments", location: "Rwanda", visual: "project-visual-1" },
-  { title: "Commercial Spaces", location: "East Africa", visual: "project-visual-2" },
-  { title: "Institutional Infrastructure", location: "Regional", visual: "project-visual-3" },
-  { title: "Renovations & Technical Works", location: "Kigali", visual: "project-visual-4" },
-];
 
 /** Maps service index (0-based) → its WebP image in /images/ */
 const serviceImages = [
@@ -38,50 +31,20 @@ export default function Index() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const dynamicProjectCards = useMemo(() => {
-    const mappings = [
-      {
-        title: "Residential Developments",
-        match: (p: ProjectDoc) => p.sector === "Residential buildings" || p.sector === "Multi-unit developments",
-        defaultLocation: "Rwanda",
-        visual: "project-visual-1"
-      },
-      {
-        title: "Commercial Spaces",
-        match: (p: ProjectDoc) => p.sector === "Commercial spaces",
-        defaultLocation: "East Africa",
-        visual: "project-visual-2"
-      },
-      {
-        title: "Institutional Infrastructure",
-        match: (p: ProjectDoc) => p.sector === "Institutional infrastructure",
-        defaultLocation: "Regional",
-        visual: "project-visual-3"
-      },
-      {
-        title: "Renovations & Technical Works",
-        match: (p: ProjectDoc) => p.sector === "Renovations and repairs" || p.sector === "Civil and structural works",
-        defaultLocation: "Kigali",
-        visual: "project-visual-4"
-      }
-    ];
-
-    return mappings.map((m) => {
-      const matchingProjects = projects
-        .filter((p) => p.published && m.match(p))
-        .sort((a, b) => (b.startDate || b.createdAt).localeCompare(a.startDate || a.createdAt));
-      
-      const latestProject = matchingProjects[0];
-      const images = latestProject ? projectGalleryUrls(latestProject) : [];
-      
-      return {
-        title: m.title,
-        location: latestProject?.location || m.defaultLocation,
-        visual: m.visual,
-        images,
-        slug: latestProject?.slug || "",
-      };
-    });
+  // Latest 4 projects for the home page
+  const latestProjects = useMemo(() => {
+    return [...projects]
+      .filter((p) => p.published)
+      .sort((a, b) => (b.startDate || b.createdAt).localeCompare(a.startDate || a.createdAt))
+      .slice(0, 4)
+      .map((p, i) => ({
+        title: p.title,
+        location: p.location || "Kigali, Rwanda",
+        visual: `project-visual-${(i % 4) + 1}`,
+        images: projectGalleryUrls(p),
+        slug: p.slug,
+        sector: p.sector || "General Construction",
+      }));
   }, [projects]);
 
   const { data: newsData, isLoading: isNewsLoading } = useQuery({
@@ -305,8 +268,8 @@ export default function Index() {
         </div>
       </section>
 
-      <section id="projects" data-header-theme="dark" className="project-strip grid bg-neutral-950 md:grid-cols-2 lg:flex">
-        {dynamicProjectCards.map((project, index) => {
+      <section id="projects" data-header-theme="dark" className="project-strip grid bg-neutral-950 md:grid-cols-2 lg:grid-cols-4">
+        {latestProjects.map((project, index) => {
           const toLink = project.slug ? `/projects/${encodeURIComponent(project.slug)}` : "/projects";
           return (
             <Link

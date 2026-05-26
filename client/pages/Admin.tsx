@@ -341,7 +341,13 @@ function ProjectsPanel() {
         </div>
         <div className="space-y-2">
           <Label>Sector</Label>
-          <Select value={sector} onValueChange={setSector}>
+          <Select value={PROJECT_SECTORS.includes(sector as any) ? sector : "__custom__"} onValueChange={(v) => {
+            if (v === "__custom__") {
+              setSector(PROJECT_SECTORS.includes(sector as any) ? "" : sector);
+            } else {
+              setSector(v);
+            }
+          }}>
             <SelectTrigger className="h-10 w-full rounded-md border border-black/15 bg-white text-sm font-medium">
               <SelectValue placeholder="Select sector" />
             </SelectTrigger>
@@ -351,8 +357,17 @@ function ProjectsPanel() {
                   {opt}
                 </SelectItem>
               ))}
+              <SelectItem value="__custom__">Other (custom)</SelectItem>
             </SelectContent>
           </Select>
+          {!PROJECT_SECTORS.includes(sector as any) && (
+            <Input
+              value={sector}
+              onChange={(e) => setSector(e.target.value)}
+              placeholder="Type your custom sector name"
+              required
+            />
+          )}
         </div>
         <div className="space-y-2">
           <Label>Summary</Label>

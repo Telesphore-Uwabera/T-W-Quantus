@@ -94,8 +94,8 @@ export function createAdminApiRouter() {
         }
         const slug = (req.body?.slug && String(req.body.slug)) || slugify(String(title));
         const sector = req.body?.sector != null ? String(req.body.sector).trim() : "";
-        if (!isValidProjectSector(sector)) {
-          res.status(400).json({ error: "sector is required and must be a valid option" });
+        if (!sector) {
+          res.status(400).json({ error: "sector is required" });
           return;
         }
         const description = req.body?.description != null ? String(req.body.description).trim() : "";
@@ -184,8 +184,8 @@ export function createAdminApiRouter() {
         if (req.body?.summary != null) updates.summary = String(req.body.summary).trim();
         if (req.body?.sector != null) {
           const s = String(req.body.sector).trim();
-          if (!isValidProjectSector(s)) {
-            res.status(400).json({ error: "sector must be a valid option" });
+          if (!s) {
+            res.status(400).json({ error: "sector cannot be empty" });
             return;
           }
           updates.sector = s;
