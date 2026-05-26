@@ -357,7 +357,7 @@
     background:
       linear-gradient(115deg, rgba(0, 0, 0, 0.72), rgba(11, 61, 64, 0.22)),
       radial-gradient(circle at 78% 28%, rgba(43, 143, 148, 0.32), transparent 22%),
-      url("/images/about-us.webp");
+      url("/images/working-housing-project.avif");
     background-size: cover;
     background-position: center;
   }

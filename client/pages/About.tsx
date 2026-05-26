@@ -117,7 +117,7 @@ export default function About() {
               <Reveal direction="left" className="relative">
                 <div className="aspect-[3/4] overflow-hidden rounded-[3rem] shadow-2xl">
                   <img
-                    src="/images/about-us.webp"
+                    src="/images/working-housing-project.avif"
                     alt="T&W Quantus — Precision at our core"
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-[5s] hover:scale-110"
                   />
