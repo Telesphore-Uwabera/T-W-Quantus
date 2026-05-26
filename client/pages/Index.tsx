@@ -25,7 +25,7 @@ export default function Index() {
   const [activeService, setActiveService] = useState(0);
   const [activeNewsSlide, setActiveNewsSlide] = useState(0);
 
-  const { data: projects = [] } = useQuery<ProjectDoc[]>({
+  const { data: projects = [], isLoading: isProjectsLoading } = useQuery<ProjectDoc[]>({
     queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
     staleTime: 5 * 60 * 1000,
@@ -269,7 +269,18 @@ export default function Index() {
       </section>
 
       <section id="projects" data-header-theme="dark" className="project-strip grid bg-neutral-950 md:grid-cols-2 lg:flex">
-        {latestProjects.map((project, index) => {
+        {isProjectsLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="project-card-item relative min-h-[320px] overflow-hidden p-6 sm:min-h-[380px] sm:p-8 lg:min-h-[440px] bg-neutral-900 animate-pulse">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+              <div className="relative flex h-full flex-col justify-end gap-4">
+                <div className="h-6 w-3/4 rounded-lg bg-neutral-700/50" />
+                <div className="h-4 w-1/2 rounded-lg bg-neutral-700/30" />
+              </div>
+            </div>
+          ))
+        ) : (
+          latestProjects.map((project, index) => {
           const toLink = project.slug ? `/projects/${encodeURIComponent(project.slug)}` : "/projects";
           return (
             <Link
@@ -297,7 +308,8 @@ export default function Index() {
               </div>
             </Link>
           );
-        })}
+        })
+        )}
       </section>
 
       <section id="perspectives" data-header-theme="light" className="relative overflow-hidden bg-white px-4 py-14 sm:px-6 md:px-8 md:py-24 lg:py-28">

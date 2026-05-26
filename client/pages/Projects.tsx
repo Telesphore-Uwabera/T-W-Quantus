@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, MapPin, Filter, SortAsc, LayoutGrid, Calendar } from "lucide-react";
+import { ArrowRight, MapPin, Filter, SortAsc, LayoutGrid, Calendar, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -208,7 +208,18 @@ export default function Projects() {
         <div className="min-h-[60vh] py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
             <AnimatePresence mode="wait">
-              {filtered.length === 0 ? (
+              {isLoading ? (
+                <motion.div
+                  key="loading"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex flex-col items-center py-40 text-center gap-4"
+                >
+                  <Loader2 className="h-10 w-10 animate-spin text-brand" />
+                  <span className="text-[0.65rem] font-black uppercase tracking-[0.25em] text-neutral-400">Loading projects...</span>
+                </motion.div>
+              ) : filtered.length === 0 ? (
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}

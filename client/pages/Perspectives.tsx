@@ -23,7 +23,7 @@ export default function Perspectives() {
     staleTime: 10 * 60 * 1000,
   });
 
-  const { data: dynamicPerspectives = [] } = useQuery({
+  const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading } = useQuery({
     queryKey: ["perspectives", "public"],
     queryFn: fetchPublishedPerspectives,
   });
@@ -77,7 +77,12 @@ export default function Perspectives() {
       <section data-header-theme="light" className="relative z-10 -mt-20 pb-24 lg:pb-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
           <div className="grid gap-12">
-            {allPerspectives.map((item, index) => {
+            {isPerspectivesLoading ? (
+              <div className="flex flex-col items-center justify-center py-32 gap-4">
+                <Loader2 className="h-10 w-10 animate-spin text-brand" />
+                <span className="text-[0.65rem] font-black uppercase tracking-[0.25em] text-neutral-400">Loading perspectives...</span>
+              </div>
+            ) : allPerspectives.map((item, index) => {
               const isDynamic = "_id" in item;
               const slug = item.slug;
               const title = item.title;
