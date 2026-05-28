@@ -113,7 +113,6 @@ export default function Projects() {
   const { data: cmsProjects = [], isLoading } = useQuery({
     queryKey: ["projects", "public"],
     queryFn: fetchPublishedProjects,
-    staleTime: 0,
   });
 
   const {

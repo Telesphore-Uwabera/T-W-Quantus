@@ -14,6 +14,8 @@ const projectUpload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 8 * 1024 * 1024, files: 28 },
 });
+const DB_MAX_TIME_MS = 2500;
+const ADMIN_LIST_LIMIT = 500;
 
 function collectProjectImageFiles(files: Record<string, Express.Multer.File[]> | undefined): Express.Multer.File[] {
   if (!files) return [];
@@ -71,7 +73,13 @@ export function createAdminApiRouter() {
   r.get("/projects", async (_req, res) => {
     try {
       const db = await getDb();
-      const list = await db.collection("projects").find({}).sort({ sortOrder: 1, createdAt: -1 }).toArray();
+      const list = await db
+        .collection("projects")
+        .find({})
+        .maxTimeMS(DB_MAX_TIME_MS)
+        .sort({ sortOrder: 1, createdAt: -1 })
+        .limit(ADMIN_LIST_LIMIT)
+        .toArray();
       res.json(list.map((doc) => serializeProject(doc)).filter(Boolean));
     } catch (e) {
       res.status(500).json({ error: getErrorMessage(e) });
@@ -318,7 +326,13 @@ export function createAdminApiRouter() {
   r.get("/contacts", async (_req, res) => {
     try {
       const db = await getDb();
-      const list = await db.collection("contacts").find({}).sort({ createdAt: -1 }).limit(500).toArray();
+      const list = await db
+        .collection("contacts")
+        .find({})
+        .maxTimeMS(DB_MAX_TIME_MS)
+        .sort({ createdAt: -1 })
+        .limit(ADMIN_LIST_LIMIT)
+        .toArray();
       res.json(
         list.map((doc) => ({
           ...doc,
@@ -334,7 +348,13 @@ export function createAdminApiRouter() {
   r.get("/subscriptions", async (_req, res) => {
     try {
       const db = await getDb();
-      const list = await db.collection("subscriptions").find({}).sort({ createdAt: -1 }).limit(500).toArray();
+      const list = await db
+        .collection("subscriptions")
+        .find({})
+        .maxTimeMS(DB_MAX_TIME_MS)
+        .sort({ createdAt: -1 })
+        .limit(ADMIN_LIST_LIMIT)
+        .toArray();
       res.json(
         list.map((doc) => ({
           ...doc,
@@ -351,7 +371,13 @@ export function createAdminApiRouter() {
   r.get("/perspectives", async (_req, res) => {
     try {
       const db = await getDb();
-      const list = await db.collection("perspectives").find({}).sort({ sortOrder: 1, createdAt: -1 }).toArray();
+      const list = await db
+        .collection("perspectives")
+        .find({})
+        .maxTimeMS(DB_MAX_TIME_MS)
+        .sort({ sortOrder: 1, createdAt: -1 })
+        .limit(ADMIN_LIST_LIMIT)
+        .toArray();
       res.json(list.map((doc) => serializePerspective(doc)).filter(Boolean));
     } catch (e) {
       res.status(500).json({ error: getErrorMessage(e) });

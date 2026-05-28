@@ -3,6 +3,9 @@ import { getDb } from "../db/mongo";
 import { serializeProject, serializePerspective } from "../lib/projectDoc";
 
 const NEWS_CACHE_MS = 5 * 60 * 1000;
+const API_TIMEOUT_MS = 3000;
+const DB_MAX_TIME_MS = 2500;
+const PUBLIC_LIST_LIMIT = 100;
 let newsCache: { at: number; articles: unknown[] } | null = null;
 
 type NewsArticle = {
@@ -104,6 +107,16 @@ function filterServiceNews(articles: NewsArticle[], service?: ServiceSlug): News
   });
 }
 
+async function fetchWithTimeout(input: string, init?: RequestInit, timeoutMs = API_TIMEOUT_MS): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(input, { ...init, signal: init?.signal ?? controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function loadNews() {
   const key = process.env.NEWS_API_KEY;
   if (!key) {
@@ -127,7 +140,7 @@ async function loadNews() {
   url.searchParams.set("sortBy", "publishedAt");
   url.searchParams.set("pageSize", "100");
   url.searchParams.set("apiKey", key);
-  const res = await fetch(url.toString());
+  const res = await fetchWithTimeout(url.toString());
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`NewsAPI ${res.status}: ${text}`);
@@ -166,7 +179,9 @@ export function createPublicApiRouter() {
       const list = await db
         .collection("projects")
         .find({ published: true })
+        .maxTimeMS(DB_MAX_TIME_MS)
         .sort({ sortOrder: 1, createdAt: -1 })
+        .limit(PUBLIC_LIST_LIMIT)
         .toArray();
       res.json(list.map((doc) => serializeProject(doc)).filter(Boolean));
     } catch (e) {
@@ -188,7 +203,7 @@ export function createPublicApiRouter() {
         return;
       }
       const db = await getDb();
-      const doc = await db.collection("projects").findOne({ slug, published: true });
+      const doc = await db.collection("projects").findOne({ slug, published: true }, { maxTimeMS: DB_MAX_TIME_MS });
       const out = serializeProject(doc);
       if (!out) {
         res.status(404).json({ error: "Not found" });
@@ -212,7 +227,9 @@ export function createPublicApiRouter() {
       const list = await db
         .collection("perspectives")
         .find({ published: true })
+        .maxTimeMS(DB_MAX_TIME_MS)
         .sort({ sortOrder: 1, createdAt: -1 })
+        .limit(PUBLIC_LIST_LIMIT)
         .toArray();
       res.json(list.map((doc) => serializePerspective(doc)).filter(Boolean));
     } catch (e) {
@@ -230,7 +247,7 @@ export function createPublicApiRouter() {
         return;
       }
       const db = await getDb();
-      const doc = await db.collection("perspectives").findOne({ slug, published: true });
+      const doc = await db.collection("perspectives").findOne({ slug, published: true }, { maxTimeMS: DB_MAX_TIME_MS });
       const out = serializePerspective(doc);
       if (!out) {
         res.status(404).json({ error: "Not found" });

@@ -9,7 +9,12 @@ export async function getDb(): Promise<Db> {
     throw new Error("MONGODB_URI is not set");
   }
   if (!db) {
-    client = new MongoClient(uri);
+    client = new MongoClient(uri, {
+      connectTimeoutMS: 3000,
+      serverSelectionTimeoutMS: 3000,
+      socketTimeoutMS: 3000,
+      timeoutMS: 3000,
+    });
     await client.connect();
     db = client.db(process.env.MONGODB_DB_NAME ?? "TW-Quantus");
   }
@@ -21,7 +26,10 @@ export async function initIndexes(): Promise<void> {
     const database = await getDb();
     await database.collection("subscriptions").createIndex({ email: 1 }, { unique: true });
     await database.collection("projects").createIndex({ slug: 1 }, { unique: true });
+    await database.collection("projects").createIndex({ published: 1, sortOrder: 1, createdAt: -1 });
     await database.collection("contacts").createIndex({ createdAt: -1 });
+    await database.collection("perspectives").createIndex({ slug: 1 }, { unique: true });
+    await database.collection("perspectives").createIndex({ published: 1, sortOrder: 1, createdAt: -1 });
   } catch (e) {
     console.warn("[mongo] initIndexes:", e);
   }

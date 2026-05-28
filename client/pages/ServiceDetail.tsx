@@ -122,7 +122,7 @@ export default function ServiceDetail() {
             "grid gap-16 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24",
             isMosaic && "lg:grid-cols-1"
           )}>
-            <div className={cn("sticky top-32 h-fit", isMosaic && "lg:static lg:max-w-4xl")}>
+            <div className={cn("h-fit lg:sticky lg:top-32", isMosaic && "lg:static lg:max-w-4xl")}>
               <Reveal direction="up">
                 <p className={cn("eyebrow", isDarkEditorial ? "text-brand-light" : "text-brand")}>Service Intelligence</p>
                 <h2 className="mt-4 text-[clamp(1.8rem,4vw,3.25rem)] font-black leading-[1.05] tracking-tight">
@@ -134,12 +134,15 @@ export default function ServiceDetail() {
                 )}>
                   {service.summary}
                 </p>
-                <div className="mt-12 flex flex-col gap-5 sm:flex-row">
-                  <Link to="/contact" className="btn-brand">
+                <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-5">
+                  <Link
+                    to="/contact"
+                    className="btn-brand min-h-14 w-full text-center leading-tight max-[389px]:px-3 max-[389px]:text-[0.68rem]"
+                  >
                     Request Consultation
                   </Link>
                   <a href={company.whatsappHref} className={cn(
-                    "flex items-center justify-center gap-3 rounded-full border px-8 py-4 text-sm font-black uppercase tracking-widest transition-all",
+                    "flex min-h-14 w-full items-center justify-center gap-3 rounded-full border px-4 py-3 text-center text-sm font-black uppercase leading-tight tracking-widest transition-all max-[389px]:px-3 max-[389px]:text-[0.68rem] sm:px-8 sm:py-4",
                     isDarkEditorial ? "border-white/10 bg-white/5 hover:bg-white/10" : "border-black/10 bg-black/5 hover:bg-black/10"
                   )}>
                     Quick Query

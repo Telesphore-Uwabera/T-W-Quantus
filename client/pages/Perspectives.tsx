@@ -20,13 +20,11 @@ export default function Perspectives() {
   const { data: newsData, isLoading: isNewsLoading } = useQuery({
     queryKey: ["news", "services"],
     queryFn: () => fetchServiceNews(),
-    staleTime: 0,
   });
 
   const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading } = useQuery({
     queryKey: ["perspectives", "public"],
     queryFn: fetchPublishedPerspectives,
-    staleTime: 0,
   });
 
   // Include upcoming perspectives, sorting them to the top (matching home page priority), and limit to 4
