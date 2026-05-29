@@ -22,7 +22,11 @@ export function createServer() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  void initIndexes();
+  // Initialize indexes asynchronously without blocking server startup
+  void initIndexes().catch((err) => {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`[mongo] initIndexes warning: ${msg}`);
+  });
 
   app.get("/api/ping", (_req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";

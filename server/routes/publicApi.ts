@@ -234,6 +234,11 @@ export function createPublicApiRouter() {
       res.json(list.map((doc) => serializePerspective(doc)).filter(Boolean));
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
+      // Return empty array on database errors instead of 500, allowing graceful fallback
+      if (msg.includes("MONGODB_URI") || msg.includes("timed out") || msg.includes("MongoServerSelection")) {
+        res.status(200).json([]);
+        return;
+      }
       res.status(500).json({ error: msg });
     }
   });
@@ -256,6 +261,11 @@ export function createPublicApiRouter() {
       res.json(out);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
+      // Return 503 Service Unavailable on database errors instead of 500
+      if (msg.includes("MONGODB_URI") || msg.includes("timed out") || msg.includes("MongoServerSelection")) {
+        res.status(503).json({ error: "Database temporarily unavailable" });
+        return;
+      }
       res.status(500).json({ error: msg });
     }
   });
