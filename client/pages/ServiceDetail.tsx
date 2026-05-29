@@ -230,9 +230,9 @@ export default function ServiceDetail() {
                      { label: "Regions", val: "East Africa" },
                      { label: "Standards", val: "Global" }
                    ].map((stat, i) => (
-                     <Reveal key={stat.label} delay={i * 0.1} direction="zoom">
-                        <div className="rounded-3xl border border-white/5 bg-white/5 p-6 text-center">
-                           <div className="text-2xl font-black text-white">{stat.val}</div>
+                     <Reveal key={stat.label} className="h-full" delay={i * 0.1} direction="zoom">
+                        <div className="flex aspect-[1.22/1] h-full flex-col items-center justify-center rounded-3xl border border-white/5 bg-white/5 p-4 text-center sm:p-6">
+                           <div className="text-2xl font-black leading-none text-white">{stat.val}</div>
                            <div className="text-[0.6rem] font-bold uppercase tracking-widest text-neutral-500 mt-1">{stat.label}</div>
                         </div>
                      </Reveal>
