@@ -111,7 +111,7 @@ function usePortfolioFilters(projects: ProjectDoc[]) {
 
 export default function Projects() {
   const { data: cmsProjects = [], isLoading } = useQuery({
-    queryKey: ["projects", "public"],
+    queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
   });
 

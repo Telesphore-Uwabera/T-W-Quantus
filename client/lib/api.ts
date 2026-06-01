@@ -2,7 +2,7 @@ import type { ContactSubmission, NewsArticle, ProjectDoc, SubscriptionDoc, Persp
 
 /** Netlify (or any static host): set to Render API origin, e.g. https://t-w-quantus.onrender.com — no trailing slash. */
 const API_BASE = (import.meta.env.VITE_PUBLIC_API_URL ?? "").replace(/\/$/, "");
-const FETCH_TIMEOUT_MS = 3000;
+const FETCH_TIMEOUT_MS = 8000;
 const MUTATION_TIMEOUT_MS = 15000;
 
 function apiUrl(path: string): string {

@@ -25,13 +25,23 @@ const Admin = lazy(() => import("./pages/Admin"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
-      retry: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes — serve cached data instantly
+      gcTime: 30 * 60 * 1000, // 30 minutes — keep unused data in memory longer
+      retry: 1, // retry once on failure (helps with Render cold starts)
+      retryDelay: 1000, // wait 1s before retrying
       refetchOnWindowFocus: false,
     },
   },
 });
+
+/* ── Prefetch critical data on app boot ────────────────────────────── */
+/* All three queries fire in parallel immediately, so data is already   */
+/* cached before the user finishes reading the hero section.            */
+import { fetchPublishedProjects, fetchPublishedPerspectives, fetchServiceNews } from "@/lib/api";
+
+queryClient.prefetchQuery({ queryKey: ["projects", "published", "home"], queryFn: fetchPublishedProjects });
+queryClient.prefetchQuery({ queryKey: ["perspectives", "public"], queryFn: fetchPublishedPerspectives });
+queryClient.prefetchQuery({ queryKey: ["news", "services", "home"], queryFn: () => fetchServiceNews() });
 
 function AnimatedRoutes() {
   const location = useLocation();

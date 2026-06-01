@@ -18,7 +18,7 @@ const staticImages: Record<string, string> = {
 
 export default function Perspectives() {
   const { data: newsData, isLoading: isNewsLoading } = useQuery({
-    queryKey: ["news", "services"],
+    queryKey: ["news", "services", "home"],
     queryFn: () => fetchServiceNews(),
   });
 
