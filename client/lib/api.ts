@@ -4,13 +4,15 @@ import type { ContactSubmission, NewsArticle, ProjectDoc, SubscriptionDoc, Persp
 const API_BASE = (import.meta.env.VITE_PUBLIC_API_URL ?? "").replace(/\/$/, "");
 const FETCH_TIMEOUT_MS = 8000;
 const MUTATION_TIMEOUT_MS = 15000;
+const PUBLIC_CACHE_PREFIX = "twq_public_cache:";
+const PUBLIC_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 function apiUrl(path: string): string {
   const p = path.startsWith("/") ? path : `/${path}`;
   return API_BASE ? `${API_BASE}${p}` : p;
 }
 
-/** Aborts ordinary API reads after 3s so the UI can fail fast and render fallbacks. */
+/** Aborts ordinary API reads so slow cold starts keep retrying instead of rendering fake empty data. */
 async function fetchWithTimeout(input: string, init?: RequestInit, timeoutMs = FETCH_TIMEOUT_MS): Promise<Response> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
@@ -31,12 +33,51 @@ async function readJson<T>(res: Response, fallback: T): Promise<T> {
   return res.json().catch(() => fallback);
 }
 
-async function readList<T>(path: string): Promise<T[]> {
+function cacheKey(path: string): string {
+  return `${PUBLIC_CACHE_PREFIX}${path}`;
+}
+
+export function readCachedPublicList<T>(path: string): T[] | undefined {
+  if (typeof window === "undefined") return undefined;
+
+  try {
+    const raw = window.localStorage.getItem(cacheKey(path));
+    if (!raw) return undefined;
+
+    const cached = JSON.parse(raw) as { savedAt?: number; data?: T[] };
+    if (!Array.isArray(cached.data) || !cached.savedAt) return undefined;
+    if (Date.now() - cached.savedAt > PUBLIC_CACHE_MAX_AGE_MS) return undefined;
+
+    return cached.data;
+  } catch {
+    return undefined;
+  }
+}
+
+function writeCachedPublicList<T>(path: string, data: T[]): void {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.localStorage.setItem(cacheKey(path), JSON.stringify({ savedAt: Date.now(), data }));
+  } catch {
+    // Browsers can reject storage in private mode or when the quota is full.
+  }
+}
+
+async function readPublicList<T>(path: string): Promise<T[]> {
   try {
     const res = await fetchWithTimeout(apiUrl(path));
-    return readJson<T[]>(res, []);
-  } catch {
-    return [];
+    if (!res.ok) throw new Error(`Failed to load ${path}`);
+
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error(`Invalid response for ${path}`);
+
+    writeCachedPublicList(path, data);
+    return data;
+  } catch (error) {
+    const cached = readCachedPublicList<T>(path);
+    if (cached) return cached;
+    throw error;
   }
 }
 
@@ -69,7 +110,7 @@ export async function submitNewsletter(email: string): Promise<{ ok: boolean; du
 }
 
 export async function fetchPublishedProjects(): Promise<ProjectDoc[]> {
-  return readList<ProjectDoc>("/api/projects");
+  return readPublicList<ProjectDoc>("/api/projects");
 }
 
 export async function fetchProjectBySlug(slug: string): Promise<ProjectDoc | null> {
@@ -89,7 +130,7 @@ export async function fetchPerspectiveBySlug(slug: string): Promise<PerspectiveD
 }
 
 export async function fetchPublishedPerspectives(): Promise<PerspectiveDoc[]> {
-  return readList<PerspectiveDoc>("/api/perspectives");
+  return readPublicList<PerspectiveDoc>("/api/perspectives");
 }
 
 export async function fetchIndustryNews(): Promise<{

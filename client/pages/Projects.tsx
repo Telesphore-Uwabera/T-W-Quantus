@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { company, projectTypes } from "@/data/site";
-import { fetchPublishedProjects } from "@/lib/api";
+import { fetchPublishedProjects, readCachedPublicList } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { isValidProjectSector, PROJECT_SECTORS, projectGalleryUrls, type ProjectDoc } from "@shared/cms";
 import { AutoSlideBackground } from "@/components/site/AutoSlideBackground";
@@ -110,10 +110,12 @@ function usePortfolioFilters(projects: ProjectDoc[]) {
 }
 
 export default function Projects() {
-  const { data: cmsProjects = [], isLoading } = useQuery({
+  const { data: cmsProjects = [], isLoading, isError } = useQuery({
     queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
+    initialData: () => readCachedPublicList<ProjectDoc>("/api/projects"),
   });
+  const isWaitingForProjects = (isLoading || isError) && cmsProjects.length === 0;
 
   const {
     location,
@@ -208,7 +210,7 @@ export default function Projects() {
         <div className="min-h-[60vh] py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
             <AnimatePresence mode="wait">
-              {isLoading ? (
+              {isWaitingForProjects ? (
                 <motion.div
                   key="loading"
                   initial={{ opacity: 0 }}

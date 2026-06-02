@@ -7,7 +7,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { company, navigation, services } from "@/data/site";
 import type { NewsArticle, PerspectiveDoc } from "@shared/cms";
 import { cn } from "@/lib/utils";
-import { fetchPublishedPerspectives, fetchServiceNews } from "@/lib/api";
+import { fetchPublishedPerspectives, fetchServiceNews, readCachedPublicList } from "@/lib/api";
 import { AutoSlideBackground } from "@/components/site/AutoSlideBackground";
 
 const staticImages: Record<string, string> = {
@@ -22,10 +22,12 @@ export default function Perspectives() {
     queryFn: () => fetchServiceNews(),
   });
 
-  const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading } = useQuery({
+  const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading, isError: isPerspectivesError } = useQuery({
     queryKey: ["perspectives", "public"],
     queryFn: fetchPublishedPerspectives,
+    initialData: () => readCachedPublicList<PerspectiveDoc>("/api/perspectives"),
   });
+  const isWaitingForPerspectives = (isPerspectivesLoading || isPerspectivesError) && dynamicPerspectives.length === 0;
 
   // Include upcoming perspectives, sorting them to the top (matching home page priority), and limit to 4
   const allPerspectives = [...dynamicPerspectives]
@@ -76,7 +78,7 @@ export default function Perspectives() {
       <section data-header-theme="light" className="relative z-10 -mt-20 pb-24 lg:pb-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
           <div className="grid gap-12">
-            {isPerspectivesLoading ? (
+            {isWaitingForPerspectives ? (
               <div className="flex flex-col items-center justify-center py-32 gap-4">
                 <Loader2 className="h-10 w-10 animate-spin text-brand" />
                 <span className="text-[0.65rem] font-black uppercase tracking-[0.25em] text-neutral-400">Loading perspectives...</span>
@@ -88,6 +90,7 @@ export default function Perspectives() {
               const summary = item.summary;
               const category = item.category;
               const date = item.date;
+              const visualClass = `service-visual-${(index % 3) + 1}`;
               const imageUrl = isDynamic ? (item as PerspectiveDoc).imageUrl : null;
               const imageUrls = isDynamic && (item as PerspectiveDoc).imageUrls?.length 
                 ? (item as PerspectiveDoc).imageUrls 

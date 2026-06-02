@@ -6,8 +6,8 @@ import { Layout } from "@/components/site/Layout";
 import { Reveal } from "@/components/site/Reveal";
 import { company, navigation, services } from "@/data/site";
 import { useQuery } from "@tanstack/react-query";
-import { fetchServiceNews, fetchPublishedProjects, fetchPublishedPerspectives } from "@/lib/api";
-import { projectGalleryUrls, type NewsArticle, type PerspectiveDoc } from "@shared/cms";
+import { fetchServiceNews, fetchPublishedProjects, fetchPublishedPerspectives, readCachedPublicList } from "@/lib/api";
+import { projectGalleryUrls, type NewsArticle, type PerspectiveDoc, type ProjectDoc } from "@shared/cms";
 import { cn } from "@/lib/utils";
 import { AutoSlideBackground } from "@/components/site/AutoSlideBackground";
 
@@ -25,9 +25,10 @@ export default function Index() {
   const [activeService, setActiveService] = useState(0);
   const [activeNewsSlide, setActiveNewsSlide] = useState(0);
 
-  const { data: projects = [], isLoading: isProjectsLoading } = useQuery<ProjectDoc[]>({
+  const { data: projects = [], isLoading: isProjectsLoading, isError: isProjectsError } = useQuery<ProjectDoc[]>({
     queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
+    initialData: () => readCachedPublicList<ProjectDoc>("/api/projects"),
   });
 
   // Latest 4 projects for the home page
@@ -51,12 +52,15 @@ export default function Index() {
     queryFn: () => fetchServiceNews(),
   });
 
-  const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading } = useQuery({
+  const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading, isError: isPerspectivesError } = useQuery({
     queryKey: ["perspectives", "public"],
     queryFn: fetchPublishedPerspectives,
+    initialData: () => readCachedPublicList<PerspectiveDoc>("/api/perspectives"),
   });
 
-  const isLoading = isNewsLoading || isPerspectivesLoading;
+  const hasPerspectiveContent = dynamicPerspectives.length > 0;
+  const isLoading = (isNewsLoading && !newsData) || ((isPerspectivesLoading || isPerspectivesError) && !hasPerspectiveContent);
+  const isWaitingForProjects = (isProjectsLoading || isProjectsError) && projects.length === 0;
 
   const perspectivesItems = dynamicPerspectives.map((p: PerspectiveDoc) => {
     const pDate = new Date(p.date);
@@ -267,7 +271,7 @@ export default function Index() {
       </section>
 
       <section id="projects" data-header-theme="dark" className="project-strip grid bg-neutral-950 md:grid-cols-2 lg:flex">
-        {isProjectsLoading ? (
+        {isWaitingForProjects ? (
           Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="project-card-item relative min-h-[320px] overflow-hidden p-6 sm:min-h-[380px] sm:p-8 lg:min-h-[440px] bg-neutral-900 animate-pulse">
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
