@@ -38,14 +38,19 @@ function cacheKey(path: string): string {
 }
 
 export function readCachedPublicList<T>(path: string): T[] | undefined {
+  const cached = readCachedPublicData<T[]>(path);
+  return Array.isArray(cached) ? cached : undefined;
+}
+
+export function readCachedPublicData<T>(path: string): T | undefined {
   if (typeof window === "undefined") return undefined;
 
   try {
     const raw = window.localStorage.getItem(cacheKey(path));
     if (!raw) return undefined;
 
-    const cached = JSON.parse(raw) as { savedAt?: number; data?: T[] };
-    if (!Array.isArray(cached.data) || !cached.savedAt) return undefined;
+    const cached = JSON.parse(raw) as { savedAt?: number; data?: T };
+    if (!cached.data || !cached.savedAt) return undefined;
     if (Date.now() - cached.savedAt > PUBLIC_CACHE_MAX_AGE_MS) return undefined;
 
     return cached.data;
@@ -54,7 +59,7 @@ export function readCachedPublicList<T>(path: string): T[] | undefined {
   }
 }
 
-function writeCachedPublicList<T>(path: string, data: T[]): void {
+function writeCachedPublicData<T>(path: string, data: T): void {
   if (typeof window === "undefined") return;
 
   try {
@@ -72,7 +77,7 @@ async function readPublicList<T>(path: string): Promise<T[]> {
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error(`Invalid response for ${path}`);
 
-    writeCachedPublicList(path, data);
+    writeCachedPublicData(path, data);
     return data;
   } catch (error) {
     const cached = readCachedPublicList<T>(path);
@@ -138,9 +143,18 @@ export async function fetchIndustryNews(): Promise<{
   configured: boolean;
   cached?: boolean;
 }> {
-  const res = await fetchWithTimeout(apiUrl("/api/news"));
-  if (!res.ok) return { articles: [], configured: false };
-  return res.json();
+  const path = "/api/news";
+  try {
+    const res = await fetchWithTimeout(apiUrl(path));
+    if (!res.ok) throw new Error("Failed to load news");
+    const data = await res.json();
+    writeCachedPublicData(path, data);
+    return data;
+  } catch (error) {
+    const cached = readCachedPublicData<{ articles: NewsArticle[]; configured: boolean; cached?: boolean }>(path);
+    if (cached) return { ...cached, cached: true };
+    throw error;
+  }
 }
 
 export async function fetchServiceNews(service?: string): Promise<{
@@ -149,13 +163,24 @@ export async function fetchServiceNews(service?: string): Promise<{
   cached?: boolean;
   service?: string | null;
 }> {
-  const base = apiUrl("/api/news/services");
-  const url = service ? `${base}?service=${encodeURIComponent(service)}` : base;
+  const path = service ? `/api/news/services?service=${encodeURIComponent(service)}` : "/api/news/services";
   try {
+    const url = apiUrl(path);
     const res = await fetchWithTimeout(url);
-    return readJson(res, { articles: [], configured: false, service: service ?? null });
-  } catch {
-    return { articles: [], configured: false, service: service ?? null };
+    if (!res.ok) throw new Error("Failed to load service news");
+
+    const data = await readJson(res, { articles: [], configured: false, service: service ?? null });
+    writeCachedPublicData(path, data);
+    return data;
+  } catch (error) {
+    const cached = readCachedPublicData<{
+      articles: NewsArticle[];
+      configured: boolean;
+      cached?: boolean;
+      service?: string | null;
+    }>(path);
+    if (cached) return { ...cached, cached: true };
+    throw error;
   }
 }
 

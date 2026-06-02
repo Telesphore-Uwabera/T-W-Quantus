@@ -6,7 +6,7 @@ import { Layout } from "@/components/site/Layout";
 import { Reveal } from "@/components/site/Reveal";
 import { company, navigation, services } from "@/data/site";
 import { useQuery } from "@tanstack/react-query";
-import { fetchServiceNews, fetchPublishedProjects, fetchPublishedPerspectives, readCachedPublicList } from "@/lib/api";
+import { fetchServiceNews, fetchPublishedProjects, fetchPublishedPerspectives, readCachedPublicData, readCachedPublicList } from "@/lib/api";
 import { projectGalleryUrls, type NewsArticle, type PerspectiveDoc, type ProjectDoc } from "@shared/cms";
 import { cn } from "@/lib/utils";
 import { AutoSlideBackground } from "@/components/site/AutoSlideBackground";
@@ -47,9 +47,15 @@ export default function Index() {
       }));
   }, [projects]);
 
-  const { data: newsData, isLoading: isNewsLoading } = useQuery({
+  const { data: newsData, isLoading: isNewsLoading, isError: isNewsError } = useQuery({
     queryKey: ["news", "services", "home"],
     queryFn: () => fetchServiceNews(),
+    initialData: () => readCachedPublicData<{
+      articles: NewsArticle[];
+      configured: boolean;
+      cached?: boolean;
+      service?: string | null;
+    }>("/api/news/services"),
   });
 
   const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading, isError: isPerspectivesError } = useQuery({
@@ -59,7 +65,9 @@ export default function Index() {
   });
 
   const hasPerspectiveContent = dynamicPerspectives.length > 0;
-  const isLoading = (isNewsLoading && !newsData) || ((isPerspectivesLoading || isPerspectivesError) && !hasPerspectiveContent);
+  const hasNewsContent = (newsData?.articles?.length ?? 0) > 0;
+  const hasLatestContent = hasPerspectiveContent || hasNewsContent;
+  const isLoading = (isNewsLoading || isNewsError || isPerspectivesLoading || isPerspectivesError) && !hasLatestContent;
   const isWaitingForProjects = (isProjectsLoading || isProjectsError) && projects.length === 0;
 
   const perspectivesItems = dynamicPerspectives.map((p: PerspectiveDoc) => {

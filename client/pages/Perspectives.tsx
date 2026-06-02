@@ -7,7 +7,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { company, navigation, services } from "@/data/site";
 import type { NewsArticle, PerspectiveDoc } from "@shared/cms";
 import { cn } from "@/lib/utils";
-import { fetchPublishedPerspectives, fetchServiceNews, readCachedPublicList } from "@/lib/api";
+import { fetchPublishedPerspectives, fetchServiceNews, readCachedPublicData, readCachedPublicList } from "@/lib/api";
 import { AutoSlideBackground } from "@/components/site/AutoSlideBackground";
 
 const staticImages: Record<string, string> = {
@@ -17,9 +17,15 @@ const staticImages: Record<string, string> = {
 };
 
 export default function Perspectives() {
-  const { data: newsData, isLoading: isNewsLoading } = useQuery({
+  const { data: newsData, isLoading: isNewsLoading, isError: isNewsError } = useQuery({
     queryKey: ["news", "services", "home"],
     queryFn: () => fetchServiceNews(),
+    initialData: () => readCachedPublicData<{
+      articles: NewsArticle[];
+      configured: boolean;
+      cached?: boolean;
+      service?: string | null;
+    }>("/api/news/services"),
   });
 
   const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading, isError: isPerspectivesError } = useQuery({
@@ -48,7 +54,8 @@ export default function Perspectives() {
     .slice(0, 4);
 
   const newsArticles = newsData?.articles ?? [];
-  const newsOn = newsData?.configured || isNewsLoading;
+  const isWaitingForNews = (isNewsLoading || isNewsError) && newsArticles.length === 0;
+  const newsOn = newsData?.configured || isWaitingForNews;
 
   return (
     <Layout>
@@ -159,7 +166,7 @@ export default function Perspectives() {
                <h2 className="mt-6 text-5xl font-black tracking-tighter text-white">Global Industry <span className="text-neutral-500 italic font-serif lowercase">Pulse.</span></h2>
             </Reveal>
 
-             {isNewsLoading ? (
+             {isWaitingForNews ? (
                <div className="flex flex-col items-center justify-center py-24 text-neutral-500 gap-4">
                  <Loader2 className="h-8 w-8 animate-spin text-brand-light" />
                  <span className="text-[0.65rem] font-black uppercase tracking-[0.25em] text-neutral-400">Fetching latest market intelligence...</span>
