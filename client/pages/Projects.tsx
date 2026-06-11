@@ -113,9 +113,8 @@ export default function Projects() {
   const { data: cmsProjects = [], isLoading, isError } = useQuery({
     queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
-    initialData: () => readCachedPublicList<ProjectDoc>("/api/projects"),
   });
-  const isWaitingForProjects = (isLoading || isError) && cmsProjects.length === 0;
+  const isWaitingForProjects = isLoading && cmsProjects.length === 0;
 
   const {
     location,

@@ -20,20 +20,13 @@ export default function Perspectives() {
   const { data: newsData, isLoading: isNewsLoading, isError: isNewsError } = useQuery({
     queryKey: ["news", "services", "home"],
     queryFn: () => fetchServiceNews(),
-    initialData: () => readCachedPublicData<{
-      articles: NewsArticle[];
-      configured: boolean;
-      cached?: boolean;
-      service?: string | null;
-    }>("/api/news/services"),
   });
 
   const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading, isError: isPerspectivesError } = useQuery({
     queryKey: ["perspectives", "public"],
     queryFn: fetchPublishedPerspectives,
-    initialData: () => readCachedPublicList<PerspectiveDoc>("/api/perspectives"),
   });
-  const isWaitingForPerspectives = (isPerspectivesLoading || isPerspectivesError) && dynamicPerspectives.length === 0;
+  const isWaitingForPerspectives = isPerspectivesLoading && dynamicPerspectives.length === 0;
 
   // Include upcoming perspectives, sorting them to the top (matching home page priority), and limit to 4
   const allPerspectives = [...dynamicPerspectives]
@@ -54,7 +47,7 @@ export default function Perspectives() {
     .slice(0, 4);
 
   const newsArticles = newsData?.articles ?? [];
-  const isWaitingForNews = (isNewsLoading || isNewsError) && newsArticles.length === 0;
+  const isWaitingForNews = isNewsLoading && newsArticles.length === 0;
   const newsOn = newsData?.configured || isWaitingForNews;
 
   return (

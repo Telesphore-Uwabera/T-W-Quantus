@@ -28,7 +28,6 @@ export default function Index() {
   const { data: projects = [], isLoading: isProjectsLoading, isError: isProjectsError } = useQuery<ProjectDoc[]>({
     queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
-    initialData: () => readCachedPublicList<ProjectDoc>("/api/projects"),
   });
 
   // Latest 4 projects for the home page
@@ -50,25 +49,18 @@ export default function Index() {
   const { data: newsData, isLoading: isNewsLoading, isError: isNewsError } = useQuery({
     queryKey: ["news", "services", "home"],
     queryFn: () => fetchServiceNews(),
-    initialData: () => readCachedPublicData<{
-      articles: NewsArticle[];
-      configured: boolean;
-      cached?: boolean;
-      service?: string | null;
-    }>("/api/news/services"),
   });
 
   const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading, isError: isPerspectivesError } = useQuery({
     queryKey: ["perspectives", "public"],
     queryFn: fetchPublishedPerspectives,
-    initialData: () => readCachedPublicList<PerspectiveDoc>("/api/perspectives"),
   });
 
   const hasPerspectiveContent = dynamicPerspectives.length > 0;
   const hasNewsContent = (newsData?.articles?.length ?? 0) > 0;
   const hasLatestContent = hasPerspectiveContent || hasNewsContent;
-  const isLoading = (isNewsLoading || isNewsError || isPerspectivesLoading || isPerspectivesError) && !hasLatestContent;
-  const isWaitingForProjects = (isProjectsLoading || isProjectsError) && projects.length === 0;
+  const isLoading = (isNewsLoading || isPerspectivesLoading) && !hasLatestContent;
+  const isWaitingForProjects = isProjectsLoading && projects.length === 0;
 
   const perspectivesItems = dynamicPerspectives.map((p: PerspectiveDoc) => {
     const pDate = new Date(p.date);
