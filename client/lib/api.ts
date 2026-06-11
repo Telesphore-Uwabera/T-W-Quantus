@@ -2,10 +2,10 @@ import type { ContactSubmission, NewsArticle, ProjectDoc, SubscriptionDoc, Persp
 
 /** Netlify (or any static host): set to Render API origin, e.g. https://t-w-quantus.onrender.com — no trailing slash. */
 const API_BASE = (import.meta.env.VITE_PUBLIC_API_URL ?? "").replace(/\/$/, "");
-const FETCH_TIMEOUT_MS = 8000;
+const FETCH_TIMEOUT_MS = 5000;
 const MUTATION_TIMEOUT_MS = 15000;
 const PUBLIC_CACHE_PREFIX = "twq_public_cache:";
-const PUBLIC_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+const PUBLIC_CACHE_MAX_AGE_MS = 30 * 60 * 1000;
 
 function apiUrl(path: string): string {
   const p = path.startsWith("/") ? path : `/${path}`;

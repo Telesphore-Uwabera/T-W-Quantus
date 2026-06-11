@@ -25,10 +25,10 @@ const Admin = lazy(() => import("./pages/Admin"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes — serve cached data instantly
-      gcTime: 30 * 60 * 1000, // 30 minutes — keep unused data in memory longer
-      retry: 1, // retry once on failure (helps with Render cold starts)
-      retryDelay: 1000, // wait 1s before retrying
+      staleTime: 30 * 60 * 1000, // 30 minutes — match server cache, serve cached data instantly
+      gcTime: 60 * 60 * 1000, // 60 minutes — keep unused data in memory longer
+      retry: 2, // retry twice on failure (helps with Render cold starts)
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000), // exponential backoff, max 5s
       refetchOnWindowFocus: false,
     },
   },

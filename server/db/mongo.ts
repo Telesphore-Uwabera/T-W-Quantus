@@ -9,11 +9,15 @@ export async function getDb(): Promise<Db> {
     throw new Error("MONGODB_URI is not set");
   }
   if (!db) {
+    const isProduction = process.env.NODE_ENV === "production";
     client = new MongoClient(uri, {
-      connectTimeoutMS: 3000,
-      serverSelectionTimeoutMS: 3000,
-      socketTimeoutMS: 3000,
-      timeoutMS: 3000,
+      connectTimeoutMS: isProduction ? 10000 : 3000,
+      serverSelectionTimeoutMS: isProduction ? 10000 : 3000,
+      socketTimeoutMS: isProduction ? 10000 : 3000,
+      timeoutMS: isProduction ? 10000 : 3000,
+      maxPoolSize: 10,
+      minPoolSize: 2,
+      maxIdleTimeMS: 30000,
     });
     await client.connect();
     db = client.db(process.env.MONGODB_DB_NAME ?? "TW-Quantus");

@@ -4,7 +4,7 @@ import { serializeProject, serializePerspective } from "../lib/projectDoc";
 
 const NEWS_CACHE_MS = 5 * 60 * 1000;
 const API_TIMEOUT_MS = 3000;
-const DB_MAX_TIME_MS = 2500;
+const DB_MAX_TIME_MS = process.env.NODE_ENV === "production" ? 10000 : 2500;
 const PUBLIC_LIST_LIMIT = 100;
 let newsCache: { at: number; articles: unknown[] } | null = null;
 
@@ -173,7 +173,7 @@ export function createPublicApiRouter() {
   const r = Router();
 
   r.get("/projects", async (_req, res) => {
-    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
+    res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=3600");
     try {
       const db = await getDb();
       const list = await db
@@ -195,7 +195,7 @@ export function createPublicApiRouter() {
   });
 
   r.get("/projects/:slug", async (req, res) => {
-    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
+    res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=3600");
     try {
       const slug = String(req.params.slug ?? "").trim();
       if (!slug) {
@@ -221,7 +221,7 @@ export function createPublicApiRouter() {
   });
 
   r.get("/perspectives", async (_req, res) => {
-    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
+    res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=3600");
     try {
       const db = await getDb();
       const list = await db
@@ -244,7 +244,7 @@ export function createPublicApiRouter() {
   });
 
   r.get("/perspectives/:slug", async (req, res) => {
-    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
+    res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=3600");
     try {
       const slug = String(req.params.slug ?? "").trim();
       if (!slug) {
@@ -335,6 +335,7 @@ export function createPublicApiRouter() {
   });
 
   r.get("/news", async (_req, res) => {
+    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
     try {
       const result = await loadNews();
       res.json(result);
@@ -352,6 +353,7 @@ export function createPublicApiRouter() {
    * Optional `?service=<slug>` further narrows the feed to a single service pillar.
    */
   r.get("/news/services", async (req, res) => {
+    res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
     try {
       const serviceParam = typeof req.query.service === "string" ? req.query.service.trim() : "";
       const service = (SERVICE_SLUGS.includes(serviceParam as ServiceSlug)
