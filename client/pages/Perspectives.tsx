@@ -20,11 +20,15 @@ export default function Perspectives() {
   const { data: newsData, isLoading: isNewsLoading, isError: isNewsError } = useQuery({
     queryKey: ["news", "services", "home"],
     queryFn: () => fetchServiceNews(),
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes for fresh data
+    refetchIntervalInBackground: true,
   });
 
   const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading, isError: isPerspectivesError } = useQuery({
     queryKey: ["perspectives", "public"],
     queryFn: fetchPublishedPerspectives,
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes for fresh data
+    refetchIntervalInBackground: true,
   });
   const isWaitingForPerspectives = isPerspectivesLoading && dynamicPerspectives.length === 0;
 
@@ -79,9 +83,17 @@ export default function Perspectives() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
           <div className="grid gap-12">
             {isWaitingForPerspectives ? (
-              <div className="flex flex-col items-center justify-center py-32 gap-4">
-                <Loader2 className="h-10 w-10 animate-spin text-brand" />
-                <span className="text-[0.65rem] font-black uppercase tracking-[0.25em] text-neutral-400">Loading perspectives...</span>
+              <div className="grid gap-12 md:grid-cols-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="h-[250px] sm:h-[350px] lg:h-[450px] w-full rounded-[3rem] bg-neutral-100" />
+                    <div className="p-8 md:p-12">
+                      <div className="h-4 w-1/4 rounded-lg bg-neutral-100 mb-6" />
+                      <div className="h-8 w-3/4 rounded-lg bg-neutral-100 mb-4" />
+                      <div className="h-4 w-full rounded-lg bg-neutral-100" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : allPerspectives.map((item, index) => {
               const isDynamic = "_id" in item;
@@ -160,9 +172,17 @@ export default function Perspectives() {
             </Reveal>
 
              {isWaitingForNews ? (
-               <div className="flex flex-col items-center justify-center py-24 text-neutral-500 gap-4">
-                 <Loader2 className="h-8 w-8 animate-spin text-brand-light" />
-                 <span className="text-[0.65rem] font-black uppercase tracking-[0.25em] text-neutral-400">Fetching latest market intelligence...</span>
+               <div className="grid gap-8 md:grid-cols-2">
+                 {Array.from({ length: 4 }).map((_, i) => (
+                   <div key={i} className="animate-pulse">
+                     <div className="aspect-[16/9] rounded-[2.5rem] bg-white/[0.02]" />
+                     <div className="p-8">
+                       <div className="h-4 w-1/4 rounded-lg bg-white/[0.02] mb-4" />
+                       <div className="h-6 w-3/4 rounded-lg bg-white/[0.02] mb-4" />
+                       <div className="h-4 w-full rounded-lg bg-white/[0.02]" />
+                     </div>
+                   </div>
+                 ))}
                </div>
              ) : (
               <div className="grid gap-8 md:grid-cols-2">

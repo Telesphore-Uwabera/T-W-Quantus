@@ -110,9 +110,11 @@ function usePortfolioFilters(projects: ProjectDoc[]) {
 }
 
 export default function Projects() {
-  const { data: cmsProjects = [], isLoading, isError } = useQuery({
+  const { data: cmsProjects = [], isLoading, isError, isRefetching } = useQuery({
     queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes for fresh data
+    refetchIntervalInBackground: true,
   });
   const isWaitingForProjects = isLoading && cmsProjects.length === 0;
 
@@ -215,13 +217,18 @@ export default function Projects() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="flex flex-col items-center py-40 text-center gap-4"
+                  className="grid gap-12 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
                 >
-                  <Loader2 className="h-10 w-10 animate-spin text-brand" />
-                  <span className="text-[0.65rem] font-black uppercase tracking-[0.25em] text-neutral-400">Loading projects...</span>
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="aspect-[4/3] rounded-[2.5rem] bg-neutral-100" />
+                      <div className="mt-8 h-6 w-3/4 rounded-lg bg-neutral-100" />
+                      <div className="mt-2 h-4 w-1/2 rounded-lg bg-neutral-100" />
+                    </div>
+                  ))}
                 </motion.div>
               ) : filtered.length === 0 ? (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -232,7 +239,7 @@ export default function Projects() {
                   </div>
                   <h3 className="text-xl font-black text-neutral-950">No matches found</h3>
                   <p className="mt-2 text-neutral-500">Adjust your filters to explore our full portfolio.</p>
-                  <button 
+                  <button
                     onClick={() => { setLocation(FILTER_ALL); setSector(FILTER_ALL); setYear(FILTER_ALL); }}
                     className="mt-8 text-sm font-black uppercase tracking-widest text-brand hover:text-brand-dark"
                   >

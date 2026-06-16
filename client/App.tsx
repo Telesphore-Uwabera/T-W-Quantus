@@ -25,11 +25,13 @@ const Admin = lazy(() => import("./pages/Admin"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30 * 60 * 1000, // 30 minutes — match server cache, serve cached data instantly
+      staleTime: 2 * 60 * 1000, // 2 minutes — balance freshness with performance
       gcTime: 60 * 60 * 1000, // 60 minutes — keep unused data in memory longer
-      retry: 2, // retry twice on failure (helps with Render cold starts)
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000), // exponential backoff, max 5s
+      retry: 3, // retry three times on failure (helps with Render cold starts)
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // exponential backoff, max 10s
       refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+      refetchOnMount: true,
     },
   },
 });
@@ -104,6 +106,16 @@ function PageLoader() {
 function Shell() {
   const location = useLocation();
   const hideFloating = location.pathname.startsWith("/admin");
+
+  // Prefetch data on route prediction
+  useEffect(() => {
+    if (location.pathname === "/") {
+      // Prefetch projects and perspectives when on home page
+      queryClient.prefetchQuery({ queryKey: ["projects", "published", "home"], queryFn: fetchPublishedProjects });
+      queryClient.prefetchQuery({ queryKey: ["perspectives", "public"], queryFn: fetchPublishedPerspectives });
+    }
+  }, [location.pathname]);
+
   return (
     <>
       <AnimatedRoutes />
@@ -112,16 +124,33 @@ function Shell() {
   );
 }
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Shell />
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  // Register service worker for offline caching
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('ServiceWorker registration successful');
+          })
+          .catch((error) => {
+            console.log('ServiceWorker registration failed:', error);
+          });
+      });
+    }
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Shell />
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 createRoot(document.getElementById("root")!).render(<App />);

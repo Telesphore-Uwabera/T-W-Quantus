@@ -28,6 +28,8 @@ export default function Index() {
   const { data: projects = [], isLoading: isProjectsLoading, isError: isProjectsError } = useQuery<ProjectDoc[]>({
     queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes for fresh data
+    refetchIntervalInBackground: true,
   });
 
   // Latest 4 projects for the home page
@@ -49,11 +51,15 @@ export default function Index() {
   const { data: newsData, isLoading: isNewsLoading, isError: isNewsError } = useQuery({
     queryKey: ["news", "services", "home"],
     queryFn: () => fetchServiceNews(),
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes for fresh data
+    refetchIntervalInBackground: true,
   });
 
   const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading, isError: isPerspectivesError } = useQuery({
     queryKey: ["perspectives", "public"],
     queryFn: fetchPublishedPerspectives,
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes for fresh data
+    refetchIntervalInBackground: true,
   });
 
   const hasPerspectiveContent = dynamicPerspectives.length > 0;
@@ -281,6 +287,11 @@ export default function Index() {
               </div>
             </div>
           ))
+        ) : latestProjects.length === 0 ? (
+          <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
+            <Loader2 className="h-10 w-10 animate-spin text-brand mb-4" />
+            <span className="text-[0.65rem] font-black uppercase tracking-[0.25em] text-neutral-400">Loading projects...</span>
+          </div>
         ) : (
           latestProjects.map((project, index) => {
           const toLink = project.slug ? `/projects/${encodeURIComponent(project.slug)}` : "/projects";
@@ -368,13 +379,20 @@ export default function Index() {
               {isLoading ? (
                 <motion.div
                   key="loading"
-                  className="flex flex-col items-center justify-center py-24 text-neutral-500 gap-4"
+                  className="grid gap-10 md:grid-cols-2"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <Loader2 className="h-8 w-8 animate-spin text-brand" />
-                  <span className="text-[0.65rem] font-black uppercase tracking-[0.25em] text-neutral-400">Loading latest news...</span>
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="mb-6 h-4 w-20 rounded-lg bg-neutral-100" />
+                      <div className="min-h-[250px] rounded-3xl sm:min-h-[320px] lg:min-h-[370px] bg-neutral-100" />
+                      <div className="mt-9 h-4 w-1/4 rounded-lg bg-neutral-100" />
+                      <div className="mt-4 h-8 w-3/4 rounded-lg bg-neutral-100" />
+                      <div className="mt-5 h-4 w-full rounded-lg bg-neutral-100" />
+                    </div>
+                  ))}
                 </motion.div>
               ) : (
                 <motion.div
