@@ -20,15 +20,11 @@ export default function Perspectives() {
   const { data: newsData, isLoading: isNewsLoading, isError: isNewsError } = useQuery({
     queryKey: ["news", "services", "home"],
     queryFn: () => fetchServiceNews(),
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes for fresh data
-    refetchIntervalInBackground: true,
   });
 
   const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading, isError: isPerspectivesError } = useQuery({
     queryKey: ["perspectives", "public"],
     queryFn: fetchPublishedPerspectives,
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes for fresh data
-    refetchIntervalInBackground: true,
   });
   const isWaitingForPerspectives = isPerspectivesLoading && dynamicPerspectives.length === 0;
 
@@ -51,7 +47,7 @@ export default function Perspectives() {
     .slice(0, 4);
 
   const newsArticles = newsData?.articles ?? [];
-  const isWaitingForNews = isNewsLoading && newsArticles.length === 0;
+  const isWaitingForNews = isNewsLoading;
   const newsOn = newsData?.configured || isWaitingForNews;
 
   return (

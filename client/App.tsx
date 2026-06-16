@@ -25,10 +25,10 @@ const Admin = lazy(() => import("./pages/Admin"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 2 * 60 * 1000, // 2 minutes — balance freshness with performance
+      staleTime: 5 * 60 * 1000, // 5 minutes — balance freshness with performance
       gcTime: 60 * 60 * 1000, // 60 minutes — keep unused data in memory longer
-      retry: 3, // retry three times on failure (helps with Render cold starts)
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // exponential backoff, max 10s
+      retry: 1, // retry once on failure
+      retryDelay: 1000, // wait 1s before retrying
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
       refetchOnMount: true,
@@ -125,21 +125,6 @@ function Shell() {
 }
 
 const App = () => {
-  // Register service worker for offline caching
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then((registration) => {
-            console.log('ServiceWorker registration successful');
-          })
-          .catch((error) => {
-            console.log('ServiceWorker registration failed:', error);
-          });
-      });
-    }
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

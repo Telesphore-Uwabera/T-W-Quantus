@@ -28,8 +28,6 @@ export default function Index() {
   const { data: projects = [], isLoading: isProjectsLoading, isError: isProjectsError } = useQuery<ProjectDoc[]>({
     queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes for fresh data
-    refetchIntervalInBackground: true,
   });
 
   // Latest 4 projects for the home page
@@ -51,22 +49,18 @@ export default function Index() {
   const { data: newsData, isLoading: isNewsLoading, isError: isNewsError } = useQuery({
     queryKey: ["news", "services", "home"],
     queryFn: () => fetchServiceNews(),
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes for fresh data
-    refetchIntervalInBackground: true,
   });
 
   const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading, isError: isPerspectivesError } = useQuery({
     queryKey: ["perspectives", "public"],
     queryFn: fetchPublishedPerspectives,
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes for fresh data
-    refetchIntervalInBackground: true,
   });
 
   const hasPerspectiveContent = dynamicPerspectives.length > 0;
   const hasNewsContent = (newsData?.articles?.length ?? 0) > 0;
   const hasLatestContent = hasPerspectiveContent || hasNewsContent;
-  const isLoading = (isNewsLoading || isPerspectivesLoading) && !hasLatestContent;
-  const isWaitingForProjects = isProjectsLoading && projects.length === 0;
+  const isLoading = isNewsLoading || isPerspectivesLoading;
+  const isWaitingForProjects = isProjectsLoading;
 
   const perspectivesItems = dynamicPerspectives.map((p: PerspectiveDoc) => {
     const pDate = new Date(p.date);
@@ -287,11 +281,6 @@ export default function Index() {
               </div>
             </div>
           ))
-        ) : latestProjects.length === 0 ? (
-          <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
-            <Loader2 className="h-10 w-10 animate-spin text-brand mb-4" />
-            <span className="text-[0.65rem] font-black uppercase tracking-[0.25em] text-neutral-400">Loading projects...</span>
-          </div>
         ) : (
           latestProjects.map((project, index) => {
           const toLink = project.slug ? `/projects/${encodeURIComponent(project.slug)}` : "/projects";

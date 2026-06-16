@@ -110,13 +110,11 @@ function usePortfolioFilters(projects: ProjectDoc[]) {
 }
 
 export default function Projects() {
-  const { data: cmsProjects = [], isLoading, isError, isRefetching } = useQuery({
+  const { data: cmsProjects = [], isLoading, isError } = useQuery({
     queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes for fresh data
-    refetchIntervalInBackground: true,
   });
-  const isWaitingForProjects = isLoading && cmsProjects.length === 0;
+  const isWaitingForProjects = isLoading;
 
   const {
     location,
