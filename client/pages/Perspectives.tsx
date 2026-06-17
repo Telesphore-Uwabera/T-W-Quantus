@@ -7,7 +7,7 @@ import { Reveal } from "@/components/site/Reveal";
 import { company, navigation, services } from "@/data/site";
 import type { NewsArticle, PerspectiveDoc } from "@shared/cms";
 import { cn } from "@/lib/utils";
-import { fetchPublishedPerspectives, fetchServiceNews, readCachedPublicData, readCachedPublicList } from "@/lib/api";
+import { fetchPublishedPerspectives, fetchServiceNews, placeholderPublicList } from "@/lib/api";
 import { AutoSlideBackground } from "@/components/site/AutoSlideBackground";
 
 const staticImages: Record<string, string> = {
@@ -25,6 +25,7 @@ export default function Perspectives() {
   const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading, isError: isPerspectivesError } = useQuery({
     queryKey: ["perspectives", "public"],
     queryFn: fetchPublishedPerspectives,
+    placeholderData: () => placeholderPublicList<PerspectiveDoc>("/api/perspectives"),
   });
   const isWaitingForPerspectives = isPerspectivesLoading && dynamicPerspectives.length === 0;
 

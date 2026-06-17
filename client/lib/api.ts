@@ -2,7 +2,8 @@ import type { ContactSubmission, NewsArticle, ProjectDoc, SubscriptionDoc, Persp
 
 /** Netlify (or any static host): set to Render API origin, e.g. https://t-w-quantus.onrender.com — no trailing slash. */
 const API_BASE = (import.meta.env.VITE_PUBLIC_API_URL ?? "").replace(/\/$/, "");
-const FETCH_TIMEOUT_MS = 5000;
+/** Render cold starts + Mongo connect can exceed 10s; keep below React Query retry budget. */
+const FETCH_TIMEOUT_MS = 15000;
 const MUTATION_TIMEOUT_MS = 15000;
 const PUBLIC_CACHE_PREFIX = "twq_public_cache:";
 const PUBLIC_CACHE_MAX_AGE_MS = 30 * 60 * 1000;
@@ -77,13 +78,19 @@ async function readPublicList<T>(path: string): Promise<T[]> {
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error(`Invalid response for ${path}`);
 
-    writeCachedPublicData(path, data);
+    // Avoid overwriting a good cache with an empty error/degraded response.
+    if (data.length > 0) writeCachedPublicData(path, data);
     return data;
   } catch (error) {
     const cached = readCachedPublicList<T>(path);
     if (cached) return cached;
     throw error;
   }
+}
+
+/** Instant paint from localStorage while the network fetch runs or retries. */
+export function placeholderPublicList<T>(path: string): T[] {
+  return readCachedPublicList<T>(path) ?? [];
 }
 
 export async function submitContact(payload: {

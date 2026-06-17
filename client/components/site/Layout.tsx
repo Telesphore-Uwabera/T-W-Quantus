@@ -22,7 +22,7 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
 import { company, navigation, services } from "@/data/site";
-import { submitNewsletter, fetchPublishedPerspectives } from "@/lib/api";
+import { submitNewsletter, fetchPublishedPerspectives, placeholderPublicList } from "@/lib/api";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
@@ -111,6 +111,7 @@ export function Layout({ children }: LayoutProps) {
   const { data: dynamicPerspectives = [] } = useQuery({
     queryKey: ["perspectives", "public"],
     queryFn: fetchPublishedPerspectives,
+    placeholderData: () => placeholderPublicList("/api/perspectives"),
   });
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);

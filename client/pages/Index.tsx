@@ -6,7 +6,7 @@ import { Layout } from "@/components/site/Layout";
 import { Reveal } from "@/components/site/Reveal";
 import { company, navigation, services } from "@/data/site";
 import { useQuery } from "@tanstack/react-query";
-import { fetchServiceNews, fetchPublishedProjects, fetchPublishedPerspectives, readCachedPublicData, readCachedPublicList } from "@/lib/api";
+import { fetchServiceNews, fetchPublishedProjects, fetchPublishedPerspectives, placeholderPublicList } from "@/lib/api";
 import { projectGalleryUrls, type NewsArticle, type PerspectiveDoc, type ProjectDoc } from "@shared/cms";
 import { cn } from "@/lib/utils";
 import { AutoSlideBackground } from "@/components/site/AutoSlideBackground";
@@ -28,6 +28,7 @@ export default function Index() {
   const { data: projects = [], isLoading: isProjectsLoading, isError: isProjectsError } = useQuery<ProjectDoc[]>({
     queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
+    placeholderData: () => placeholderPublicList<ProjectDoc>("/api/projects"),
   });
 
   // Latest 4 projects for the home page
@@ -54,6 +55,7 @@ export default function Index() {
   const { data: dynamicPerspectives = [], isLoading: isPerspectivesLoading, isError: isPerspectivesError } = useQuery({
     queryKey: ["perspectives", "public"],
     queryFn: fetchPublishedPerspectives,
+    placeholderData: () => placeholderPublicList<PerspectiveDoc>("/api/perspectives"),
   });
 
   const hasPerspectiveContent = dynamicPerspectives.length > 0;

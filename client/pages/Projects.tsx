@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { company, projectTypes } from "@/data/site";
-import { fetchPublishedProjects, readCachedPublicList } from "@/lib/api";
+import { fetchPublishedProjects, placeholderPublicList } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { isValidProjectSector, PROJECT_SECTORS, projectGalleryUrls, type ProjectDoc } from "@shared/cms";
 import { AutoSlideBackground } from "@/components/site/AutoSlideBackground";
@@ -113,6 +113,7 @@ export default function Projects() {
   const { data: cmsProjects = [], isLoading, isError } = useQuery({
     queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
+    placeholderData: () => placeholderPublicList<ProjectDoc>("/api/projects"),
   });
   const isWaitingForProjects = isLoading && cmsProjects.length === 0;
 

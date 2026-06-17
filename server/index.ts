@@ -11,7 +11,7 @@ export function createServer() {
 
   app.use(cors());
   app.use("/api", (req, res, next) => {
-    const timeoutMs = req.method === "GET" || req.path === "/contact" || req.path === "/newsletter" ? 3000 : 15000;
+    const timeoutMs = 15000;
     res.setTimeout(timeoutMs, () => {
       if (!res.headersSent) {
         res.status(504).json({ error: "Request timed out" });
