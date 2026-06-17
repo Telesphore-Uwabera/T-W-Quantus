@@ -10,7 +10,8 @@
     "start": "node dist/server/node-build.mjs",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "create-indexes": "tsx server/scripts/createIndexes.ts"
   },
   "dependencies": {
     "cloudinary": "^2.10.0",

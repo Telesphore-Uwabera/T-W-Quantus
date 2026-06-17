@@ -172,18 +172,35 @@ async function loadNews() {
 export function createPublicApiRouter() {
   const r = Router();
 
-  r.get("/projects", async (_req, res) => {
+  r.get("/projects", async (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=3600");
     try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const skip = (page - 1) * limit;
+
       const db = await getDb();
       const list = await db
         .collection("projects")
         .find({ published: true })
+        .project({ title: 1, slug: 1, summary: 1, location: 1, sector: 1, year: 1, imageUrl: 1, imageUrls: 1, sortOrder: 1, createdAt: 1, startDate: 1, published: 1 })
         .maxTimeMS(DB_MAX_TIME_MS)
         .sort({ sortOrder: 1, createdAt: -1 })
-        .limit(PUBLIC_LIST_LIMIT)
+        .skip(skip)
+        .limit(limit)
         .toArray();
-      res.json(list.map((doc) => serializeProject(doc)).filter(Boolean));
+
+      const total = await db.collection("projects").countDocuments({ published: true });
+
+      res.json({
+        items: list.map((doc) => serializeProject(doc)).filter(Boolean),
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       if (msg.includes("MONGODB_URI")) {
@@ -220,23 +237,40 @@ export function createPublicApiRouter() {
     }
   });
 
-  r.get("/perspectives", async (_req, res) => {
+  r.get("/perspectives", async (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=3600");
     try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const skip = (page - 1) * limit;
+
       const db = await getDb();
       const list = await db
         .collection("perspectives")
         .find({ published: true })
+        .project({ title: 1, slug: 1, summary: 1, category: 1, date: 1, imageUrl: 1, imageUrls: 1, createdAt: 1, published: 1 })
         .maxTimeMS(DB_MAX_TIME_MS)
         .sort({ sortOrder: 1, createdAt: -1 })
-        .limit(PUBLIC_LIST_LIMIT)
+        .skip(skip)
+        .limit(limit)
         .toArray();
-      res.json(list.map((doc) => serializePerspective(doc)).filter(Boolean));
+
+      const total = await db.collection("perspectives").countDocuments({ published: true });
+
+      res.json({
+        items: list.map((doc) => serializePerspective(doc)).filter(Boolean),
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       // Return empty array on database errors instead of 500, allowing graceful fallback
       if (msg.includes("MONGODB_URI") || msg.includes("timed out") || msg.includes("MongoServerSelection")) {
-        res.status(200).json([]);
+        res.status(200).json({ items: [], pagination: { page: 1, limit: 20, total: 0, totalPages: 0 } });
         return;
       }
       res.status(500).json({ error: msg });

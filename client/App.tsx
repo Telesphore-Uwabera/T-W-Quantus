@@ -32,6 +32,7 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
       refetchOnMount: true,
+      networkMode: 'always', // Always attempt to fetch, even if offline
     },
   },
 });
