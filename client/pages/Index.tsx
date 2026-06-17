@@ -60,7 +60,7 @@ export default function Index() {
   const hasNewsContent = (newsData?.articles?.length ?? 0) > 0;
   const hasLatestContent = hasPerspectiveContent || hasNewsContent;
   const isLoading = isNewsLoading || isPerspectivesLoading;
-  const isWaitingForProjects = isProjectsLoading;
+  const isWaitingForProjects = isProjectsLoading && projects.length === 0;
 
   const perspectivesItems = dynamicPerspectives.map((p: PerspectiveDoc) => {
     const pDate = new Date(p.date);

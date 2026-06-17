@@ -114,7 +114,7 @@ export default function Projects() {
     queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
   });
-  const isWaitingForProjects = isLoading;
+  const isWaitingForProjects = isLoading && cmsProjects.length === 0;
 
   const {
     location,

@@ -47,7 +47,7 @@ export default function Perspectives() {
     .slice(0, 4);
 
   const newsArticles = newsData?.articles ?? [];
-  const isWaitingForNews = isNewsLoading;
+  const isWaitingForNews = isNewsLoading && newsArticles.length === 0;
   const newsOn = newsData?.configured || isWaitingForNews;
 
   return (

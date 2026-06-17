@@ -25,11 +25,11 @@ const Admin = lazy(() => import("./pages/Admin"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes — balance freshness with performance
+      staleTime: 0, // Data is always stale, refetch on every access
       gcTime: 60 * 60 * 1000, // 60 minutes — keep unused data in memory longer
-      retry: 1, // retry once on failure
+      retry: 3, // retry three times on failure
       retryDelay: 1000, // wait 1s before retrying
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: true,
       refetchOnReconnect: true,
       refetchOnMount: true,
       networkMode: 'always', // Always attempt to fetch, even if offline
