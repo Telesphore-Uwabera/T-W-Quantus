@@ -2,9 +2,9 @@ import type { ContactSubmission, NewsArticle, ProjectDoc, SubscriptionDoc, Persp
 
 /** Netlify (or any static host): set to Render API origin, e.g. https://t-w-quantus.onrender.com — no trailing slash. */
 const API_BASE = (import.meta.env.VITE_PUBLIC_API_URL ?? "").replace(/\/$/, "");
-/** Render cold starts + Mongo connect can exceed 10s; keep below React Query retry budget. */
-const FETCH_TIMEOUT_MS = 15000;
-const MUTATION_TIMEOUT_MS = 15000;
+/** Render cold starts + Mongo connect can exceed 15s on first wake; keep below React Query retry budget. */
+const FETCH_TIMEOUT_MS = 20000;
+const MUTATION_TIMEOUT_MS = 20000;
 const PUBLIC_CACHE_PREFIX = "twq_public_cache:";
 const PUBLIC_CACHE_MAX_AGE_MS = 30 * 60 * 1000;
 
@@ -73,17 +73,19 @@ function writeCachedPublicData<T>(path: string, data: T): void {
 async function readPublicList<T>(path: string): Promise<T[]> {
   try {
     const res = await fetchWithTimeout(apiUrl(path));
-    if (!res.ok) throw new Error(`Failed to load ${path}`);
+    // Treat non-2xx as an error so React Query retries and falls back to cache.
+    if (!res.ok) throw new Error(`Failed to load ${path} (${res.status})`);
 
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error(`Invalid response for ${path}`);
 
-    // Avoid overwriting a good cache with an empty error/degraded response.
+    // Persist to localStorage for instant paint on next load.
     if (data.length > 0) writeCachedPublicData(path, data);
     return data;
   } catch (error) {
+    // Serve stale localStorage cache so the UI still shows something.
     const cached = readCachedPublicList<T>(path);
-    if (cached) return cached;
+    if (cached && cached.length > 0) return cached;
     throw error;
   }
 }

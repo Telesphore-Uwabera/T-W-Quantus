@@ -4,7 +4,7 @@ import { serializeProject, serializePerspective } from "../lib/projectDoc";
 
 const NEWS_CACHE_MS = 5 * 60 * 1000;
 const API_TIMEOUT_MS = 3000;
-const DB_MAX_TIME_MS = process.env.NODE_ENV === "production" ? 10000 : 2500;
+const DB_MAX_TIME_MS = 12000;
 const PUBLIC_LIST_LIMIT = 100;
 let newsCache: { at: number; articles: unknown[] } | null = null;
 
@@ -187,8 +187,12 @@ export function createPublicApiRouter() {
       res.json(list.map((doc) => serializeProject(doc)).filter(Boolean));
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      if (msg.includes("MONGODB_URI") || msg.includes("timed out") || msg.includes("MongoServerSelection")) {
-        res.status(200).json([]);
+      if (msg.includes("MONGODB_URI")) {
+        res.status(503).json({ error: "Database not configured" });
+        return;
+      }
+      if (msg.includes("timed out") || msg.includes("MongoServerSelection") || msg.includes("ECONNREFUSED")) {
+        res.status(503).json({ error: "Database temporarily unavailable. Please retry." });
         return;
       }
       res.status(500).json({ error: msg });
@@ -236,9 +240,12 @@ export function createPublicApiRouter() {
       res.json(list.map((doc) => serializePerspective(doc)).filter(Boolean));
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      // Return empty array on database errors instead of 500, allowing graceful fallback
-      if (msg.includes("MONGODB_URI") || msg.includes("timed out") || msg.includes("MongoServerSelection")) {
-        res.status(200).json([]);
+      if (msg.includes("MONGODB_URI")) {
+        res.status(503).json({ error: "Database not configured" });
+        return;
+      }
+      if (msg.includes("timed out") || msg.includes("MongoServerSelection") || msg.includes("ECONNREFUSED")) {
+        res.status(503).json({ error: "Database temporarily unavailable. Please retry." });
         return;
       }
       res.status(500).json({ error: msg });

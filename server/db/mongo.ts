@@ -9,12 +9,12 @@ export async function getDb(): Promise<Db> {
     throw new Error("MONGODB_URI is not set");
   }
   if (!db) {
-    const isProduction = process.env.NODE_ENV === "production";
+    // Always use generous timeouts — Render cold starts + Atlas wake-up can take 10–15s.
+    // A 3s timeout in "dev" mode would silently fail on a cold Render instance.
     client = new MongoClient(uri, {
-      connectTimeoutMS: isProduction ? 10000 : 3000,
-      serverSelectionTimeoutMS: isProduction ? 10000 : 3000,
-      socketTimeoutMS: isProduction ? 10000 : 3000,
-      timeoutMS: isProduction ? 10000 : 3000,
+      connectTimeoutMS: 15000,
+      serverSelectionTimeoutMS: 15000,
+      socketTimeoutMS: 15000,
       maxPoolSize: 10,
       minPoolSize: 2,
       maxIdleTimeMS: 30000,

@@ -25,14 +25,14 @@ const Admin = lazy(() => import("./pages/Admin"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 0, // Data is always stale, refetch on every access
-      gcTime: 60 * 60 * 1000, // 60 minutes — keep unused data in memory longer
-      retry: 3, // retry three times on failure
-      retryDelay: 1000, // wait 1s before retrying
-      refetchOnWindowFocus: true,
+      staleTime: 5 * 60 * 1000,   // 5 minutes — don't refetch data that's fresh
+      gcTime: 60 * 60 * 1000,      // 60 minutes — keep unused data in memory
+      retry: 3,
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000), // exponential: 1s, 2s, 4s
+      refetchOnWindowFocus: false,  // avoid surprise refetches wiping good data
       refetchOnReconnect: true,
-      refetchOnMount: true,
-      networkMode: 'always', // Always attempt to fetch, even if offline
+      refetchOnMount: false,        // use cache first; prefetch covers initial load
+      networkMode: 'always',
     },
   },
 });
@@ -107,15 +107,6 @@ function PageLoader() {
 function Shell() {
   const location = useLocation();
   const hideFloating = location.pathname.startsWith("/admin");
-
-  // Prefetch data on route prediction
-  useEffect(() => {
-    if (location.pathname === "/") {
-      // Prefetch projects and perspectives when on home page
-      queryClient.prefetchQuery({ queryKey: ["projects", "published", "home"], queryFn: fetchPublishedProjects });
-      queryClient.prefetchQuery({ queryKey: ["perspectives", "public"], queryFn: fetchPublishedPerspectives });
-    }
-  }, [location.pathname]);
 
   return (
     <>
