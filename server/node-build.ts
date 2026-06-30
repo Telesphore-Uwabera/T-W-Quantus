@@ -26,6 +26,23 @@ app.listen(port, () => {
   console.log(`🚀 Fusion Starter server running on port ${port}`);
   console.log(`📱 Frontend: http://localhost:${port}`);
   console.log(`🔧 API: http://localhost:${port}/api`);
+
+  // ── Keep-alive: self-ping every 15 min to prevent Render free tier sleep ──
+  const PING_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
+  const selfPingUrl = `http://localhost:${port}/api/ping`;
+
+  setInterval(async () => {
+    try {
+      const res = await fetch(selfPingUrl);
+      console.log(`[keep-alive] self-ping → ${res.status}`);
+    } catch (err) {
+      console.warn(`[keep-alive] self-ping failed:`, err);
+    }
+  }, PING_INTERVAL_MS);
+
+  console.log(
+    `⏰ Keep-alive self-ping scheduled every 15 min → ${selfPingUrl}`,
+  );
 });
 
 // Graceful shutdown
