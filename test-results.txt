@@ -1,0 +1,52 @@
+﻿═══════════════════════════════════════════════
+  T&W QUANTUS API TEST SUITE
+═══════════════════════════════════════════════
+FAIL  [ping] returns message
+FAIL  [projects list] is array
+FAIL  [projects list] has items
+FAIL  [projects list] under 500ms
+  --> 0 projects in 4091ms
+FAIL  [project detail] returns object
+FAIL  [project detail] has description
+FAIL  [project detail] has clientName
+FAIL  [project detail] has startDate
+FAIL  [project detail] has endDate
+FAIL  [project detail] has imageUrls
+FAIL  [project detail] under 100ms
+  --> '' in 4099ms
+FAIL  [project 404] returns 404
+FAIL  [project 404] under 100ms
+  --> 404 in 4122ms
+FAIL  [perspectives list] is array
+FAIL  [perspectives list] has items
+FAIL  [perspectives list] under 500ms
+  --> 0 perspectives in 4090ms
+FAIL  [perspective detail] returns object
+FAIL  [perspective detail] has content
+PASS  [perspective detail] has category
+PASS  [perspective detail] has date
+FAIL  [perspective detail] has imageUrls
+FAIL  [perspective detail] under 100ms
+  --> '' in 4104ms
+FAIL  [perspective 404] returns 404
+FAIL  [perspective 404] under 100ms
+  --> 404 in 4105ms
+FAIL  [news] returns articles array
+FAIL  [news] has articles
+FAIL  [news] configured=true
+FAIL  [news] under 500ms
+  --> 0 articles in 4075ms
+FAIL  [news/services] returns articles
+FAIL  [news/services] under 500ms
+  --> 0 service articles in 4088ms
+PASS  [news/services?service=quantity-surveying] service field matches
+  --> 0 articles for quantity-surveying
+PASS  [news/services?service=construction-management] service field matches
+  --> 0 articles for construction-management
+PASS  [news/services?service=project-management] service field matches
+  --> 0 articles for project-management
+PASS  [news/services?service=construction-technical-services] service field matches
+  --> 0 articles for construction-technical-services
+═══════════════════════════════════════════════
+  RESULTS: 6 PASSED | 28 FAILED | total 34
+═══════════════════════════════════════════════

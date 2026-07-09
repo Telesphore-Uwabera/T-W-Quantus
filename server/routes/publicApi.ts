@@ -81,6 +81,7 @@ function filterServiceNews(articles: NewsArticle[], service?: ServiceSlug): News
 
 export function createPublicApiRouter() {
   const r = Router();
+  const BOOT_TIME = Date.now(); // used to gate DB fallback to boot grace window
 
   // ── GET /projects — served from background cache (instant) ────────────────
   r.get("/projects", (_req, res) => {
@@ -90,7 +91,7 @@ export function createPublicApiRouter() {
     res.json(projects);
   });
 
-  // ── GET /projects/:slug — cache-first, live DB fallback ─────────────────
+  // ── GET /projects/:slug — cache-first, 404 guard, boot-only DB fallback ──
   r.get("/projects/:slug", async (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=120, stale-while-revalidate=300");
     const slug = String(req.params.slug ?? "").trim();
@@ -99,14 +100,22 @@ export function createPublicApiRouter() {
       return;
     }
 
-    // Serve from the slug map (covers 99% of requests — instant, no DB)
+    // ① Hit — return from slug map immediately (no DB)
     const hit = getCachedProjectBySlug(slug);
     if (hit) {
       res.json(hit);
       return;
     }
 
-    // Cache miss — item was just published before the next background tick
+    // ② Miss — only attempt a live DB fallback in the first 30 s after boot
+    //    (covers the window before the initial warm-up finishes).
+    //    After that the cache is authoritative: miss = 404, no DB call at all.
+    const BOOT_GRACE_MS = 30_000;
+    if (Date.now() - BOOT_TIME > BOOT_GRACE_MS) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+
     try {
       const db = await getDb();
       const doc = await db
@@ -135,7 +144,7 @@ export function createPublicApiRouter() {
     res.json(perspectives);
   });
 
-  // ── GET /perspectives/:slug — cache-first, live DB fallback ─────────────
+  // ── GET /perspectives/:slug — cache-first, 404 guard, boot-only DB fallback
   r.get("/perspectives/:slug", async (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=120, stale-while-revalidate=300");
     const slug = String(req.params.slug ?? "").trim();
@@ -144,14 +153,20 @@ export function createPublicApiRouter() {
       return;
     }
 
-    // Serve from the slug map (covers 99% of requests — instant, no DB)
+    // ① Hit — return from slug map immediately
     const hit = getCachedPerspectiveBySlug(slug);
     if (hit) {
       res.json(hit);
       return;
     }
 
-    // Cache miss — item was just published before the next background tick
+    // ② Miss — only use DB fallback within 30 s of boot; after that, 404 instantly
+    const BOOT_GRACE_MS = 30_000;
+    if (Date.now() - BOOT_TIME > BOOT_GRACE_MS) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+
     try {
       const db = await getDb();
       const doc = await db
