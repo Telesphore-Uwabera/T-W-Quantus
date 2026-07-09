@@ -1,6 +1,7 @@
 import path from "node:path";
 import { createServer } from "./index";
 import * as express from "express";
+import { startDataCache } from "./lib/dataCache";
 
 const app = createServer();
 const port = process.env.PORT || 3000;
@@ -27,8 +28,14 @@ app.listen(port, () => {
   console.log(`📱 Frontend: http://localhost:${port}`);
   console.log(`🔧 API: http://localhost:${port}/api`);
 
-  // ── Keep-alive: self-ping every 15 min to prevent Render free tier sleep ──
-  const PING_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
+  // ── Background data cache: warm-up + continuous polling ───────────────────
+  // Projects + perspectives refresh every 2 min, news every 5 min.
+  // Data is ready in RAM before any visitor arrives — zero cold-start delay.
+  startDataCache();
+
+  // ── Keep-alive: self-ping every 14 min to prevent Render free tier sleep ──
+  // (Slightly under 15 min so Render doesn't kill the instance between pings)
+  const PING_INTERVAL_MS = 14 * 60 * 1000;
   const selfPingUrl = `http://localhost:${port}/api/ping`;
 
   setInterval(async () => {

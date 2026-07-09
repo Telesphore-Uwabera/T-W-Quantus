@@ -1,21 +1,33 @@
+/**
+ * publicApi.ts — Public-facing read-only API.
+ *
+ * ALL read endpoints — list pages, home-page sections, AND individual detail
+ * pages — are served from the in-memory background cache in dataCache.ts.
+ * Zero DB round-trip on any public request. Data is pre-warmed on boot and
+ * continuously refreshed every 2 min (projects/perspectives) / 5 min (news).
+ *
+ * Cache-miss fallback: if an item isn't in the slug map yet (brand-new publish
+ * before the next poll), the route falls back to a live DB query so nothing
+ * is ever "missing" immediately after publishing.
+ *
+ * Write endpoints (POST /contact, /newsletter) always go live to the DB.
+ */
+
 import { Router } from "express";
 import { getDb } from "../db/mongo";
 import { serializeProject, serializePerspective } from "../lib/projectDoc";
+import {
+  getCachedProjects,
+  getCachedPerspectives,
+  getCachedProjectBySlug,
+  getCachedPerspectiveBySlug,
+  getCachedNews,
+  type NewsArticle,
+} from "../lib/dataCache";
 
-const NEWS_CACHE_MS = 5 * 60 * 1000;
-const API_TIMEOUT_MS = 3000;
 const DB_MAX_TIME_MS = 12000;
-const PUBLIC_LIST_LIMIT = 100;
-let newsCache: { at: number; articles: unknown[] } | null = null;
 
-type NewsArticle = {
-  title: string;
-  description: string;
-  url: string;
-  urlToImage?: string;
-  publishedAt: string;
-  source?: string;
-};
+// ─── Service-news keyword filter ──────────────────────────────────────────────
 
 type ServiceSlug =
   | "quantity-surveying"
@@ -25,76 +37,34 @@ type ServiceSlug =
 
 const SERVICE_NEWS_KEYWORDS: Record<ServiceSlug, string[]> = {
   "quantity-surveying": [
-    "quantity surveying",
-    "cost plan",
-    "cost planning",
-    "cost estimate",
-    "cost control",
-    "bill of quantities",
-    "boq",
-    "final account",
-    "variation",
-    "valuation",
-    "measurement",
+    "quantity surveying", "cost plan", "cost planning", "cost estimate",
+    "cost control", "bill of quantities", "boq", "final account",
+    "variation", "valuation", "measurement",
   ],
   "construction-management": [
-    "construction management",
-    "site supervision",
-    "site coordination",
-    "quality assurance",
-    "quality control",
-    "hse",
-    "health and safety",
-    "safety",
-    "program",
-    "programme",
-    "schedule",
-    "milestone",
+    "construction management", "site supervision", "site coordination",
+    "quality assurance", "quality control", "hse", "health and safety",
+    "safety", "program", "programme", "schedule", "milestone",
   ],
   "project-management": [
-    "project management",
-    "feasibility",
-    "stakeholder",
-    "procurement",
-    "tender",
-    "contract",
-    "risk management",
-    "commissioning",
-    "handover",
+    "project management", "feasibility", "stakeholder", "procurement",
+    "tender", "contract", "risk management", "commissioning", "handover",
   ],
   "construction-technical-services": [
-    "construction",
-    "civil",
-    "structural",
-    "infrastructure",
-    "mep",
-    "mechanical",
-    "electrical",
-    "hvac",
-    "plumbing",
-    "fire system",
-    "renovation",
-    "repairs",
-    "fit-out",
-    "materials",
-    "building",
-    "architecture",
-    "engineering",
-    "urban development",
-    "real estate",
-    "housing",
+    "construction", "civil", "structural", "infrastructure", "mep",
+    "mechanical", "electrical", "hvac", "plumbing", "fire system",
+    "renovation", "repairs", "fit-out", "materials", "building",
+    "architecture", "engineering", "urban development", "real estate", "housing",
   ],
 };
 
 const SERVICE_SLUGS = Object.keys(SERVICE_NEWS_KEYWORDS) as ServiceSlug[];
 
 function normalizeText(v: unknown): string {
-  if (!v || typeof v !== "string") return "";
-  return v.toLowerCase();
+  return typeof v === "string" ? v.toLowerCase() : "";
 }
 
 function matchesAny(text: string, needles: string[]): boolean {
-  if (!text) return false;
   return needles.some((k) => text.includes(k.toLowerCase()));
 }
 
@@ -107,108 +77,41 @@ function filterServiceNews(articles: NewsArticle[], service?: ServiceSlug): News
   });
 }
 
-async function fetchWithTimeout(input: string, init?: RequestInit, timeoutMs = API_TIMEOUT_MS): Promise<Response> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    return await fetch(input, { ...init, signal: init?.signal ?? controller.signal });
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
-async function loadNews() {
-  const key = process.env.NEWS_API_KEY;
-  if (!key) {
-    return { articles: [], configured: false as const };
-  }
-  if (newsCache && Date.now() - newsCache.at < NEWS_CACHE_MS) {
-    return { articles: newsCache.articles, configured: true as const, cached: true as const };
-  }
-  const q = [
-    "construction industry",
-    "quantity surveying",
-    "civil engineering",
-    "infrastructure project",
-    "building development Africa",
-    "real estate Rwanda",
-    "construction management",
-  ].join(" OR ");
-  const url = new URL("https://newsapi.org/v2/everything");
-  url.searchParams.set("q", q);
-  url.searchParams.set("language", "en");
-  url.searchParams.set("sortBy", "publishedAt");
-  url.searchParams.set("pageSize", "100");
-  url.searchParams.set("apiKey", key);
-  const res = await fetchWithTimeout(url.toString());
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`NewsAPI ${res.status}: ${text}`);
-  }
-  const data = (await res.json()) as {
-    articles?: Array<{
-      title: string;
-      description?: string;
-      url: string;
-      urlToImage?: string;
-      publishedAt: string;
-      source?: { name?: string };
-    }>;
-  };
-  const articles: NewsArticle[] = (data.articles ?? [])
-    .filter(a => a.urlToImage && a.urlToImage.startsWith('http')) // Only articles with images
-    .map((a) => ({
-      title: a.title,
-      description: a.description ?? "",
-      url: a.url,
-      urlToImage: a.urlToImage,
-      publishedAt: a.publishedAt,
-      source: a.source?.name,
-    }));
-  newsCache = { at: Date.now(), articles };
-  return { articles, configured: true as const };
-}
+// ─── Router ───────────────────────────────────────────────────────────────────
 
 export function createPublicApiRouter() {
   const r = Router();
 
-  r.get("/projects", async (_req, res) => {
-    res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=3600");
-    try {
-      const db = await getDb();
-      const list = await db
-        .collection("projects")
-        .find({ published: true })
-        .project({ title: 1, slug: 1, summary: 1, location: 1, sector: 1, year: 1, imageUrl: 1, imageUrls: 1, sortOrder: 1, createdAt: 1, startDate: 1, published: 1 })
-        .maxTimeMS(DB_MAX_TIME_MS)
-        .sort({ sortOrder: 1, createdAt: -1 })
-        .limit(PUBLIC_LIST_LIMIT)
-        .toArray();
-      res.json(list.map((doc) => serializeProject(doc)).filter(Boolean));
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      if (msg.includes("MONGODB_URI")) {
-        res.status(503).json({ error: "Database not configured" });
-        return;
-      }
-      if (msg.includes("timed out") || msg.includes("MongoServerSelection") || msg.includes("ECONNREFUSED")) {
-        res.status(503).json({ error: "Database temporarily unavailable. Please retry." });
-        return;
-      }
-      res.status(500).json({ error: msg });
-    }
+  // ── GET /projects — served from background cache (instant) ────────────────
+  r.get("/projects", (_req, res) => {
+    // Short max-age: the real freshness is guaranteed by the server-side poller.
+    res.setHeader("Cache-Control", "public, max-age=120, stale-while-revalidate=300");
+    const projects = getCachedProjects();
+    res.json(projects);
   });
 
+  // ── GET /projects/:slug — cache-first, live DB fallback ─────────────────
   r.get("/projects/:slug", async (req, res) => {
-    res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=3600");
+    res.setHeader("Cache-Control", "public, max-age=120, stale-while-revalidate=300");
+    const slug = String(req.params.slug ?? "").trim();
+    if (!slug) {
+      res.status(400).json({ error: "Invalid slug" });
+      return;
+    }
+
+    // Serve from the slug map (covers 99% of requests — instant, no DB)
+    const hit = getCachedProjectBySlug(slug);
+    if (hit) {
+      res.json(hit);
+      return;
+    }
+
+    // Cache miss — item was just published before the next background tick
     try {
-      const slug = String(req.params.slug ?? "").trim();
-      if (!slug) {
-        res.status(400).json({ error: "Invalid slug" });
-        return;
-      }
       const db = await getDb();
-      const doc = await db.collection("projects").findOne({ slug, published: true }, { maxTimeMS: DB_MAX_TIME_MS });
+      const doc = await db
+        .collection("projects")
+        .findOne({ slug, published: true }, { maxTimeMS: DB_MAX_TIME_MS });
       const out = serializeProject(doc);
       if (!out) {
         res.status(404).json({ error: "Not found" });
@@ -225,43 +128,35 @@ export function createPublicApiRouter() {
     }
   });
 
-  r.get("/perspectives", async (_req, res) => {
-    res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=3600");
-    try {
-      const db = await getDb();
-      const list = await db
-        .collection("perspectives")
-        .find({ published: true })
-        .project({ title: 1, slug: 1, summary: 1, category: 1, date: 1, imageUrl: 1, imageUrls: 1, createdAt: 1, published: 1 })
-        .maxTimeMS(DB_MAX_TIME_MS)
-        .sort({ sortOrder: 1, createdAt: -1 })
-        .limit(PUBLIC_LIST_LIMIT)
-        .toArray();
-      res.json(list.map((doc) => serializePerspective(doc)).filter(Boolean));
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      if (msg.includes("MONGODB_URI")) {
-        res.status(503).json({ error: "Database not configured" });
-        return;
-      }
-      if (msg.includes("timed out") || msg.includes("MongoServerSelection") || msg.includes("ECONNREFUSED")) {
-        res.status(503).json({ error: "Database temporarily unavailable. Please retry." });
-        return;
-      }
-      res.status(500).json({ error: msg });
-    }
+  // ── GET /perspectives — served from background cache (instant) ────────────
+  r.get("/perspectives", (_req, res) => {
+    res.setHeader("Cache-Control", "public, max-age=120, stale-while-revalidate=300");
+    const perspectives = getCachedPerspectives();
+    res.json(perspectives);
   });
 
+  // ── GET /perspectives/:slug — cache-first, live DB fallback ─────────────
   r.get("/perspectives/:slug", async (req, res) => {
-    res.setHeader("Cache-Control", "public, max-age=1800, stale-while-revalidate=3600");
+    res.setHeader("Cache-Control", "public, max-age=120, stale-while-revalidate=300");
+    const slug = String(req.params.slug ?? "").trim();
+    if (!slug) {
+      res.status(400).json({ error: "Invalid slug" });
+      return;
+    }
+
+    // Serve from the slug map (covers 99% of requests — instant, no DB)
+    const hit = getCachedPerspectiveBySlug(slug);
+    if (hit) {
+      res.json(hit);
+      return;
+    }
+
+    // Cache miss — item was just published before the next background tick
     try {
-      const slug = String(req.params.slug ?? "").trim();
-      if (!slug) {
-        res.status(400).json({ error: "Invalid slug" });
-        return;
-      }
       const db = await getDb();
-      const doc = await db.collection("perspectives").findOne({ slug, published: true }, { maxTimeMS: DB_MAX_TIME_MS });
+      const doc = await db
+        .collection("perspectives")
+        .findOne({ slug, published: true }, { maxTimeMS: DB_MAX_TIME_MS });
       const out = serializePerspective(doc);
       if (!out) {
         res.status(404).json({ error: "Not found" });
@@ -270,7 +165,6 @@ export function createPublicApiRouter() {
       res.json(out);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      // Return 503 Service Unavailable on database errors instead of 500
       if (msg.includes("MONGODB_URI") || msg.includes("timed out") || msg.includes("MongoServerSelection")) {
         res.status(503).json({ error: "Database temporarily unavailable" });
         return;
@@ -279,6 +173,7 @@ export function createPublicApiRouter() {
     }
   });
 
+  // ── POST /contact ─────────────────────────────────────────────────────────
   r.post("/contact", async (req, res) => {
     try {
       const { name, email, phone, service, message } = req.body ?? {};
@@ -289,12 +184,12 @@ export function createPublicApiRouter() {
       const db = await getDb();
       const now = new Date();
       const doc = {
-        name: String(name).trim(),
-        email: String(email).trim(),
-        phone: phone ? String(phone).trim() : "",
+        name:    String(name).trim(),
+        email:   String(email).trim(),
+        phone:   phone   ? String(phone).trim()   : "",
         service: service ? String(service).trim() : "",
         message: String(message).trim(),
-        source: "contact_page",
+        source:  "contact_page",
         createdAt: now,
       };
       const result = await db.collection("contacts").insertOne(doc);
@@ -309,6 +204,7 @@ export function createPublicApiRouter() {
     }
   });
 
+  // ── POST /newsletter ──────────────────────────────────────────────────────
   r.post("/newsletter", async (req, res) => {
     try {
       const email = req.body?.email;
@@ -320,12 +216,15 @@ export function createPublicApiRouter() {
       const now = new Date();
       try {
         await db.collection("subscriptions").insertOne({
-          email: email.trim().toLowerCase(),
-          source: "footer_newsletter",
+          email:     email.trim().toLowerCase(),
+          source:    "footer_newsletter",
           createdAt: now,
         });
       } catch (err: unknown) {
-        const code = err && typeof err === "object" && "code" in err ? (err as { code: number }).code : 0;
+        const code =
+          err && typeof err === "object" && "code" in err
+            ? (err as { code: number }).code
+            : 0;
         if (code === 11000) {
           res.json({ ok: true, duplicate: true });
           return;
@@ -343,49 +242,30 @@ export function createPublicApiRouter() {
     }
   });
 
-  r.get("/news", async (_req, res) => {
+  // ── GET /news — full feed from background cache ───────────────────────────
+  r.get("/news", (_req, res) => {
     res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
-    try {
-      const result = await loadNews();
-      res.json(result);
-    } catch (e) {
-      res.status(502).json({
-        error: e instanceof Error ? e.message : String(e),
-        articles: [],
-        configured: !!process.env.NEWS_API_KEY,
-      });
-    }
+    res.json(getCachedNews());
   });
 
-  /**
-   * Service-related news only (used by Perspectives & News).
-   * Optional `?service=<slug>` further narrows the feed to a single service pillar.
-   */
-  r.get("/news/services", async (req, res) => {
+  // ── GET /news/services — filtered feed from background cache ─────────────
+  r.get("/news/services", (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
-    try {
-      const serviceParam = typeof req.query.service === "string" ? req.query.service.trim() : "";
-      const service = (SERVICE_SLUGS.includes(serviceParam as ServiceSlug)
-        ? (serviceParam as ServiceSlug)
-        : undefined);
 
-      const result = await loadNews();
-      const articles = (result.articles as NewsArticle[] | undefined) ?? [];
-      const filtered = filterServiceNews(articles, service).slice(0, 12);
+    const serviceParam =
+      typeof req.query.service === "string" ? req.query.service.trim() : "";
+    const service = SERVICE_SLUGS.includes(serviceParam as ServiceSlug)
+      ? (serviceParam as ServiceSlug)
+      : undefined;
 
-      res.json({
-        ...result,
-        articles: filtered,
-        service: service ?? null,
-      });
-    } catch (e) {
-      res.status(502).json({
-        error: e instanceof Error ? e.message : String(e),
-        articles: [],
-        configured: !!process.env.NEWS_API_KEY,
-        service: null,
-      });
-    }
+    const cached = getCachedNews();
+    const filtered = filterServiceNews(cached.articles as NewsArticle[], service).slice(0, 12);
+
+    res.json({
+      ...cached,
+      articles: filtered,
+      service: service ?? null,
+    });
   });
 
   return r;

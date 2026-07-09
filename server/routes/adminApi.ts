@@ -9,6 +9,7 @@ import { uploadProjectImageToCloudinary } from "../lib/cloudinaryUpload";
 import { getAdminEmail, getAdminJwtSecret, getAdminPassword } from "../config/adminAuthConfig";
 import { galleryFromDoc, serializeProject, serializePerspective } from "../lib/projectDoc";
 import { isValidProjectSector } from "../../shared/cms";
+import { invalidateCache } from "../lib/dataCache";
 
 const projectUpload = multer({
   storage: multer.memoryStorage(),
@@ -161,6 +162,8 @@ export function createAdminApiRouter() {
           res.status(500).json({ error: "Insert failed" });
           return;
         }
+        // Refresh the public cache immediately so the new project is visible
+        void invalidateCache("projects");
         res.json(out);
       } catch (e) {
         res.status(500).json({ error: getErrorMessage(e) });
@@ -297,6 +300,8 @@ export function createAdminApiRouter() {
           res.status(404).json({ error: "Not found" });
           return;
         }
+        // Refresh the public cache immediately so edits are visible at once
+        void invalidateCache("projects");
         res.json(out);
       } catch (e) {
         res.status(500).json({ error: getErrorMessage(e) });
@@ -317,6 +322,8 @@ export function createAdminApiRouter() {
         res.status(404).json({ error: "Not found" });
         return;
       }
+      // Refresh the public cache so the deleted project disappears immediately
+      void invalidateCache("projects");
       res.json({ ok: true });
     } catch (e) {
       res.status(500).json({ error: getErrorMessage(e) });
@@ -437,6 +444,8 @@ export function createAdminApiRouter() {
         };
         const ins = await db.collection("perspectives").insertOne(doc);
         const inserted = await db.collection("perspectives").findOne({ _id: ins.insertedId });
+        // Refresh the public cache so the new perspective is visible immediately
+        void invalidateCache("perspectives");
         res.json(serializePerspective(inserted));
       } catch (e) {
         res.status(500).json({ error: getErrorMessage(e) });
@@ -551,6 +560,8 @@ export function createAdminApiRouter() {
 
         await db.collection("perspectives").updateOne({ _id: new ObjectId(id) }, { $set: updates });
         const next = await db.collection("perspectives").findOne({ _id: new ObjectId(id) });
+        // Refresh the public cache so edits are visible immediately
+        void invalidateCache("perspectives");
         res.json(serializePerspective(next));
       } catch (e) {
         res.status(500).json({ error: getErrorMessage(e) });
@@ -567,6 +578,8 @@ export function createAdminApiRouter() {
       }
       const db = await getDb();
       await db.collection("perspectives").deleteOne({ _id: new ObjectId(id) });
+      // Refresh the public cache so the deleted perspective disappears immediately
+      void invalidateCache("perspectives");
       res.json({ ok: true });
     } catch (e) {
       res.status(500).json({ error: getErrorMessage(e) });
