@@ -216,15 +216,16 @@ export default function Projects() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="grid gap-12 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                  className="flex min-h-[60vh] flex-col items-center justify-center gap-6"
                 >
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="animate-pulse">
-                      <div className="aspect-[4/3] rounded-[2.5rem] bg-neutral-100" />
-                      <div className="mt-8 h-6 w-3/4 rounded-lg bg-neutral-100" />
-                      <div className="mt-2 h-4 w-1/2 rounded-lg bg-neutral-100" />
-                    </div>
-                  ))}
+                  <motion.div
+                    className="h-14 w-14 rounded-full border-2 border-brand border-t-transparent"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+                  />
+                  <p className="text-[0.65rem] font-black uppercase tracking-[0.3em] text-neutral-400">
+                    Loading Portfolio…
+                  </p>
                 </motion.div>
               ) : filtered.length === 0 ? (
                 <motion.div

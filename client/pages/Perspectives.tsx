@@ -80,18 +80,20 @@ export default function Perspectives() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
           <div className="grid gap-12">
             {isWaitingForPerspectives ? (
-              <div className="grid gap-12 md:grid-cols-2">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="animate-pulse">
-                    <div className="h-[250px] sm:h-[350px] lg:h-[450px] w-full rounded-[3rem] bg-neutral-100" />
-                    <div className="p-8 md:p-12">
-                      <div className="h-4 w-1/4 rounded-lg bg-neutral-100 mb-6" />
-                      <div className="h-8 w-3/4 rounded-lg bg-neutral-100 mb-4" />
-                      <div className="h-4 w-full rounded-lg bg-neutral-100" />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex min-h-[60vh] flex-col items-center justify-center gap-6"
+              >
+                <motion.div
+                  className="h-14 w-14 rounded-full border-2 border-brand border-t-transparent"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+                />
+                <p className="text-[0.65rem] font-black uppercase tracking-[0.3em] text-neutral-400">
+                  Loading Perspectives…
+                </p>
+              </motion.div>
             ) : allPerspectives.map((item, index) => {
               const isDynamic = "_id" in item;
               const slug = item.slug;
@@ -169,18 +171,20 @@ export default function Perspectives() {
             </Reveal>
 
              {isWaitingForNews ? (
-               <div className="grid gap-8 md:grid-cols-2">
-                 {Array.from({ length: 4 }).map((_, i) => (
-                   <div key={i} className="animate-pulse">
-                     <div className="aspect-[16/9] rounded-[2.5rem] bg-white/[0.02]" />
-                     <div className="p-8">
-                       <div className="h-4 w-1/4 rounded-lg bg-white/[0.02] mb-4" />
-                       <div className="h-6 w-3/4 rounded-lg bg-white/[0.02] mb-4" />
-                       <div className="h-4 w-full rounded-lg bg-white/[0.02]" />
-                     </div>
-                   </div>
-                 ))}
-               </div>
+               <motion.div
+                 initial={{ opacity: 0 }}
+                 animate={{ opacity: 1 }}
+                 className="flex min-h-[40vh] flex-col items-center justify-center gap-6"
+               >
+                 <motion.div
+                   className="h-12 w-12 rounded-full border-2 border-brand-light border-t-transparent"
+                   animate={{ rotate: 360 }}
+                   transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+                 />
+                 <p className="text-[0.65rem] font-black uppercase tracking-[0.3em] text-brand-light/60">
+                   Loading Industry News…
+                 </p>
+               </motion.div>
              ) : (
               <div className="grid gap-8 md:grid-cols-2">
                 {(newsArticles as NewsArticle[]).slice(0, 4).map((article, index) => (

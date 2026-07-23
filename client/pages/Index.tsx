@@ -274,15 +274,16 @@ export default function Index() {
 
       <section id="projects" data-header-theme="dark" className="project-strip grid bg-neutral-950 md:grid-cols-2 lg:flex">
         {isWaitingForProjects ? (
-          Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="project-card-item relative min-h-[320px] overflow-hidden p-6 sm:min-h-[380px] sm:p-8 lg:min-h-[440px] bg-neutral-900 animate-pulse">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-              <div className="relative flex h-full flex-col justify-end gap-4">
-                <div className="h-6 w-3/4 rounded-lg bg-neutral-700/50" />
-                <div className="h-4 w-1/2 rounded-lg bg-neutral-700/30" />
-              </div>
-            </div>
-          ))
+          <div className="col-span-full flex min-h-[440px] w-full flex-col items-center justify-center gap-6 bg-neutral-950">
+            <motion.div
+              className="h-14 w-14 rounded-full border-2 border-brand-light border-t-transparent"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+            />
+            <p className="text-[0.65rem] font-black uppercase tracking-[0.3em] text-brand-light/60">
+              Loading Projects…
+            </p>
+          </div>
         ) : (
           latestProjects.map((project, index) => {
           const toLink = project.slug ? `/projects/${encodeURIComponent(project.slug)}` : "/projects";
@@ -370,20 +371,19 @@ export default function Index() {
               {isLoading ? (
                 <motion.div
                   key="loading"
-                  className="grid gap-10 md:grid-cols-2"
+                  className="flex min-h-[370px] flex-col items-center justify-center gap-6"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  {Array.from({ length: 2 }).map((_, i) => (
-                    <div key={i} className="animate-pulse">
-                      <div className="mb-6 h-4 w-20 rounded-lg bg-neutral-100" />
-                      <div className="min-h-[250px] rounded-3xl sm:min-h-[320px] lg:min-h-[370px] bg-neutral-100" />
-                      <div className="mt-9 h-4 w-1/4 rounded-lg bg-neutral-100" />
-                      <div className="mt-4 h-8 w-3/4 rounded-lg bg-neutral-100" />
-                      <div className="mt-5 h-4 w-full rounded-lg bg-neutral-100" />
-                    </div>
-                  ))}
+                  <motion.div
+                    className="h-12 w-12 rounded-full border-2 border-brand border-t-transparent"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
+                  />
+                  <p className="text-[0.65rem] font-black uppercase tracking-[0.3em] text-neutral-400">
+                    Loading Perspectives…
+                  </p>
                 </motion.div>
               ) : (
                 <motion.div
