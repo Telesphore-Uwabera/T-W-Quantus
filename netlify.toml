@@ -6,6 +6,9 @@
 [build.environment]
   NODE_VERSION = "22"
   PNPM_VERSION = "10.14.0"
+  # Points the client bundle directly at the Render API so no Netlify proxy hop is needed.
+  # This must be set here (or in Netlify dashboard) because client/.env is gitignored.
+  VITE_PUBLIC_API_URL = "https://t-w-quantus.onrender.com"
 
 [functions]
   external_node_modules = ["express"]

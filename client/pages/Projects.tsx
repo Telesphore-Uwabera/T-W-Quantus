@@ -110,12 +110,14 @@ function usePortfolioFilters(projects: ProjectDoc[]) {
 }
 
 export default function Projects() {
-  const { data: cmsProjects = [], isLoading, isError } = useQuery({
+  const { data: cmsProjects = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
     placeholderData: () => placeholderPublicList<ProjectDoc>("/api/projects"),
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 15000),
   });
-  const isWaitingForProjects = isLoading && cmsProjects.length === 0;
+  const isWaitingForProjects = (isLoading || isError) && cmsProjects.length === 0;
 
   const {
     location,
@@ -237,14 +239,29 @@ export default function Projects() {
                   <div className="h-20 w-20 rounded-full bg-neutral-50 flex items-center justify-center mb-6">
                     <Filter className="h-8 w-8 text-neutral-200" />
                   </div>
-                  <h3 className="text-xl font-black text-neutral-950">No matches found</h3>
-                  <p className="mt-2 text-neutral-500">Adjust your filters to explore our full portfolio.</p>
-                  <button
-                    onClick={() => { setLocation(FILTER_ALL); setSector(FILTER_ALL); setYear(FILTER_ALL); }}
-                    className="mt-8 text-sm font-black uppercase tracking-widest text-brand hover:text-brand-dark"
-                  >
-                    Reset all filters
-                  </button>
+                  {isError && cmsProjects.length === 0 ? (
+                    <>
+                      <h3 className="text-xl font-black text-neutral-950">Server is warming up&hellip;</h3>
+                      <p className="mt-2 text-neutral-500">The portfolio is loading. Please wait a moment.</p>
+                      <button
+                        onClick={() => refetch()}
+                        className="mt-8 text-sm font-black uppercase tracking-widest text-brand hover:text-brand-dark"
+                      >
+                        Retry now
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="text-xl font-black text-neutral-950">No matches found</h3>
+                      <p className="mt-2 text-neutral-500">Adjust your filters to explore our full portfolio.</p>
+                      <button
+                        onClick={() => { setLocation(FILTER_ALL); setSector(FILTER_ALL); setYear(FILTER_ALL); }}
+                        className="mt-8 text-sm font-black uppercase tracking-widest text-brand hover:text-brand-dark"
+                      >
+                        Reset all filters
+                      </button>
+                    </>
+                  )}
                 </motion.div>
               ) : viewMode === "grid" ? (
                 <motion.div 

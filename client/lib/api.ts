@@ -2,9 +2,12 @@ import type { ContactSubmission, NewsArticle, ProjectDoc, SubscriptionDoc, Persp
 
 /** Netlify (or any static host): set to Render API origin, e.g. https://t-w-quantus.onrender.com — no trailing slash. */
 const API_BASE = (import.meta.env.VITE_PUBLIC_API_URL ?? "").replace(/\/$/, "");
-/** Render cold starts + Mongo connect can exceed 15s on first wake; keep below React Query retry budget. */
-const FETCH_TIMEOUT_MS = 20000;
-const MUTATION_TIMEOUT_MS = 20000;
+/**
+ * Render free-tier cold starts can take 30-50 s on first wake.
+ * We use a generous timeout so the data loads instead of silently failing.
+ */
+const FETCH_TIMEOUT_MS = 40000;
+const MUTATION_TIMEOUT_MS = 30000;
 const PUBLIC_CACHE_PREFIX = "twq_public_cache:";
 const PUBLIC_CACHE_MAX_AGE_MS = 30 * 60 * 1000;
 

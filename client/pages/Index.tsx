@@ -25,10 +25,12 @@ export default function Index() {
   const [activeService, setActiveService] = useState(0);
   const [activeNewsSlide, setActiveNewsSlide] = useState(0);
 
-  const { data: projects = [], isLoading: isProjectsLoading, isError: isProjectsError } = useQuery<ProjectDoc[]>({
+  const { data: projects = [], isLoading: isProjectsLoading, isError: isProjectsError, refetch: refetchProjects } = useQuery<ProjectDoc[]>({
     queryKey: ["projects", "published", "home"],
     queryFn: fetchPublishedProjects,
     placeholderData: () => placeholderPublicList<ProjectDoc>("/api/projects"),
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 15000),
   });
 
   // Latest 4 projects for the home page
@@ -62,7 +64,7 @@ export default function Index() {
   const hasNewsContent = (newsData?.articles?.length ?? 0) > 0;
   const hasLatestContent = hasPerspectiveContent || hasNewsContent;
   const isLoading = isNewsLoading || isPerspectivesLoading;
-  const isWaitingForProjects = isProjectsLoading && projects.length === 0;
+  const isWaitingForProjects = (isProjectsLoading || isProjectsError) && projects.length === 0;
 
   const perspectivesItems = dynamicPerspectives.map((p: PerspectiveDoc) => {
     const pDate = new Date(p.date);
@@ -281,8 +283,16 @@ export default function Index() {
               transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
             />
             <p className="text-[0.65rem] font-black uppercase tracking-[0.3em] text-brand-light/60">
-              Loading Projects…
+              {isProjectsError ? "Warming up server…" : "Loading Projects…"}
             </p>
+            {isProjectsError && (
+              <button
+                onClick={() => refetchProjects()}
+                className="mt-2 text-[0.65rem] font-black uppercase tracking-widest text-brand-light/40 underline hover:text-brand-light transition"
+              >
+                Retry
+              </button>
+            )}
           </div>
         ) : (
           latestProjects.map((project, index) => {
