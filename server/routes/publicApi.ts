@@ -1,16 +1,15 @@
 /**
  * publicApi.ts — Public-facing read-only API.
  *
- * ALL read endpoints — list pages, home-page sections, AND individual detail
- * pages — are served from the in-memory background cache in dataCache.ts.
- * Zero DB round-trip on any public request. Data is pre-warmed on boot and
- * continuously refreshed every 2 min (projects/perspectives) / 5 min (news).
+ * Strategy: cache-first, always-DB fallback.
+ *   • The background cache (dataCache.ts) warms on boot and polls every 2 min
+ *     (projects/perspectives) / 5 min (news).  When the cache is populated,
+ *     every request is served from RAM — zero DB round-trip.
+ *   • If the cache is empty or a slug is not found in the map, a live DB query
+ *     is ALWAYS performed.  This guarantees the UI displays real data even
+ *     during boot, cold-starts, dev mode, or any cache warm-up delay.
  *
- * Cache-miss fallback: if an item isn't in the slug map yet (brand-new publish
- * before the next poll), the route falls back to a live DB query so nothing
- * is ever "missing" immediately after publishing.
- *
- * Write endpoints (POST /contact, /newsletter) always go live to the DB.
+ * Write endpoints (POST /contact, /newsletter) always go directly to the DB.
  */
 
 import { Router } from "express";
@@ -25,7 +24,19 @@ import {
   type NewsArticle,
 } from "../lib/dataCache";
 
-const DB_MAX_TIME_MS = 12000;
+const DB_MAX_TIME_MS = 12_000;
+const DB_LIST_LIMIT  = 100;
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function dbError(e: unknown): { status: number; message: string } {
+  const msg = e instanceof Error ? e.message : String(e);
+  if (msg.includes("MONGODB_URI")) return { status: 503, message: "Database not configured" };
+  if (msg.includes("timed out") || msg.includes("MongoServerSelection")) {
+    return { status: 503, message: "Database temporarily unavailable" };
+  }
+  return { status: 500, message: msg };
+}
 
 // ─── Service-news keyword filter ──────────────────────────────────────────────
 
@@ -81,110 +92,110 @@ function filterServiceNews(articles: NewsArticle[], service?: ServiceSlug): News
 
 export function createPublicApiRouter() {
   const r = Router();
-  const BOOT_TIME = Date.now(); // used to gate DB fallback to boot grace window
 
-  // ── GET /projects — served from background cache (instant) ────────────────
-  r.get("/projects", (_req, res) => {
-    // Short max-age: the real freshness is guaranteed by the server-side poller.
+  // ── GET /projects ─────────────────────────────────────────────────────────
+  r.get("/projects", async (_req, res) => {
     res.setHeader("Cache-Control", "public, max-age=120, stale-while-revalidate=300");
-    const projects = getCachedProjects();
-    res.json(projects);
+
+    // Serve from in-memory cache when populated (the fast path)
+    const cached = getCachedProjects();
+    if (cached.length > 0) {
+      res.json(cached);
+      return;
+    }
+
+    // Cache empty — go directly to the database
+    try {
+      const db  = await getDb();
+      const raw = await db
+        .collection("projects")
+        .find({ published: true })
+        .maxTimeMS(DB_MAX_TIME_MS)
+        .sort({ sortOrder: 1, createdAt: -1 })
+        .limit(DB_LIST_LIMIT)
+        .toArray();
+      res.json(raw.map((d) => serializeProject(d)).filter(Boolean));
+    } catch (e) {
+      const { status, message } = dbError(e);
+      res.status(status).json({ error: message });
+    }
   });
 
-  // ── GET /projects/:slug — cache-first, 404 guard, boot-only DB fallback ──
+  // ── GET /projects/:slug ───────────────────────────────────────────────────
   r.get("/projects/:slug", async (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=120, stale-while-revalidate=300");
     const slug = String(req.params.slug ?? "").trim();
-    if (!slug) {
-      res.status(400).json({ error: "Invalid slug" });
-      return;
-    }
+    if (!slug) { res.status(400).json({ error: "Invalid slug" }); return; }
 
-    // ① Hit — return from slug map immediately (no DB)
+    // Serve from cache when available
     const hit = getCachedProjectBySlug(slug);
-    if (hit) {
-      res.json(hit);
-      return;
-    }
+    if (hit) { res.json(hit); return; }
 
-    // ② Miss — only attempt a live DB fallback in the first 30 s after boot
-    //    (covers the window before the initial warm-up finishes).
-    //    After that the cache is authoritative: miss = 404, no DB call at all.
-    const BOOT_GRACE_MS = 30_000;
-    if (Date.now() - BOOT_TIME > BOOT_GRACE_MS) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-
+    // Not in cache — query the database directly
     try {
-      const db = await getDb();
+      const db  = await getDb();
       const doc = await db
         .collection("projects")
         .findOne({ slug, published: true }, { maxTimeMS: DB_MAX_TIME_MS });
       const out = serializeProject(doc);
-      if (!out) {
-        res.status(404).json({ error: "Not found" });
-        return;
-      }
+      if (!out) { res.status(404).json({ error: "Not found" }); return; }
       res.json(out);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      if (msg.includes("MONGODB_URI")) {
-        res.status(503).json({ error: "Database not configured" });
-        return;
-      }
-      res.status(500).json({ error: msg });
+      const { status, message } = dbError(e);
+      res.status(status).json({ error: message });
     }
   });
 
-  // ── GET /perspectives — served from background cache (instant) ────────────
-  r.get("/perspectives", (_req, res) => {
+  // ── GET /perspectives ─────────────────────────────────────────────────────
+  r.get("/perspectives", async (_req, res) => {
     res.setHeader("Cache-Control", "public, max-age=120, stale-while-revalidate=300");
-    const perspectives = getCachedPerspectives();
-    res.json(perspectives);
+
+    // Serve from in-memory cache when populated
+    const cached = getCachedPerspectives();
+    if (cached.length > 0) {
+      res.json(cached);
+      return;
+    }
+
+    // Cache empty — go directly to the database
+    try {
+      const db  = await getDb();
+      const raw = await db
+        .collection("perspectives")
+        .find({ published: true })
+        .maxTimeMS(DB_MAX_TIME_MS)
+        .sort({ sortOrder: 1, createdAt: -1 })
+        .limit(DB_LIST_LIMIT)
+        .toArray();
+      res.json(raw.map((d) => serializePerspective(d)).filter(Boolean));
+    } catch (e) {
+      const { status, message } = dbError(e);
+      res.status(status).json({ error: message });
+    }
   });
 
-  // ── GET /perspectives/:slug — cache-first, 404 guard, boot-only DB fallback
+  // ── GET /perspectives/:slug ───────────────────────────────────────────────
   r.get("/perspectives/:slug", async (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=120, stale-while-revalidate=300");
     const slug = String(req.params.slug ?? "").trim();
-    if (!slug) {
-      res.status(400).json({ error: "Invalid slug" });
-      return;
-    }
+    if (!slug) { res.status(400).json({ error: "Invalid slug" }); return; }
 
-    // ① Hit — return from slug map immediately
+    // Serve from cache when available
     const hit = getCachedPerspectiveBySlug(slug);
-    if (hit) {
-      res.json(hit);
-      return;
-    }
+    if (hit) { res.json(hit); return; }
 
-    // ② Miss — only use DB fallback within 30 s of boot; after that, 404 instantly
-    const BOOT_GRACE_MS = 30_000;
-    if (Date.now() - BOOT_TIME > BOOT_GRACE_MS) {
-      res.status(404).json({ error: "Not found" });
-      return;
-    }
-
+    // Not in cache — query the database directly
     try {
-      const db = await getDb();
+      const db  = await getDb();
       const doc = await db
         .collection("perspectives")
         .findOne({ slug, published: true }, { maxTimeMS: DB_MAX_TIME_MS });
       const out = serializePerspective(doc);
-      if (!out) {
-        res.status(404).json({ error: "Not found" });
-        return;
-      }
+      if (!out) { res.status(404).json({ error: "Not found" }); return; }
       res.json(out);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      if (msg.includes("MONGODB_URI") || msg.includes("timed out") || msg.includes("MongoServerSelection")) {
-        res.status(503).json({ error: "Database temporarily unavailable" });
-        return;
-      }
-      res.status(500).json({ error: msg });
+      const { status, message } = dbError(e);
+      res.status(status).json({ error: message });
     }
   });
 
@@ -196,26 +207,22 @@ export function createPublicApiRouter() {
         res.status(400).json({ error: "name, email, and message are required" });
         return;
       }
-      const db = await getDb();
+      const db  = await getDb();
       const now = new Date();
       const doc = {
-        name:    String(name).trim(),
-        email:   String(email).trim(),
-        phone:   phone   ? String(phone).trim()   : "",
-        service: service ? String(service).trim() : "",
-        message: String(message).trim(),
-        source:  "contact_page",
+        name:      String(name).trim(),
+        email:     String(email).trim(),
+        phone:     phone    ? String(phone).trim()    : "",
+        service:   service  ? String(service).trim()  : "",
+        message:   String(message).trim(),
+        source:    "contact_page",
         createdAt: now,
       };
       const result = await db.collection("contacts").insertOne(doc);
       res.json({ ok: true, id: String(result.insertedId) });
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      if (msg.includes("MONGODB_URI")) {
-        res.status(503).json({ error: "Database not configured" });
-        return;
-      }
-      res.status(500).json({ error: msg });
+      const { status, message } = dbError(e);
+      res.status(status).json({ error: message });
     }
   });
 
@@ -227,7 +234,7 @@ export function createPublicApiRouter() {
         res.status(400).json({ error: "Valid email required" });
         return;
       }
-      const db = await getDb();
+      const db  = await getDb();
       const now = new Date();
       try {
         await db.collection("subscriptions").insertOne({
@@ -238,32 +245,24 @@ export function createPublicApiRouter() {
       } catch (err: unknown) {
         const code =
           err && typeof err === "object" && "code" in err
-            ? (err as { code: number }).code
-            : 0;
-        if (code === 11000) {
-          res.json({ ok: true, duplicate: true });
-          return;
-        }
+            ? (err as { code: number }).code : 0;
+        if (code === 11000) { res.json({ ok: true, duplicate: true }); return; }
         throw err;
       }
       res.json({ ok: true });
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      if (msg.includes("MONGODB_URI")) {
-        res.status(503).json({ error: "Database not configured" });
-        return;
-      }
-      res.status(500).json({ error: msg });
+      const { status, message } = dbError(e);
+      res.status(status).json({ error: message });
     }
   });
 
-  // ── GET /news — full feed from background cache ───────────────────────────
+  // ── GET /news ─────────────────────────────────────────────────────────────
   r.get("/news", (_req, res) => {
     res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
     res.json(getCachedNews());
   });
 
-  // ── GET /news/services — filtered feed from background cache ─────────────
+  // ── GET /news/services ────────────────────────────────────────────────────
   r.get("/news/services", (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
 
@@ -273,14 +272,10 @@ export function createPublicApiRouter() {
       ? (serviceParam as ServiceSlug)
       : undefined;
 
-    const cached = getCachedNews();
+    const cached   = getCachedNews();
     const filtered = filterServiceNews(cached.articles as NewsArticle[], service).slice(0, 12);
 
-    res.json({
-      ...cached,
-      articles: filtered,
-      service: service ?? null,
-    });
+    res.json({ ...cached, articles: filtered, service: service ?? null });
   });
 
   return r;

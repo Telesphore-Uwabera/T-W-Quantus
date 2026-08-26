@@ -23,6 +23,7 @@ import type { ReactNode } from "react";
 import { toast } from "sonner";
 import { company, navigation, services } from "@/data/site";
 import { submitNewsletter, fetchPublishedPerspectives, placeholderPublicList } from "@/lib/api";
+import type { PerspectiveDoc } from "@shared/cms";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
@@ -108,10 +109,10 @@ const baseSearchItems: SearchItem[] = [
 ];
 
 export function Layout({ children }: LayoutProps) {
-  const { data: dynamicPerspectives = [] } = useQuery({
+  const { data: dynamicPerspectives = [] } = useQuery<PerspectiveDoc[]>({
     queryKey: ["perspectives", "public"],
     queryFn: fetchPublishedPerspectives,
-    placeholderData: () => placeholderPublicList("/api/perspectives"),
+    placeholderData: () => placeholderPublicList<PerspectiveDoc>("/api/perspectives"),
   });
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);

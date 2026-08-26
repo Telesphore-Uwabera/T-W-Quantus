@@ -44,7 +44,11 @@ function expressPlugin(): Plugin {
     async configureServer(server) {
       // Dynamic import so `vite build` does not load `server/loadEnv` (backend secrets stay out of the client bundle env).
       const { createServer } = await import("./server/index");
+      const { startDataCache } = await import("./server/lib/dataCache");
       server.middlewares.use(createServer());
+      // Warm up the in-memory cache immediately, just like node-build.ts does in production.
+      // Without this, all /api/projects and /api/perspectives calls return [] in dev mode.
+      startDataCache();
     },
   };
 }
