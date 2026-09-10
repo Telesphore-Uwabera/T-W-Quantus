@@ -41,11 +41,46 @@ export type NewsPayload = {
 
 // ─── Intervals ────────────────────────────────────────────────────────────────
 
-const DB_POLL_INTERVAL_MS   = 2 * 60 * 1000; // 2 min
-const NEWS_POLL_INTERVAL_MS = 5 * 60 * 1000; // 5 min
+const DB_POLL_INTERVAL_MS   = 2 * 60 * 1000;  // 2 min
+const NEWS_POLL_INTERVAL_MS = 5 * 60 * 1000;  // 5 min
 const DB_MAX_TIME_MS        = 12000;
 const PUBLIC_LIST_LIMIT     = 100;
 const NEWS_API_TIMEOUT_MS   = 8000;
+
+/**
+ * Render free tier spins down after ~15 minutes of inactivity, killing the
+ * background setInterval pollers.  We self-ping every 14 minutes so the
+ * process never sleeps and projects / perspectives / news stay live.
+ *
+ * The URL is resolved from (in order):
+ *   1. RENDER_EXTERNAL_URL  — set automatically by Render for every service
+ *   2. PUBLIC_API_URL       — our own env var (server/.env / dashboard)
+ * If neither is set (local dev) keep-alive is skipped silently.
+ */
+const KEEP_ALIVE_INTERVAL_MS = 14 * 60 * 1000; // 14 min
+
+function startKeepAlive(): void {
+  const base =
+    process.env.RENDER_EXTERNAL_URL ??
+    process.env.PUBLIC_API_URL;
+
+  if (!base) {
+    console.log("[keep-alive] no RENDER_EXTERNAL_URL / PUBLIC_API_URL — skipping (local dev)");
+    return;
+  }
+
+  const pingUrl = `${base.replace(/\/$/, "")}/api/ping`;
+  console.log(`[keep-alive] self-ping every ${KEEP_ALIVE_INTERVAL_MS / 60_000} min → ${pingUrl}`);
+
+  setInterval(async () => {
+    try {
+      const res = await fetch(pingUrl, { signal: AbortSignal.timeout(10_000) });
+      console.log(`[keep-alive] ping ${res.ok ? "ok" : "non-2xx " + res.status}`);
+    } catch (err) {
+      console.warn("[keep-alive] ping failed:", err instanceof Error ? err.message : err);
+    }
+  }, KEEP_ALIVE_INTERVAL_MS);
+}
 
 // ─── In-memory snapshots ──────────────────────────────────────────────────────
 
@@ -296,6 +331,9 @@ export function startDataCache(): void {
     `[cache] polling: projects+perspectives every ${DB_POLL_INTERVAL_MS / 1000}s, ` +
     `news every ${NEWS_POLL_INTERVAL_MS / 1000}s`,
   );
+
+  // Keep Render free-tier awake so the pollers above never stop.
+  startKeepAlive();
 }
 
 /**
