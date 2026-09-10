@@ -41,3 +41,6 @@ client/.env.local
 
 # Local Netlify folder
 .netlify
+
+# Scratch
+scratch/

@@ -8,7 +8,7 @@
   PNPM_VERSION = "10.14.0"
   # Points the client bundle directly at the Render API so no Netlify proxy hop is needed.
   # This must be set here (or in Netlify dashboard) because client/.env is gitignored.
-  VITE_PUBLIC_API_URL = "https://teletech-api.onrender.com"
+  VITE_PUBLIC_API_URL = "https://t-w-quantus-3ut3.onrender.com"
 
 [functions]
   external_node_modules = ["express"]
@@ -17,7 +17,7 @@
 # Proxy API to Render (backend). Browser stays on twquantus.netlify.app; no CORS for /api.
 [[redirects]]
   from = "/api/*"
-  to = "https://teletech-api.onrender.com/api/:splat"
+  to = "https://t-w-quantus-3ut3.onrender.com/api/:splat"
   status = 200
   force = true
 

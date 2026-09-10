@@ -1,6 +1,6 @@
 import type { ContactSubmission, NewsArticle, ProjectDoc, SubscriptionDoc, PerspectiveDoc } from "@shared/cms";
 
-/** Netlify (or any static host): set to Render API origin, e.g. https://t-w-quantus.onrender.com — no trailing slash. */
+/** Netlify (or any static host): set to Render API origin, e.g. https://t-w-quantus-3ut3.onrender.com — no trailing slash. */
 const API_BASE = (import.meta.env.VITE_PUBLIC_API_URL ?? "").replace(/\/$/, "");
 /**
  * Render free-tier cold starts can take 30-50 s on first wake.
